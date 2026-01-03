@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WestLane</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Bootstrap CSS -->
+<link 
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+  rel="stylesheet">
+
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #222;
+      background: #fff;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      width: 100%;
+      display: block;
+    }
+
+    /* ---------------- HEADER ---------------- */
+    header {
+      border-bottom: 1px solid #eee;
+      padding: 18px 60px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .search {
+      flex: 1;
+      margin: 0 40px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 18px;
+      font-size: 14px;
+    }
+
+    nav {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      font-size: 14px;
+    }
+
+    /* ---------------- HERO ---------------- */
+    .hero {
+      padding: 40px 60px;
+    }
+
+    .hero img {
+      max-height: 650px;
+      object-fit: cover;
+    }
+
+    /* ---------------- EXPLORE MORE ---------------- */
+    .explore {
+      text-align: center;
+      margin: 40px 0 20px;
+      font-size: 14px;
+    }
+
+    /* ---------------- PRODUCT GRID ---------------- */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      padding: 0 60px;
+    }
+
+    .product-card {
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .product-card p {
+      margin-top: 10px;
+      color: #555;
+    }
+
+    /* ---------------- SECTION TITLE ---------------- */
+    .section-title {
+      padding: 60px 60px 20px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      color: #777;
+    }
+
+    /* ---------------- FOOTER INFO ---------------- */
+    .info {
+      background: #f7f7f7;
+      padding: 60px;
+      text-align: center;
+    }
+
+    .info h3 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 400;
+      margin-bottom: 14px;
+    }
+
+    .info p {
+      max-width: 600px;
+      margin: 0 auto 40px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      font-size: 13px;
+    }
+
+    /* ---------------- FOOTER ---------------- */
+    footer {
+      padding: 60px;
+      border-top: 1px solid #eee;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 40px;
+      font-size: 13px;
+    }
+
+    footer h4 {
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    footer ul {
+      list-style: none;
+    }
+
+    footer li {
+      margin-bottom: 8px;
+      color: #555;
+    }
+    .store-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.store-badge {
+  height: 36px;   
+  width: auto;
+}
+
+
+    /* ---------------- RESPONSIVE ---------------- */
+    @media (max-width: 900px) {
+      .product-grid,
+      .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      footer {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        padding: 20px;
+      }
+
+      .hero,
+      .product-grid,
+      .section-title {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-top">
+      <div class="logo">WestLane</div>
+
+      <div class="search">
+        <input type="text" placeholder="What are you looking for?" />
+      </div>
+
+      <div class="header-icons">
+        <span>Sign in</span>
+        <span>♡</span>
+        <span>👜</span>
+        <span>☰</span>
+      </div>
+    </div>
+
+    <nav>
+      <a href="#">All</a>
+      <a href="#">Men</a>
+      <a href="#">Women</a>
+      <a href="#">Kids</a>
+      <a href="#">Accessories</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+  <img  src="/public/images/default-hero.jpg"></section>
+
+  <!-- EXPLORE -->
+  <div class="explore">Explore More →</div>
+
+  <!-- PRODUCTS -->
+  <section class="product-grid">
+    <div class="product-card">
+      <img src="/public/images/Rectangle 325.jpg">
+      <p>ZWV reversible angora cardigan</p>
+    </div>
+    <div class="product-card">
+      <img src="/public/images/expm2.jpg">
+      <p>Clothing bag</p>
+    </div>
+    <div class="product-card">
+      <img src="/public/images/expm3.jpg">
+      <p>ZWV reversible angora cardigan</p>
+    </div>
+    <div class="product-card">
+      <img src="/public/images/expm4.jpg">
+      <p>ZWV reversible angora cardigan</p>
+    </div>
+  </section>
+
+  <!-- CELEBRITY -->
+  <div class="section-title">CELEBRITY APPROVED STYLES</div>
+
+  <section class="hero">
+    <img src="/public/images/pexels-aksioart-1926769.jpg">
+  </section>
+
+  <!-- OLD MONEY -->
+  <div class="section-title">OLD MONEY</div>
+
+  <section class="product-grid">
+    <div class="product-card">
+      <img src="/public/images/Rectangle 325.jpg">
+      <p>ZWV reversible angora cardigan</p>
+    </div>
+    <div class="product-card">
+      <img src="/public/images/expm2.jpg">
+      <p>Linen espada</p>
+    </div>
+    <div class="product-card">
+      <img src="/public/images/expm3.jpg">
+      <p>ZWV reversible angora cardigan</p>
+    </div>
+    <div class="product-card">
+      <img src="/public/images/expm4.jpg">
+      <p>ZWV reversible angora cardigan</p>
+    </div>
+  </section>
+
+  <!-- INFO -->
+  <section class="info">
+    <h3>WestLane</h3>
+    <p>Making a luxurious lifestyle accessible for a generous group of women is our daily drive.</p>
+
+    <div class="info-grid">
+      <div>Fast shipping. Free on orders over $25.</div>
+      <div>Sustainable process from start to finish.</div>
+      <div>Unique designs and high-quality materials.</div>
+      <div>Fast shipping. Free on orders over $25.</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <div class="logo">WestLane</div>
+      <div class="store-buttons mt-3">
+  <a href="#" target="_blank">
+    <img 
+      src="/public/images/Download_on_the_App_Store_Badge.svg.png" 
+      alt="Download on the App Store"
+      class="store-badge"
+    >
+  </a>
+
+  <a href="#" target="_blank">
+    <img 
+      src="/public/images/playstore.png" 
+      alt="Get it on Google Play"
+      class="store-badge"
+    >
+  </a>
+</div>
+
+    </div>
+
+    <div>
+      <h4>SHOP</h4>
+      <ul>
+        <li>Women</li>
+        <li>Men</li>
+        <li>Kids</li>
+        <li>Home</li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>SITES & STORES</h4>
+      <ul>
+        <li>About Us</li>
+        <li>Contact Us</li>
+        <li>Terms and Condition</li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+<script 
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+</body>
+</html>
