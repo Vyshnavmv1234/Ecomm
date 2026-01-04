@@ -1,0 +1,105 @@
+
+  <%-include("../../views/partials/user/header")%>
+
+
+  <!-- SIGNUP CARD -->
+  <main class="auth-container">
+    <form method="post" action="/user/signup" class="signup-card" id="signupForm" novalidate>
+
+  <h2>Signup</h2>
+
+  <!-- Full Name -->
+  <div class="form-group">
+    <label for="username">Full Name</label>
+    <input
+      type="text"
+      id="username"
+      name="name"
+      class="form-control"
+      placeholder="Enter Name"
+      required
+      minlength="3"
+    >
+  </div>
+
+  <!-- Email -->
+  <div class="form-group">
+    <label for="email">Email address</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      class="form-control"
+      placeholder="Enter email"
+      required
+    >
+  </div>
+
+  <!-- Phone -->
+  <div class="form-group">
+    <label for="phone">Phone Number</label>
+    <input
+      type="tel"
+      id="phone"
+      name="phone"
+      class="form-control"
+      placeholder="Enter phone"
+      pattern="[0-9]{10}"
+    >
+  </div>
+
+  <!-- Password -->
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      class="form-control"
+      placeholder="Password"
+      required
+      minlength="6"
+    >
+  </div>
+
+  <!-- Confirm Password -->
+  <div class="form-group">
+    <label for="confirmPassword">Confirm Password</label>
+    <input
+      type="password"
+      id="confirmPassword"
+      name="cPassword"
+      class="form-control"
+      placeholder="Confirm Password"
+      required
+    >
+  </div>
+
+  <!-- Error -->
+  <p class="form-error" id="formError"></p>
+
+  <!-- Submit -->
+  <button type="submit" class="signup-btn">Signup</button>
+  <p class="login-text">
+  Already have an account? <a href="/login">Login Now</a>
+</p>
+
+<div class="divider"></div>
+
+<button type="button" class="google-btn">
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
+    alt="Google"
+  >
+  Continue with Google
+</button>
+
+
+</form>
+
+
+  </main>
+
+   <%-include("../../views/partials/user/footer")%>
+
+  

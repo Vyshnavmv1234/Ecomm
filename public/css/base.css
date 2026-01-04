@@ -1,0 +1,195 @@
+/* =========================
+   CSS RESET / BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  background-color: #ffffff;
+  color: #222;
+  line-height: 1.5;
+}
+
+/* =========================
+   GLOBAL ELEMENTS
+========================= */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+  outline: none;
+}
+
+/* =========================
+   GLOBAL LAYOUT WRAPPER
+========================= */
+.wl-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* =========================
+   HEADER / NAVBAR
+========================= */
+.wl-header {
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.wl-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+/* LOGO */
+.wl-logo {
+  font-size: 26px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wl-logo span {
+  font-weight: 300;
+}
+
+/* SEARCH BAR */
+.wl-search {
+  flex: 1;
+}
+
+.wl-search input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* RIGHT ICONS */
+.wl-nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+/* =========================
+   CATEGORY BAR
+========================= */
+.wl-categories {
+  border-bottom: 1px solid #eee;
+}
+
+.wl-categories-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px;
+
+  display: flex;
+  gap: 26px;
+  font-size: 14px;
+}
+
+.wl-categories a {
+  cursor: pointer;
+  color: #333;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+main {
+  min-height: calc(100vh - 200px);
+}
+
+/* =========================
+   FOOTER
+========================= */
+.wl-footer {
+  border-top: 1px solid #eee;
+  padding: 50px 0;
+  background: #fff;
+}
+
+.wl-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.wl-footer-logo {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.wl-footer-logo span {
+  font-weight: 300;
+}
+
+.wl-footer-section h4 {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.wl-footer-section p {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* SOCIAL ICONS */
+.wl-socials i {
+  margin-right: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+/* =========================
+   UTILITIES
+========================= */
+.text-center {
+  text-align: center;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}

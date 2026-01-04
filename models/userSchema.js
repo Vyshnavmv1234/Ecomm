@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 const {Schema} = mongoose
 
 const userSchema = new Schema({
-  username: {
+  name: {
     type: String,
     required: true,
   },
@@ -19,7 +19,7 @@ const userSchema = new Schema({
   },
   googleId: {
     type: String,
-    unique: true
+    unique: false
   },
   password: {
     type: String,

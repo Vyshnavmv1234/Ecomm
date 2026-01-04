@@ -25,7 +25,7 @@ db()
 
 const PORT = process.env.PORT
 
-app.use("/user",userRouter)
+app.use("/user",userRouter)   
   
 app.listen(PORT,()=>console.log("Server running..."))
     

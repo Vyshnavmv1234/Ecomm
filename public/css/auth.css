@@ -1,0 +1,150 @@
+/* =========================
+   PAGE CONTAINER
+========================= */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+/* =========================
+   SIGNUP CARD
+========================= */
+.signup-card {
+  width: 420px;
+  padding: 40px;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+/* TITLE */
+.signup-card h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #8a8a8a;
+  margin-bottom: 28px;
+}
+
+/* =========================
+   FORM GROUP
+========================= */
+.form-group {
+  margin-bottom: 18px;
+}
+
+/* LABEL */
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: #7a7a7a;
+  margin-bottom: 6px;
+}
+
+/* INPUT */
+.form-control {
+  width: 100%;
+  padding: 12px 14px;
+
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+}
+
+.form-control::placeholder {
+  color: #9aa0a6;
+}
+
+.form-control:focus {
+  border-color: #cbbcbc;
+}
+
+/* =========================
+   ERROR MESSAGE
+========================= */
+.form-error {
+  color: #d9534f;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+/* =========================
+   SIGNUP BUTTON
+========================= */
+.signup-btn {
+  width: 100%;
+  padding: 14px;
+
+  border-radius: 12px;
+  border: none;
+
+  background: #cbbcbc;
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+
+  margin-top: 10px;
+}
+/* =========================
+   LOGIN TEXT
+========================= */
+.login-text {
+  text-align: center;
+  font-size: 14px;
+  margin: 18px 0;
+  color: #444;
+}
+
+.login-text a {
+  color: #b89b9b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* =========================
+   DIVIDER LINE
+========================= */
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 20px 0;
+}
+
+/* =========================
+   GOOGLE BUTTON
+========================= */
+.google-btn {
+  width: 100%;
+  padding: 12px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #e9ecec;
+  color: #444;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.google-btn img {
+  width: 18px;
+}
+
+
+/* =========================
+   OPTIONAL (HOVER)
+========================= */
+.signup-btn:hover {
+  background: #bfaeae;
+}
