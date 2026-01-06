@@ -62,6 +62,15 @@
   border-color: #cbbcbc;
 }
 
+.error-message {
+  color: red;
+  font-size: 13px;
+  margin-top: 5px;
+  display: none;   /* hidden by default */
+}
+
+
+
 /* =========================
    ERROR MESSAGE
 ========================= */
@@ -74,6 +83,15 @@
 /* =========================
    SIGNUP BUTTON
 ========================= */
+.error {
+  color: #b00020;
+  background: #fdecea;
+  border: 1px solid #f5c2c7;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin: 12px 0;
+}
 .signup-btn {
   width: 100%;
   padding: 14px;

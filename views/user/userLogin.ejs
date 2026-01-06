@@ -1,0 +1,62 @@
+  <%-include("../../views/partials/user/header")%>
+
+
+  <!-- LOGIN CARD -->
+  <main class="main">
+    <div class="login-card">
+      <h2>Login</h2>
+
+       <form method="post" action="/user/login">
+
+      <label>Email</label>
+      <div class="input-box">
+        <input 
+          type="email" 
+          name="email" 
+          placeholder="Enter your email" 
+          required 
+        />
+      </div>
+
+      <label>Password</label>
+      <div class="input-box">
+        <input 
+          type="password" 
+          name="password" 
+          placeholder="Enter your password" 
+          required 
+        />
+        <span class="eye">👁</span>
+      </div>
+
+      <%if(message){%>
+        <div class="error">
+          <%=message%>
+      </div><%}%>
+
+
+      <a href="#" class="forgot">Forgot password?</a>
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+      
+
+      <div class="divider">
+        <span></span>
+        <p>OR</p>
+        <span></span>
+      </div>
+
+      <a href="/user/auth/google" class="google-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+        Continue with Google
+      </a>
+
+      <p class="signup">
+        Don’t have an account?
+        <a href="#">Sign up now</a>
+      </p>
+    </div>
+  </main>
+
+    <%-include("../../views/partials/user/footer")%>

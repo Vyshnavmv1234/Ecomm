@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OTP Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #e6e6e6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .otp-card {
+      background: #ececec;
+      padding: 40px 35px;
+      width: 380px;
+      text-align: center;
+      border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .otp-card h2 {
+      margin: 0;
+      letter-spacing: 1px;
+      font-size: 22px;
+    }
+
+    .otp-card p {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .otp-input {
+      margin: 30px 0 20px;
+    }
+
+    .otp-input input {
+      width: 100%;
+      padding: 15px;
+      font-size: 20px;
+      letter-spacing: 6px;
+      text-align: center;
+      border-radius: 8px;
+      border: 1px solid #bbb;
+      outline: none;
+      background: #fff;
+    }
+
+    .otp-input input:focus {
+      border-color: #a08c8c;
+    }
+
+    .verify-btn {
+      width: 100%;
+      padding: 12px;
+      background: #c5b2b2;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .verify-btn:hover {
+      background: #b09c9c;
+    }
+
+    .resend-text {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .resend-text button {
+      background: none;
+      border: none;
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .resend-text button:disabled {
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .timer {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="otp-card">
+    <h2>ENTER OTP</h2>
+    <p>We have sent an OTP verification<br>code to your email</p>
+
+    <form id="otpForm">
+      <div class="otp-input">
+        <input
+          type="text"
+          id="otp"
+          maxlength="6"
+          
+          required
+        />
+      </div>
+
+      <button type="submit" class="verify-btn">Verify</button>
+    </form>
+
+    <div class="resend-text">
+      didn’t receive the code?
+      <button id="resendBtn" onclick="resendOtp()" disabled>resend code</button>
+    </div>
+
+    <div class="timer">
+      Resend available in <span id="timer">01:00</span>
+    </div>
+  </div>
+
+<script>
+  const otpInput = document.getElementById("otp");
+  const resendBtn = document.getElementById("resendBtn");
+  const timerEl = document.getElementById("timer");
+
+  let timeLeft = 60;
+  let interval;
+
+  function startTimer() {
+    resendBtn.disabled = true;
+    timeLeft = 60;
+
+    interval = setInterval(() => {
+      timeLeft--;
+
+      timerEl.textContent =
+        "00:" + String(timeLeft).padStart(2, "0");
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        resendBtn.disabled = false;
+        timerEl.textContent = "00:00";
+      }
+    }, 1000);
+  }
+
+  startTimer();
+
+  document.getElementById("otpForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const otp = otpInput.value.trim();
+
+    if (otp.length !== 6) {
+      alert("Please enter a valid 6-digit OTP");
+      return;
+    }
+
+    try {
+      const res = await fetch("/user/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ otp })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Invalid OTP");
+        return;
+      }
+
+      window.location.href = data.redirectUrl;
+    } catch (err) {
+      alert("Something went wrong");
+    }
+  });
+
+  async function resendOtp() {
+    try {
+      const res = await fetch("/user/resent-otp", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Failed to resend OTP");
+        return;
+      }
+
+      alert("OTP resent successfully");
+      clearInterval(interval);
+      startTimer();
+    } catch (err) {
+      alert("Something went wrong");
+    }
+  }
+</script>
+
+</body>
+</html>
