@@ -19,7 +19,7 @@ const getForgotPassword = async(req,res)=>{
 
     res.render("user/forgotPasswordEmail",{user:null,message:null})
     
-  } catch (error) {
+  } catch (error) {  
     console.log(error)
   }
 }

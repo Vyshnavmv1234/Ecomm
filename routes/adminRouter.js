@@ -8,7 +8,7 @@ import categoryController from "../controllers/admin/categoryController.js"
 
 const router = express.Router()
 
-//LOGIN MANAGEMENT
+//AUTH MANAGEMENT
 
 router.get("/adminLogin",adminController.loadLogin)
 router.post("/adminLogin",adminController.postLogin)
@@ -19,8 +19,8 @@ router.get("/logout",adminController.logout)
 //CUSTOMER MANAGEMENT
 
 router.get("/users",adminAuth,customerController.customerInfo)
-router.post("/block-user",adminAuth,customerController.customerBlock)
-router.post("/unBlock-user",adminAuth,customerController.customerUnBlock)
+router.patch("/users/:id/block",adminAuth,customerController.customerBlock)
+router.patch("/users/:id/unblock",adminAuth,customerController.customerUnBlock)
 
 //PRODUCT MANAGEMENT
 
@@ -30,7 +30,7 @@ router.get("/products",adminAuth,productController.loadProducts)
 
 router.get("/category",adminAuth,categoryController.loadCategory)
 router.get("/addCategory",adminAuth,categoryController.loadaddCategory)
-router.get("/editCategory",adminAuth,categoryController.loadEditCategory)
+router.get("/editCategory",adminAuth,categoryController.loadEditCategory) 
 
 
 

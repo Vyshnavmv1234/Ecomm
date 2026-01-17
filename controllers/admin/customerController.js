@@ -27,7 +27,8 @@ const customerInfo = async (req,res)=>{
       data:userData,
       admin:req.session.adminData.name,
       totalPages,
-      currentPage:page
+      currentPage:page,
+      search
     })
   }else{
     res.redirect("/admin/adminLogin")
@@ -43,12 +44,13 @@ const customerInfo = async (req,res)=>{
 const customerBlock = async(req,res)=>{
   try {
  
-    const blockedUserId = req.body.userId    
-    const findUser = await User.findOne({_id:blockedUserId})
+    const blockedUserId = req.params.id 
+    const findUser = await User.findById({_id:blockedUserId})
     
     if(findUser){
       await User.updateOne({_id:blockedUserId},{$set:{isBlocked:true}})
-      res.redirect("/admin/users")
+      
+      res.json({success:true})
     }
     
   } catch (error) { 
@@ -60,17 +62,18 @@ const customerBlock = async(req,res)=>{
 const customerUnBlock = async(req,res)=>{
   try {
 
-    const unBlockedUserId = req.body.unblockUserId
-    console.log(unBlockedUserId)
-    if(unBlockedUserId){
-      await User.updateOne({_id:unBlockedUserId},{$set:{isBlocked:false}})
-      res.redirect("/admin/users")
+    const unblockedUserId = req.params.id 
+    const findUser = await User.findById({_id:unblockedUserId})
+    
+    if(findUser){
+      await User.updateOne({_id:unblockedUserId},{$set:{isBlocked:false}})
+      
+      res.json({success:true})
     }
     
-  } catch (error) {
-    console.log("UNblocking error")
+  } catch (error) { 
+    console.log("unblocking error")
     res.redirect("/admin/error")
   }
 }
-
 export default {customerInfo,customerBlock,customerUnBlock}

@@ -7,6 +7,10 @@ const userAuth = (req, res, next) => {
     User.findById(req.session.user)
     .then(data=>{
 
+      if(data.isBlocked){
+        res.redirect("/user/login")
+      }
+
       if(data && !data.isBlocked){
         next()
       }else{

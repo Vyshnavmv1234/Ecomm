@@ -93,8 +93,29 @@
   <!-- SIDEBAR -->
   <%- include("../../views/partials/admin/sidebar") %>
 
-  <!-- MAIN CONTENT -->
   <div class="main">
+
+  <!-- MAIN CONTENT -->
+    <form method="get" action="/admin/users">
+    <div style="flex: 1; display: flex; justify-content: center;">
+    <input
+      name="search"
+      type="text"
+      placeholder="Search..."
+      value="<%=search%>"
+      style="
+        width: 60%;
+        max-width: 520px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 14px;
+      "
+    />
+  </div>
+  </form>
+  
 
     <!-- PAGE HEADER -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -154,35 +175,32 @@
           <td>
             <div style="display:flex; gap:8px;">
               <% if (data[i].isBlocked === false) { %>
-                <form action="/admin/block-user" method="post">
-                  <input type="hidden" name="userId" value="<%=data[i]._id%>">
 
-                  <button style="
+                  <button
+                  onclick="blockUser('<%=data[i].id%>')"
+                   style="
                   padding:6px 10px;
                   border:none;
                   border-radius:6px;
                   background:#fff7ed;
                   color:#c2410c;
                   cursor:pointer;
-                ">
-                  <a onclick='confirm("Press OK to block the User")'>Block</a>
+                ">Block
                 </button>
-              </form>
+           
               <% } else { %>
-                <form action="/admin/unBlock-user" method="post">
-                <input type="hidden" name="unblockUserId" value="<%=data[i]._id%>">
 
-                <button style="
+               <button
+                  onclick="unblockUser('<%=data[i].id%>')"
+                   style="
                   padding:6px 10px;
                   border:none;
                   border-radius:6px;
-                  background:#e7faf4;
-                  color:#0f9d7e;
+                  background:#fff7ed;
+                  color:#00ff5e;
                   cursor:pointer;
-                ">
-                  <a onclick='confirm("Press OK to Unblock the User")'>UnBlock</a>
+                ">Unblock
                 </button>
-                </form>
               <% } %>
             </div>
           </td>
@@ -230,6 +248,48 @@
     </div>
 
   </div>
+
+  <script>
+
+    async function blockUser(userId) {
+
+      const ok = confirm("Press OK to block the user");
+      if (!ok) return;
+
+      const res = await fetch(`/admin/users/${userId}/block`,{
+        method: "PATCH"
+      })
+      const data = await res.json();
+
+      if (data.success) {
+
+        window.location.href = "/admin/users"
+      
+    } else {
+      alert("Failed to block user");
+    }  
+  }
+  
+   async function unblockUser(userId) {
+    const ok = confirm("Press OK to unblock the user");
+    if (!ok) return;
+
+    const res = await fetch(`/admin/users/${userId}/unblock`, {
+      method: "PATCH"
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      window.location.href = "/admin/users"
+
+    } else {
+      alert("Failed to unblock user");
+    }
+  }
+
+  </script>
 
 </body>
 </html>
