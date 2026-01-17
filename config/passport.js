@@ -1,6 +1,9 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/userSchema.js";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 passport.use(
   new GoogleStrategy(
@@ -11,40 +14,44 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ googleId: profile.id });
+        const email = profile.emails[0].value;
 
-        if (user) {
-          return done(null, user);
+        let user = await User.findOne({ email });
+
+        if (!user) {
+          user = await User.create({
+            name: profile.displayName,
+            email,
+            googleId: profile.id,
+            isGoogleUser: true,
+          });
         }
 
-        user = new User({
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          googleId: profile.id,
-        });
+        if (!user.googleId) {
+          user.googleId = profile.id;
+          await user.save();
+        }
 
-        await user.save();
         return done(null, user);
-      } catch (error) {
-        return done(error, null);
+      } catch (err) {
+        return done(err, null);
       }
     }
   )
 );
 
-// store user id in session
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  done(null, user.id);
 });
 
-// get full user from id
 passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
+  User.findById(id)
+  .then(user=>{
+    done(null,user)
+  })
+  .catch(err=>{
+    done(err,null)
+  })
 });
 
 export default passport;

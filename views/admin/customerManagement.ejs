@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - User Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family: Arial, sans-serif;
+    }
+    .pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.page-btn.active {
+  background-color: #cab3b3;
+  color: #ffffff;
+  border-color: #bdabab;
+  cursor: default;
+}
+
+.page-btn.arrow {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+
+
+    body{
+      background:#f6f6f6;
+    }
+
+    /* MAIN CONTENT */
+    .main{
+      margin-top:70px;     /* header height */
+      margin-left:240px;   /* sidebar width */
+      padding:30px;
+      min-height:100vh;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:16px;
+      text-align:left;
+      border-bottom:1px solid #eee;
+      font-size:14px;
+    }
+
+    th{
+      background:#fafafa;
+      color:#777;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <%- include("../../views/partials/admin/header") %>
+
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/admin/sidebar") %>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- PAGE HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h2>Customers</h2>
+    </div>
+
+    <!-- TABLE CONTAINER -->
+    <div style="background:#fff; border-radius:12px; overflow:hidden;">
+
+      <div style="background:#fff; border-radius:12px; overflow:hidden;">
+
+  <table style="width:100%; border-collapse:collapse;">
+
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% for (let i = 0; i < data.length; i++) { %>
+
+        <tr>
+          <td><%= data[i].name %></td>
+          <td><%= data[i].email %></td>
+          <td><%= data[i].phone %></td>
+
+          <td>
+            <% if (data[i].isBlocked === false) { %>
+              
+              <span style="
+                padding:6px 12px;
+                background:#e7faf4;
+                color:#0f9d7e;
+                border-radius:12px;
+                font-size:13px;
+              ">
+                Active
+              </span>
+            <% } else { %>
+
+              <span style="
+                padding:6px 12px;
+                background:#fee2e2;
+                color:#dc2626;
+                border-radius:12px;
+                font-size:13px;
+              ">
+                Blocked
+              </span>
+            <% } %>
+          </td>
+          <td>
+            <div style="display:flex; gap:8px;">
+              <% if (data[i].isBlocked === false) { %>
+                <form action="/admin/block-user" method="post">
+                  <input type="hidden" name="userId" value="<%=data[i]._id%>">
+
+                  <button style="
+                  padding:6px 10px;
+                  border:none;
+                  border-radius:6px;
+                  background:#fff7ed;
+                  color:#c2410c;
+                  cursor:pointer;
+                ">
+                  <a onclick='confirm("Press OK to block the User")'>Block</a>
+                </button>
+              </form>
+              <% } else { %>
+                <form action="/admin/unBlock-user" method="post">
+                <input type="hidden" name="unblockUserId" value="<%=data[i]._id%>">
+
+                <button style="
+                  padding:6px 10px;
+                  border:none;
+                  border-radius:6px;
+                  background:#e7faf4;
+                  color:#0f9d7e;
+                  cursor:pointer;
+                ">
+                  <a onclick='confirm("Press OK to Unblock the User")'>UnBlock</a>
+                </button>
+                </form>
+              <% } %>
+            </div>
+          </td>
+        </tr>
+
+      <% } %>
+      
+    </tbody>
+  </table>
+  <div class="pagination-wrapper">
+
+  <!-- PREVIOUS BUTTON -->
+  <% if (currentPage > 1) { %>
+    <a href="?page=<%= currentPage - 1 %>" class="page-btn arrow">
+      &#8592;
+    </a>
+  <% } %>
+
+  <!-- PAGE NUMBERS -->
+  <% for (let i = 1; i <= totalPages; i++) { %>
+
+    <% if (i === currentPage) { %>
+      <span class="page-btn active">
+        <%= i %>
+      </span>
+    <% } else { %>
+      <a href="?page=<%= i %>" class="page-btn">
+        <%= i %>
+      </a>
+    <% } %>
+
+  <% } %>
+
+  <!-- NEXT BUTTON -->
+  <% if (currentPage < totalPages) { %>
+    <a href="?page=<%= currentPage + 1 %>" class="page-btn arrow">
+      &#8594;
+    </a>
+  <% } %>
+
+</div>
+
+</div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

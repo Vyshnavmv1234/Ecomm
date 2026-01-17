@@ -5,6 +5,9 @@
   <title>OTP Verification</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -110,7 +113,7 @@
     <h2>ENTER OTP</h2>
     <p>We have sent an OTP verification<br>code to your email</p>
 
-    <form id="otpForm">
+
       <div class="otp-input">
         <input
           type="text"
@@ -121,8 +124,9 @@
         />
       </div>
 
-      <button type="submit" class="verify-btn">Verify</button>
-    </form>
+      <button type="submit" onclick="verifyOtp()" class="verify-btn">Verify</button>
+      <p id="msg"></p>
+
 
     <div class="resend-text">
       didn’t receive the code?
@@ -131,6 +135,7 @@
 
     <div class="timer">
       Resend available in <span id="timer">01:00</span>
+      
     </div>
   </div>
 
@@ -162,37 +167,51 @@
 
   startTimer();
 
-  document.getElementById("otpForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  async function verifyOtp() {
 
-    const otp = otpInput.value.trim();
+    const otp = document.getElementById("otp").value
+    const msg = document.getElementById("msg")
 
-    if (otp.length !== 6) {
-      alert("Please enter a valid 6-digit OTP");
-      return;
+    if(!otp){
+      msg.innerText = "Enter OTP"
+      msg.style.color = "red"
+      return
     }
-
     try {
-      const res = await fetch("/user/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ otp })
-      });
 
-      const data = await res.json();
+      const res = await fetch("/user/verify-otp",{
+        method: "POST", 
+        headers: {
+          "Content-Type":"application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({otp})
+      })
+      const data = await res.json()
 
       if (!res.ok) {
-        alert(data.message || "Invalid OTP");
-        return;
-      }
-
-      window.location.href = data.redirectUrl;
-    } catch (err) {
-      alert("Something went wrong");
+      msg.innerText = data.message || "Invalid OTP";
+      msg.style.color = "red";
+      return;
     }
-  });
+    Toastify({
+  text: "OTP verified successfully ✅",
+  duration: 3000,
+  gravity: "top",
+  position: "center",
+  backgroundColor: "#111827"
+}).showToast(); 
 
+      setTimeout(()=>{
+        window.location.href = "/user/homepage"
+      },2000)
+      
+    } catch (error) {
+      msg.innerText = "Something went wrong";
+      msg.style.color = "red";
+    }
+  }
+  
   async function resendOtp() {
     try {
       const res = await fetch("/user/resent-otp", {
@@ -203,11 +222,18 @@
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Failed to resend OTP");
-        return;
-      }
+      msg.innerText = data.message || "Failed to resend OTP";
+      msg.style.color = "red";
+      return;
+    }
+       Toastify({
+  text: "OTP resend successfully ✅",
+  duration: 3000,
+  gravity: "top",
+  position: "center",
+  backgroundColor: "#111827"
+}).showToast();
 
-      alert("OTP resent successfully");
       clearInterval(interval);
       startTimer();
     } catch (err) {

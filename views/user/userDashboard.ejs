@@ -1,0 +1,49 @@
+  <%-include("../../views/partials/user/header")%>
+
+
+<!-- ================= MAIN ================= -->
+<main style="padding:50px 60px;">
+
+  <h2 style="text-align:center; margin-bottom:40px;">
+    Hello, <%=user.name%>
+  </h2>
+
+  <div style="display:flex; gap:40px; align-items:flex-start;">
+
+    <!-- ========== SIDEBAR ========== -->
+
+      <%-include("../../views/partials/user/sidebar")%>
+
+    
+
+    <!-- ========== CONTENT ========== -->
+    <section style="flex:1; display:flex; flex-direction:column; gap:30px;">
+
+      <!-- ACCOUNT INFO + ADDRESS -->
+      <div style="display:flex; gap:30px;">
+
+        <!-- ACCOUNT INFO -->
+        <div style="flex:1; background:#fff; border-radius:8px; padding:25px; border:1px solid #e5e5e5;">
+          <h4 style="margin-bottom:20px;">ACCOUNT INFO</h4>
+
+          <div style="display:flex; gap:20px; align-items:center;">
+            <div style="width:60px; height:60px; background:#d9d9d9; border-radius:50%;"></div>
+
+            <div>
+              <p style="margin:0; font-weight:500;"><%=user.name%></p>
+              <p style="margin:6px 0 0; font-size:14px; color:#666;">
+                Email: <%=user.email%>
+              </p>
+            </div>
+          </div>
+
+          <button style="margin-top:25px; padding:8px 18px; border:1px solid #2bb0c0; background:#fff; color:#2bb0c0; border-radius:6px;">
+            <a href="/user/userProfile">Edit Account</a>
+          </button>
+        </div>
+
+    </section>
+  </div>
+</main>
+
+  <%-include("../../views/partials/user/footer")%>

@@ -11,10 +11,12 @@
 <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
   <link rel="stylesheet" href="/css/auth.css">
   <link rel="stylesheet" href="/css/login.css" />
-  
+       
   <style>
     /* ===== CSS DROPDOWN ===== */
 
@@ -53,30 +55,7 @@
   background: #f5f5f5;
 }
 
-/* Show on hover */
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-
-
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      color: #222;
-      background: #fff;
-    }
-
-    img {
-      width: 100%;
-      display: block;
-    }
+    
 
     /* ---------------- HEADER ---------------- */
     header {
@@ -100,6 +79,10 @@
       flex: 1;
       margin: 0 40px;
     }
+    .dropdown:hover .dropdown-menu {
+  display: block;
+}
+
 
     .search input {
       width: 100%;
@@ -122,133 +105,7 @@
       font-size: 14px;
     }
 
-    /* ---------------- HERO ---------------- */
-    .hero {
-      padding: 40px 60px;
-    }
-
-    .hero img {
-      max-height: 650px;
-      object-fit: cover;
-    }
-
-    /* ---------------- EXPLORE MORE ---------------- */
-    .explore {
-      text-align: center;
-      margin: 40px 0 20px;
-      font-size: 14px;
-    }
-
-    /* ---------------- PRODUCT GRID ---------------- */
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
-      padding: 0 60px;
-    }
-
-    .product-card {
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .product-card p {
-      margin-top: 10px;
-      color: #555;
-    }
-
-    /* ---------------- SECTION TITLE ---------------- */
-    .section-title {
-      padding: 60px 60px 20px;
-      font-size: 14px;
-      letter-spacing: 1px;
-      color: #777;
-    }
-
-    /* ---------------- FOOTER INFO ---------------- */
-    .info {
-      background: #f7f7f7;
-      padding: 60px;
-      text-align: center;
-    }
-
-    .info h3 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 400;
-      margin-bottom: 14px;
-    }
-
-    .info p {
-      max-width: 600px;
-      margin: 0 auto 40px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
-      font-size: 13px;
-    }
-
-    /* ---------------- FOOTER ---------------- */
-    footer {
-      padding: 60px;
-      border-top: 1px solid #eee;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 40px;
-      font-size: 13px;
-    }
-
-    footer h4 {
-      margin-bottom: 14px;
-      font-weight: 500;
-    }
-
-    footer ul {
-      list-style: none;
-    }
-
-    footer li {
-      margin-bottom: 8px;
-      color: #555;
-    }
-    .store-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.store-badge {
-  height: 36px;   
-  width: auto;
-}
-
-
-    /* ---------------- RESPONSIVE ---------------- */
-    @media (max-width: 900px) {
-      .product-grid,
-      .info-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      footer {
-        grid-template-columns: 1fr;
-      }
-
-      header {
-        padding: 20px;
-      }
-
-      .hero,
-      .product-grid,
-      .section-title {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-    }
+   
   
 
   </style>
@@ -270,18 +127,16 @@
 
           <div class="dropdown">
 
-  <span class="dropdown-toggle">
+  <span class="dropdown-toggle" id="userToggle">
     <%= user.name %> ▾
-  </span>
+  </span> 
 
-  <div class="dropdown-menu">
-    <a href="/userProfile">My Profile</a>
+  <div class="dropdown-menu" id="userMenu">
+    <a href="/user/userDashboard">My Profile</a>
     <a href="/user/logout">Logout</a>
   </div>
 
 </div>
-
-  
         <% } else { %>
 
         <a href="/user/signup">Sign up</a>
@@ -296,11 +151,33 @@
     </div>
 
     <nav>
-      <a href="#">All</a>
+      <a href="/user/productList">All</a>
       <a href="#">Tshirt</a>
       <a href="#">Pants</a>
       <a href="#">Old Money</a>
       <a href="#">OverSized</a>
     </nav>
   </header>
+
+  <script>
+  const toggle = document.getElementById("userToggle");
+  const menu = document.getElementById("userMenu");
+
+  let isOpenByClick = false;
+
+  // Click toggle
+  toggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    isOpenByClick = !isOpenByClick;
+    menu.style.display = isOpenByClick ? "block" : "none";
+  });
+
+  // Close when clicking outside
+  document.addEventListener("click", function () {
+    isOpenByClick = false;
+    menu.style.display = "none";
+  });
+</script>
+
+
   

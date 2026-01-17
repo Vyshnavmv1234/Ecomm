@@ -2,8 +2,6 @@ import User from "../../models/userSchema.js"
 import nodemailer from "nodemailer"
 import env from "dotenv"
 import bcrypt from "bcrypt"
-import user from "../../models/userSchema.js"
-
 env.config()
 
 //GEN OTP
@@ -111,8 +109,8 @@ const signup = async (req,res)=>{
     res.render("user/userOtp")
     
     if(!emailSent){
-      res.json("email-error")
-    }
+      console.log("email")
+    } 
 
   } catch (error) {
     console.error("Signup Error",error)
@@ -129,20 +127,19 @@ const pageNotFound = async (req,res)=>{
   } catch (error) {
     res.redirect("/pageNotFound")
   }
-} 
+}  
 
 //LOAD HOMEPAGE
 
 const loadHomepage = async (req, res) => {
   try {
-    let userData = null;
+    let userData
 
     if (req.session.user) {
       userData = await User.findById(req.session.user)
-     
     }
-
-    res.render("user/userHome", { user: userData });
+  
+    res.render("user/userHome", { user: userData});
 
   } catch (error) {
     console.log("Homepage not found", error);
@@ -204,7 +201,7 @@ const verifyOtp = async (req, res) => {
   await saveUserData.save()
   req.session.user = saveUserData._id
   res.json({
-    success:true,redirectUrl:"/user/login"
+    success:true
   })
 
   req.session.userOtp = null
@@ -249,19 +246,40 @@ const resentOtp = async (req,res)=>{
 
 const logout = async (req,res)=>{
   try {
-    
-    req.session.destroy((err)=>{
+   
+    if(req.session.admin){
+      req.session.user = null
+      res.redirect("/user/login")
+    }else{
+      req.session.destroy((err)=>{
       if(err){
         console.error("Error while Destroying session")
        return res.redirect("/user/pageNotFound")
       }
       res.redirect("/user/login")
     })
+    }
+    
+   
   } catch (error) {
     console.log("Logout error",error)
     res.redirect("/user/pageNotFound")
   }
 }
 
+const loadProductList = async(req,res)=>{
+  try {
 
-export default {loadHomepage,pageNotFound,loadSignup,loadLogin,login,signup,verifyOtp,resentOtp,logout}
+    const userData = await User.findById(req.session.user)
+
+    if(req.session.user){
+      res.render("user/productList",{user:userData})
+    }
+    
+  } catch (error) {
+    
+  }
+}
+
+
+export default {loadHomepage,pageNotFound,loadSignup,loadLogin,login,signup,verifyOtp,resentOtp,logout,loadProductList}

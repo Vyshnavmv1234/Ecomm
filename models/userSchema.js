@@ -17,9 +17,20 @@ const userSchema = new Schema({
     unique: true,
     sparse: true
   },
+
+  profileImage: {
+  type: String,
+  default: ""
+  },
+  profileImageId: {
+  type: String,
+  default: ""
+  },
+  
   googleId: {
     type: String,
-    unique: true
+    unique: true,
+    sparse: true
   },
   password: {
     type: String,

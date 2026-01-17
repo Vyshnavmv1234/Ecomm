@@ -1,0 +1,89 @@
+  <%-include("../../views/partials/user/header")%>
+
+
+<!-- ================= MAIN ================= -->
+<main style="padding:50px 60px;">
+
+  <h2 style="text-align:center; margin-bottom:40px;">
+
+  </h2>
+
+  <div style="display:flex; gap:40px; align-items:flex-start;">
+
+    <!-- ========== SIDEBAR ========== -->
+      <%-include("../../views/partials/user/sidebar")%>
+
+
+<div style="flex:1; background:#fff; border-radius:8px; padding:25px; border:1px solid #e5e5e5;">
+  <h4 style="margin-bottom:20px;">ADDRESS</h4>
+
+<% if (userAddress && userAddress.address.length > 0) { %>
+
+  <% userAddress.address.forEach(address => { %>
+
+    <div style="margin-bottom:20px;">
+
+      <!-- ADDRESS DETAILS -->
+      <p><%= address.name %></p>
+      <p><%= address.streetName %></p>
+      <p><%= address.city %></p>
+      <p><%= address.state %></p>
+      <p><%= address.pincode %></p>
+      <p><%= address.phone %></p>
+
+      <!-- BUTTONS FOR THIS ADDRESS -->
+      <div style="display:flex; gap:12px; margin-top:10px;">
+
+        <!-- EDIT -->
+        <a href="/user/edit-address?id=<%= address._id %>"
+           style="padding:8px 18px; border:1px solid #2fbc47;
+                  color:#68b432; border-radius:6px;
+                  text-decoration:none;">
+          Edit address
+        </a>
+
+        <!-- DELETE -->
+        <a onclick="return confirm('Are you sure you want to delete this address?')"
+        
+           href="/user/delete-address?id=<%= address._id %>"
+           style="padding:8px 18px; border:1px solid red;
+                  color:red; border-radius:6px;
+                  text-decoration:none;">
+          Delete address
+        </a>
+
+      </div>
+
+    </div>
+
+    <hr style="border:0; border-top:1px solid #ccc; margin:15px 0;">
+
+  <% }) %>
+
+  <div style="display:flex; justify-content:center; margin-top:20px;">
+    <a href="/user/add-address"
+       style="padding:8px 18px; border:1px solid #2bb0c0;
+              color:#2bb0c0; border-radius:6px;
+              text-decoration:none;">
+      Add address
+    </a>
+  </div>
+
+<% } else { %>
+
+  <div style="display:flex; justify-content:center; margin-top:20px;">
+    <a href="/user/add-address"
+       style="padding:8px 18px; border:1px solid #2bb0c0;
+              color:#2bb0c0; border-radius:6px;
+              text-decoration:none;">
+      Add address
+    </a>
+  </div>
+
+<% } %>
+
+    </section>
+  </div>
+</main>
+
+  <%-include("../../views/partials/user/footer")%>
