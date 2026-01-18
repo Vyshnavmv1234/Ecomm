@@ -21,10 +21,12 @@
 }
 
 /* MAIN */
-.main {
-  padding: 28px 32px;
-  margin-left: 220px;
+.main{
+  padding:28px 32px;
+  margin-left:220px;   /* sidebar width */
+  margin-top:70px;     /* header height */
 }
+
 
 /* TITLE ROW */
 .title-row {
@@ -159,7 +161,6 @@ input[type="text"] {
 <body>
   <%- include("../../views/partials/admin/header") %>
 
-
 <div class="layout">
 
   <!-- SIDEBAR -->
@@ -169,8 +170,6 @@ input[type="text"] {
   <!-- CONTENT -->
   <div class="content">
 
-   
-
     <!-- MAIN -->
     <div class="main">
 
@@ -178,7 +177,7 @@ input[type="text"] {
         <h2>Add Category</h2>
         <div class="actions">
           <button class="cancel-btn">✕ Cancel</button>
-          <button class="add-btn">＋ Add Category</button>
+          <button id="addCategoryBtn" class="add-btn">＋ Add Category</button>
         </div>
       </div>
 
@@ -206,14 +205,62 @@ input[type="text"] {
         <!-- CATEGORY NAME -->
         <div class="card">
           <div class="input-label">Category Name</div>
-          <input type="text" placeholder="Type category name here . . ." />
+            <input id="categoryName" name = "search" type="text" placeholder="Type category name here . . ." />
+            <p id="errorMsg" style=" color:red; margin-top:8px;"></p>
+              <p id="successMsg" style=" color:green; margin-top:8px;"></p>
         </div>
 
       </div>
 
+        
     </div>
   </div>
 </div>
 
+<script>
+  const addBtn = document.getElementById("addCategoryBtn");
+  const input = document.getElementById("categoryName");
+  const errorMsg = document.getElementById("errorMsg");
+  const successMsg = document.getElementById("successMsg");
+
+  addBtn.addEventListener("click", async () => {
+    errorMsg.textContent = "";
+    successMsg.textContent = "";
+
+    const name = input.value.trim();
+
+    if (!name) {
+      errorMsg.textContent = "Category name is required";
+      return;
+    }
+
+    try {
+      const res = await fetch("/admin/addCategory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ search: name })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorMsg.textContent = data.error;
+        return;
+      }
+
+      successMsg.textContent = data.message;
+      input.value = "";
+
+    } catch (error) {
+      console.error(error);
+      errorMsg.textContent = "Something went wrong";
+    }
+  });
+</script>
+
+
 </body>
 </html>
+

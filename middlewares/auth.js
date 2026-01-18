@@ -1,31 +1,33 @@
-import User from "../models/userSchema.js"
+import User from "../models/userSchema.js";
 
-const userAuth = (req, res, next) => {
+const userAuth = async (req, res, next) => {
+  try {
+    if (!req.session.user) {
+      return res.redirect("/user/login");
+    }
 
-  if (req.session.user) {
+    const user = await User.findById(req.session.user);
 
-    User.findById(req.session.user)
-    .then(data=>{
+    if (!user) {
+      delete req.session.user; 
+      return res.redirect("/user/login");
+    }
 
-      if(data.isBlocked){
-        res.redirect("/user/login")
-      }
+    if (user.isBlocked) {
+      delete req.session.user;   
+      return res.redirect("/user/login");
+    }
 
-      if(data && !data.isBlocked){
-        next()
-      }else{
+    req.user = user;
+    next();
 
-        res.redirect("/user/login")
-      }
-    })
-    .catch(err=>{
-      console.log("error in auth mw")
-      res.status(500).send("Internal server occured") 
-    })
-  }else{
-   return res.redirect("/user/login") 
+  } catch (error) {
+    console.log("error in auth mw", error);
+    return res.redirect("/user/login");
   }
-}
+};
+
+
 
 const adminAuth = (req, res, next) => {
   User.findOne({isAdmin:true})

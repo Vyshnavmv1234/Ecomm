@@ -28,9 +28,13 @@ router.get("/products",adminAuth,productController.loadProducts)
 
 //CATEGORY MANAGEMENT
 
-router.get("/category",adminAuth,categoryController.loadCategory)
+router.get("/category",adminAuth,categoryController.loadCategoryInfo)
 router.get("/addCategory",adminAuth,categoryController.loadaddCategory)
-router.get("/editCategory",adminAuth,categoryController.loadEditCategory) 
+router.post("/addCategory",adminAuth,categoryController.postAddCategory)
+router.get("/editCategory",adminAuth,categoryController.loadEditCategory)
+router.patch("/category/block/:id",adminAuth,categoryController.blockCategory)
+router.patch("/category/unblock/:id",adminAuth,categoryController.unblockCategory)
+
 
 
 

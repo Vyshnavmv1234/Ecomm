@@ -12,6 +12,58 @@
   box-sizing: border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.action {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Common button */
+.btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+/* Block */
+.btn-block {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Unblock */
+.btn-unblock {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #e0e7ff;
+}
 
 
 
@@ -223,8 +275,8 @@ tbody td {
     <div class="main">
 
       <div class="title-row">
-        <h2>Categories</h2>
-        <button class="create-btn">＋ Create Category</button>
+        <h2 style="margin-left: 220px;">Categories</h2>
+        <a href="/admin/addCategory"><button class="create-btn">＋ Create Category</button></a>
       </div>
 
       <div class="breadcrumb">
@@ -238,56 +290,171 @@ tbody td {
               <th>Category Name</th>
               <th>Sold</th>
               <th>Stock</th>
-              <th>Added</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr>
-              <td>
-                <div class="category">
-                  <div class="checkbox">✓</div>
-                  <div class="cat-img"></div>
-                  Black Ultron
-                </div>
-              </td>
-              <td>10</td>
-              <td>2499</td>
-              <td>24 Jun 2025</td>
-              <td class="action">✏️</td>
-            </tr>
+  <% if (categoryData && categoryData.length > 0) { %>
+    <% categoryData.forEach((category) => { %>
+      <tr>
+        <!-- Category Name -->
+        <td>
+          <div class="category">
+            <div class="checkbox <%= category.isBlocked ? 'gray' : '' %>">
+              <%= category.isBlocked ? '' : '✓' %>
+            </div>
 
-            <tr>
-              <td>
-                <div class="category">
-                  <div class="checkbox gray"></div>
-                  <div class="cat-img"></div>
-                  Black ultron
-                </div>
-              </td>
-              <td>10</td>
-              <td>100000</td>
-              <td>24 Jun 2025</td>
-              <td class="action">✏️</td>
-            </tr>
-          </tbody>
-        </table>
+            <div class="cat-img"></div>
 
-        <div class="pagination">
-          <div>Showing 1-2 from 2</div>
-          <div class="pages">
-            <div class="page">‹</div>
-            <div class="page active">01</div>
-            <div class="page">›</div>
+            <%= category.name %>
           </div>
-        </div>
+        </td>
+
+        <!-- Sold (placeholder for now) -->
+        <td>0</td>
+
+        <!-- Stock (placeholder for now) -->
+        <td>0</td>
+
+        <!-- Status -->
+        <td>
+          <%= category.isBlocked ? 'Blocked' : 'Active' %>
+        </td>
+
+        <!-- Action -->
+        <td class="action">
+
+  <!-- Edit -->
+  
+      <a
+        href="/admin/editCategory/<%= category._id %>"
+        class="edit-btn"
+        title="Edit Category"
+      >
+        Edit
+      </a>
+
+  <!-- Block / Unblock -->
+      <% if (category.isBlocked) { %>
+          <button
+            onclick="unblockCategory('<%= category._id %>')"
+            class="btn btn-unblock"
+          >
+            Unblock
+          </button>
+        <% } else { %>
+          <button
+            onclick="blockCategory('<%= category._id %>')"
+            class="btn btn-block"
+          >
+            Block
+          </button>
+        <% } %>
+        </td>
+
+
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="5" style="text-align:center; color:#9ca3af;">
+        No categories found
+      </td>
+    </tr>
+  <% } %>
+</tbody>
+
+</table>
+
+    <!--Pagination-->
+
+        <div class="pagination" style="display: flex; justify-content: center;">
+
+      <div class="pages">
+
+        <!-- Previous -->
+        <% if (currentPage > 1) { %>
+          <a href="/admin/category?page=<%= currentPage - 1 %>" class="page">‹</a>
+        <% } else { %>
+          <div class="page" style="opacity:0.4; cursor:not-allowed;">‹</div>
+        <% } %>
+
+        <!-- Page Numbers -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <% if (i === currentPage) { %>
+            <div class="page active"><%= i %></div>
+          <% } else { %>
+            <a href="/admin/category?page=<%= i %>" class="page"><%= i %></a>
+          <% } %>
+        <% } %>
+
+        <!-- Next -->
+        <% if (currentPage < totalPages) { %>
+          <a href="/admin/category?page=<%= currentPage + 1 %>" class="page">›</a>
+        <% } else { %>
+          <div class="page" style="opacity:0.4; cursor:not-allowed;">›</div>
+        <% } %>
+
+      </div>
+    </div>
+
 
       </div>
 
     </div>
   </div>
 </div>
+
+<script>
+  async function blockCategory(categoryId) {
+    const ok = confirm("Are you sure you want to block this category?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/admin/category/block/${categoryId}`, {
+        method: "PATCH"
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("Failed to block category");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+  async function unblockCategory(categoryId) {
+    const ok = confirm("Are you sure you want to unblock this category?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/admin/category/unblock/${categoryId}`, {
+        method: "PATCH"
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("Failed to unblock category");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+</script>
+
 
 </body>
 </html>
