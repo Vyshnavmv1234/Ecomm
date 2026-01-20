@@ -206,8 +206,8 @@ input[type="text"] {
         <div class="card">
           <div class="input-label">Category Name</div>
             <input id="categoryName" name = "search" type="text" placeholder="Type category name here . . ." />
-            <p id="errorMsg" style=" color:red; margin-top:8px;"></p>
-              <p id="successMsg" style=" color:green; margin-top:8px;"></p>
+            <small id="errorMsg" style=" color:red; margin-left: 14px; margin-top:8px;"></small>
+              <small id="successMsg" style=" color:green;margin-left: 14px; margin-top:8px;"></small>
         </div>
 
       </div>
@@ -249,7 +249,9 @@ input[type="text"] {
         errorMsg.textContent = data.error;
         return;
       }
-
+      setTimeout(()=>{
+        window.location.href = "/admin/category"
+      },1000)
       successMsg.textContent = data.message;
       input.value = "";
 

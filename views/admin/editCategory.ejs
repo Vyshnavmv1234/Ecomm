@@ -11,6 +11,26 @@
   box-sizing:border-box;
   font-family:"Inter",Arial,sans-serif;
 }
+.btn{
+  padding:10px 16px;
+  border-radius:8px;
+  font-size:14px;
+  cursor:pointer;
+  border:none;
+}
+
+.btn-cancel{
+  margin-top: auto;
+  background:#fff;
+  border:1px solid #b0b6c3;
+  color:#333;
+}
+
+.btn-primary{
+  background:#c9b1a8;
+  color:#fff;
+}
+
 
 body{
   background:#f6f7fb;
@@ -179,10 +199,7 @@ input{
 
   <div class="title-row">
     <h2>Edit Category</h2>
-    <div class="actions">
-      <button class="cancel-btn">✕ Cancel</button>
-      <button class="save-btn">💾 Save Category</button>
-    </div>
+    
   </div>
 
   <div class="breadcrumb">
@@ -212,13 +229,52 @@ input{
 
       <div style="margin-top:14px;">
         <div class="input-label">Category Name</div>
-        <input type="text" value="Watch">
+        <form id="editCategoryForm">
+          <input id="categoryName" type="text" value="<%=categoryData.name%>">
+          
+            <div class="actions">
+              <button style="margin-top: 10px;" type="submit" class="save-btn">Save Category</button>
+            <button class="btn btn-cancel">Cancel</button>
+      
+            </div>
+        </form>
       </div>
     </div>
 
   </div>
 
 </div>
+
+<script>
+
+  const form = document.getElementById("editCategoryForm")
+
+  form.addEventListener("submit",async(e)=>{
+    e.preventDefault()
+
+    const categoryName = document.getElementById("categoryName").value
+    const categoryId = "<%=categoryData._id%>"
+
+    const res = await fetch(`/admin/category/update/${categoryId}`,{
+      method: "PATCH",
+      headers: {
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        name:categoryName
+      })
+    })
+    const data = await res.json()
+
+    if(res.ok && data.success){
+      window.location.href = "/admin/category"
+    }else {
+      alert(data.message || "Failed to update category");
+    }
+  })
+
+
+</script>
 
 </body>
 </html>

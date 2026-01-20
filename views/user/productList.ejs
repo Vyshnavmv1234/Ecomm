@@ -127,174 +127,22 @@
 <div class="products">
 
   <!-- PRODUCT CARD -->
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw1.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
+   <% products.forEach(product =>{%>
 
-  <!-- DUPLICATE PRODUCT (repeat as needed / loop in EJS) -->
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw4.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
+     <div class="product">
 
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw3.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
+       <span class="wishlist">♡</span>
 
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw2.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
+       <img src="<%=product.images[0].url%>"
+        alt="<%= product.pName %>">
 
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw5.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
+       <div class="brand"><%=product.name%></div>
+       <p class="title"><%=product.title%></p>
+       <div class="price">₹ <%=product.price%></div>
+       <div class="rating">★ 4.8 Ratings</div>
 
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw6.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
-
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw7.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
-
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw8.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
-
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw9final.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
-
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw10org.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
-
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw12.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
-
-  <div class="product">
-    <span class="wishlist">♡</span>
-    <img src="/images/pw11.webp">
-    <div class="brand">LAMEREI</div>
-    <p class="title">Recycle Boucle Knit Cardigan Pink</p>
-    <div class="price">$120</div>
-    <div class="rating">★ 4.8 Ratings</div>
-    <div class="sizes">
-      <div class="size">S</div>
-      <div class="size">M</div>
-      <div class="size">L</div>
-    </div>
-  </div>
+      </div>
+      <%})%>
 
 </div>
 

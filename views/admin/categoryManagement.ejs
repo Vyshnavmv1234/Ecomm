@@ -273,6 +273,25 @@ tbody td {
 
     <!-- MAIN -->
     <div class="main">
+      <form method="get" action="/admin/category">
+    <div style="flex: 1; display: flex; justify-content: center;">
+    <input
+      name="search"
+      type="text"
+      placeholder="Search..."
+      value="<%=search%>"
+      style="
+        width: 60%;
+        max-width: 520px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 14px;
+      "
+    />
+  </div>
+  </form>
 
       <div class="title-row">
         <h2 style="margin-left: 220px;">Categories</h2>
@@ -320,7 +339,11 @@ tbody td {
 
         <!-- Status -->
         <td>
-          <%= category.isBlocked ? 'Blocked' : 'Active' %>
+          <% if (category.isBlocked) { %>
+              <span style="color:#dc2626;">Blocked</span>
+            <% } else { %>
+              <span style="color:#16a34a;">Active</span>
+            <% } %>
         </td>
 
         <!-- Action -->
@@ -329,7 +352,7 @@ tbody td {
   <!-- Edit -->
   
       <a
-        href="/admin/editCategory/<%= category._id %>"
+        href="/admin/editCategory?id=<%=category._id%>"
         class="edit-btn"
         title="Edit Category"
       >

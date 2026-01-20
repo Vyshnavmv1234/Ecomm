@@ -2,6 +2,7 @@ import User from "../../models/userSchema.js"
 import nodemailer from "nodemailer"
 import env from "dotenv"
 import bcrypt from "bcrypt"
+import product from "../../models/productSchema.js"
 env.config()
 
 //GEN OTP
@@ -271,9 +272,11 @@ const loadProductList = async(req,res)=>{
   try {
 
     const userData = await User.findById(req.session.user)
+    const productData = await product.find({isBlocked:false})
+    console.log(productData.images)
 
     if(req.session.user){
-      res.render("user/productList",{user:userData})
+      res.render("user/productList",{user:userData,products:productData})
     }
     
   } catch (error) {

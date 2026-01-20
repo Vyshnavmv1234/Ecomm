@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { type } from "os";
 const {Schema} = mongoose
 
 const productSchema = new Schema({
@@ -8,6 +7,10 @@ const productSchema = new Schema({
     required: true
   },
   description: {
+    type: String,
+    required: true
+  },
+  title: {
     type: String,
     required: true
   },
@@ -20,14 +23,21 @@ const productSchema = new Schema({
     type: Number,
     required: true
   },
+  discount: {
+    type: Number,
+    required: false
+  },
   quantity: {
     type: Number,
-    default: true
+    default: true,
+    required:false
   },
-  product_image: {
-    type: [String],
-    required: true
-  },
+
+  images: [{
+    url: String,
+    public_id: String
+  }],
+
   isBlocked: {
     type: Boolean,
     default: false
@@ -35,7 +45,7 @@ const productSchema = new Schema({
   status: {
     type: String,
     enum: ["Available","Discontinued","Out of stock"],
-    required: true,
+    required: false,
     default: "Available"
   }
 },{timestamps:true})

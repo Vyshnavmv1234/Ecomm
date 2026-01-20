@@ -4,7 +4,7 @@ import profileController from "../controllers/user/profileController.js"
 import {userAuth} from "../middlewares/auth.js"
 import uploadController from "../controllers/routeUpload.js";
 import express from "express"
-import upload from "../middlewares/multer.js";
+import {uploadUser} from "../middlewares/multer.js";
 
 const router = express.Router()
 
@@ -47,7 +47,7 @@ router.post("/verify-change-password-otp",userAuth,profileController.verifyChang
 router.post("/verify-resend-change-password-otp",userAuth,profileController.resendChangePassword)
 router.get("/reset-change-password",profileController.loadChangeResetPassword)
 router.post("/reset-change-password",profileController.newChangePassword)
-router.post("/upload",userAuth,upload.single("image"),uploadController.uploadProfile)
+router.post("/upload",userAuth,uploadUser.single("image"),uploadController.uploadProfile)
 router.get("/account", userAuth,uploadController.red)
  
 //ADDRESS MANAGEMENT

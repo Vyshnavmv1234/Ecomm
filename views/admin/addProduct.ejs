@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Product | WestLane</title>
+
+<style>
+/* ================= RESET ================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+.error{
+  color:#dc2626;
+  font-size:12px;
+  margin-top:-14px;
+  margin-bottom:12px;
+  display:block;
+}
+.preview-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.preview-container img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.image-box {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* ================= LAYOUT ================= */
+body{
+  background:#f6f6f8;
+  min-height:100vh;
+}
+.sidebar{
+  width:230px;
+  background:#fff;
+  border-right:1px solid #e5e5e5;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #9ca3af;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #cbb8b3;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ================= MAIN ================= */
+.main{
+  margin-top: 70px;
+  margin-left:230px;  /* SAME AS SIDEBAR WIDTH */
+  padding:30px 40px;
+  background:#f6f6f8;
+}
+
+/* ================= HEADER ================= */
+
+
+/* ================= BREADCRUMB ================= */
+.breadcrumb{
+  font-size:13px;
+  color:#888;
+  margin-top:6px;
+}
+
+/* ================= GRID ================= */
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 300px;
+  gap:25px;
+}
+
+/* ================= CARD ================= */
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:25px;
+  margin-bottom:25px;
+}
+
+/* ================= FORM ================= */
+label{
+  font-size:13px;
+  color:#555;
+  display:block;
+  margin-bottom:6px;
+}
+
+input, textarea, select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  background:#fafafa;
+  margin-bottom:20px;
+  font-size:14px;
+}
+
+textarea{
+  min-height:120px;
+  resize:none;
+}
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ================= IMAGE BOX ================= */
+.image-box{
+  border:2px dashed #ddd;
+  border-radius:12px;
+  padding:40px;
+  text-align:center;
+  background:#fafafa;
+}
+
+.image-box p{
+  font-size:13px;
+  color:#777;
+  margin:15px 0;
+}
+
+.image-box button{
+  background:#ece7ff;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  color:#5b4bdb;
+  cursor:pointer;
+}
+
+/* ================= CATEGORY CARD ================= */
+.category-card{
+  background:#fff;
+  border-radius:12px;
+  padding:25px;
+}
+</style>
+
+
+</head>
+<body>
+  <%- include("../../views/partials/admin/header") %>
+
+
+<!-- ================= SIDEBAR ================= -->
+  <%- include("../../views/partials/admin/sidebar") %>
+
+<!-- ================= MAIN ================= -->
+<div class="main">
+
+  <form id="productForm" onsubmit="return submitWithCrop(event)">
+
+
+  <!-- CONTENT GRID -->
+  <div class="grid">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <div class="title-row">
+        <h2>Add Product</h2>
+        <div class="actions" style="display: flex; justify-content: end;">
+          <button type="button" class="cancel-btn">✕ Cancel</button>
+          <button  type="submit" id="addCategoryBtn" class="add-btn">＋ Add Product</button>
+        </div>
+      </div>
+
+       <div style="margin-bottom: 10px;" class="breadcrumb">
+       › <a href="/admin/products">Products</a> › <a href="/admin/addProducts">Add Products</a> › <a href="/admin/editProduct">Edit Products</a>  › 
+       
+      </div>
+
+      <!-- GENERAL INFO -->
+      <div class="card">
+        
+        <h3 style="margin-bottom:20px;">General Information</h3>
+        <label>Product Name</label>
+        <input id="pName" name="pName" type="text" placeholder="Type product name here...">
+        <small class="error" id="pNameError"></small>
+        <label>Product Title</label>
+        <input id="pTitle" name="pTitle" type="text" placeholder="Type product title here...">
+        <small class="error" id="pTitleError"></small>
+
+        <label>Description</label>
+        <textarea id="description" name="description" placeholder="Type product description here..."></textarea>
+        <small class="error" id="descriptionError"></small>
+      </div>
+
+      <!-- PRICING -->
+      <div class="card">
+        <h3 style="margin-bottom:20px;">Pricing</h3>
+
+        <label>Base Price</label>
+        <input id="price" name="price" type="number" placeholder="Type base price here...">
+        <small class="error" id="priceError"></small>
+
+        <label>Discount Percentage (%)</label>
+        <input id="discount" name="discount" type="number" placeholder="Type discount percentage...">
+        <small class="error" id="discountError"></small>
+      </div>
+
+      <!-- IMAGE -->
+            <div class="card">
+        <h3 style="margin-bottom:20px;">Product Images</h3>
+
+        <div class="image-box">
+          <p>Select at least 3 images</p>
+
+          <input
+            type="file"
+            id="imageInput"
+            name="images"
+            multiple
+            accept="image/*"
+            style="display:none"
+          >
+
+          <button type="button" onclick="openImagePicker()">Add Images</button>
+
+          <small style="margin-top: 10px;" class="error" id="imageError"></small>
+        </div>
+
+        <!-- IMAGE PREVIEW -->
+        <div id="previewContainer" class="preview-container"></div>
+      </div>
+      <!-- CROP MODAL -->
+
+      <div id="cropModal" style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.6);
+        justify-content:center;
+        align-items:center;
+        z-index:9999;
+      ">
+        <div style="background:#fff; padding:20px; border-radius:8px;">
+          <img id="cropImage" style="max-width:400px; max-height:400px;">
+          <div style="margin-top:10px; text-align:right;">
+            <button type="button" onclick="cropCurrentImage()">Crop & Continue</button>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="category-card">
+      <h3 style="margin-bottom:20px;">Category</h3>
+      <label>Product Category</label>
+      <select id="category" name="category">
+        <option value="">Select Category</option>
+        <%for(let i=0;i<category.length;i++){%>
+
+          <option value="<%=category[i]._id%>"><%=category[i].name%></option>
+       <%}%>
+      </select>
+      <small class="error" id="categoryError"></small>
+    </div>
+
+  </div>
+  </form>
+
+</div>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.css"
+/>
+<script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.js"></script>
+
+  <script>
+
+    const imageInput = document.getElementById("imageInput");
+    const previewContainer = document.getElementById("previewContainer");
+    const imageError = document.getElementById("imageError");
+
+    let selectedFiles = [];
+    let croppedImages = [];
+    let currentIndex = 0;
+    let cropper;
+
+    const cropModal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+
+    /* OVERRIDE IMAGE CHANGE */
+    imageInput.addEventListener("change", () => {
+      previewContainer.innerHTML = "";
+      imageError.innerText = "";
+
+      selectedFiles = Array.from(imageInput.files);
+      croppedImages = [];
+      currentIndex = 0;
+
+      if (selectedFiles.length < 3) {
+        imageError.innerText = "Minimum 3 images required";
+        imageInput.value = "";
+        return;
+      }
+
+      openCropper();
+    });
+
+    function openImagePicker() {
+    imageInput.click();
+  }
+
+
+    function openCropper() {
+      if (cropper) cropper.destroy();
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        cropImage.src = reader.result;
+        cropModal.style.display = "flex";
+
+        cropper = new Cropper(cropImage, {
+          aspectRatio: NaN,
+          viewMode: 1
+        });
+      };
+      reader.readAsDataURL(selectedFiles[currentIndex]);
+}
+
+
+    function cropCurrentImage() {
+      cropper.getCroppedCanvas({
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: "high"
+        
+      }).toBlob(blob => {
+        croppedImages.push(blob);
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(blob);
+        previewContainer.appendChild(img);
+
+        cropper.destroy();
+        cropModal.style.display = "none";
+        currentIndex++;
+
+        if (currentIndex < selectedFiles.length) {
+          openCropper();
+        }
+      });
+    }
+
+
+
+function clearErrors() {
+  document.querySelectorAll(".error").forEach(err => err.innerText = "");
+}
+
+function validateForm() {
+
+      clearErrors();
+      let isValid = true;
+
+      const name = document.getElementById("pName").value.trim();
+      const title = document.getElementById("pTitle").value.trim()
+      const description = document.getElementById("description").value.trim();
+      const price = document.getElementById("price").value;
+      const discount = document.getElementById("discount").value;
+      const category = document.getElementById("category").value;
+
+      // IMAGE VALIDATION
+
+      if (croppedImages.length < 3) {
+        imageError.innerText = "Please crop at least 3 images";
+        isValid = false;
+      }
+
+
+      if (name === "") {
+        document.getElementById("pNameError").innerText = "Product name is required";
+        isValid = false;
+      } else if (name.length < 3) {
+        document.getElementById("pNameError").innerText = "Minimum 3 characters required";
+        isValid = false;
+      }
+      if (title === "") {
+        document.getElementById("pTitleError").innerText = "Product title is required";
+        isValid = false;
+      }
+
+      if (description === "") {
+        document.getElementById("descriptionError").innerText = "Description is required";
+        isValid = false;
+      } else if (description.length < 10) {
+        document.getElementById("descriptionError").innerText = "Minimum 10 characters required";
+        isValid = false;
+      }
+
+      if (price === "" || price <= 0) {
+        document.getElementById("priceError").innerText = "Enter a valid price";
+        isValid = false;
+      }
+
+      if (discount !== "" && (discount < 0 || discount > 90)) {
+        document.getElementById("discountError").innerText = "Discount must be 0–90%";
+        isValid = false;
+      }
+
+      if (!category) {
+        document.getElementById("categoryError").innerText = "Please select a category";
+        isValid = false;
+      }
+
+      return isValid;
+}
+
+   async function submitWithCrop(e) {
+    e.preventDefault();
+
+    if (!validateForm()) return false;
+
+    if (croppedImages.length < 3) {
+      imageError.innerText = "Please crop all images";
+      return false;
+    }
+
+    const formData = new FormData();
+
+    formData.append("pName", document.getElementById("pName").value);
+    formData.append("description", document.getElementById("description").value);
+    formData.append("price", document.getElementById("price").value);
+    formData.append("discount", document.getElementById("discount").value);
+    formData.append("category", document.getElementById("category").value);
+    formData.append("pTitle",document.getElementById("pTitle").value)
+
+    croppedImages.forEach((img, i) => {
+      formData.append("images", img, `product_${i}.jpg`);
+    });
+
+    const res = await fetch("/admin/addProduct", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Product added successfully");
+      window.location.href = "/admin/products";
+    } else {
+      alert("Failed to add product");
+    }
+
+    return false;
+}
+
+
+</script>
+
+</body>
+</html>

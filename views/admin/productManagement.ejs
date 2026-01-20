@@ -23,6 +23,54 @@ body {
   display: flex;
   min-height: 100vh;
 }
+/* Common button */
+.btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+/* Block */
+.btn-block {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Unblock */
+.btn-unblock {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #e0e7ff;
+}
+
+
 
 /* SIDEBAR */
 .sidebar {
@@ -207,10 +255,10 @@ tbody td {
 .pagination {
   padding: 18px 14px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   font-size: 13px;
-  color: #6b7280;
+  color: #ececec;
 }
 
 .pages {
@@ -252,21 +300,33 @@ tbody td {
 
     <!-- MAIN -->
     <div class="main">
+      <div class="main">
+      <form method="get" action="/admin/category">
+    <div style="margin-top: 18px; flex: 1; display: flex; justify-content: center;">
+    <input
+      name="search"
+      type="text"
+      placeholder="Search..."
+      value="ww"
+      style="
+        width: 60%;
+        max-width: 520px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 14px;
+      "
+    />
+  </div>
+  </form>
+  <h2 style="margin-left: 200px;">Products</h2>
 
-      <div class="title-row">
-        <h2>Product</h2>
-        <button class="add-btn">＋ Add Product</button>
+      <div style="margin-left: 200px;" class="breadcrumb">
+       › <a href="/admin/products">Products</a> › <a href="/admin/addProducts">Add Products</a> › <a href="/admin/editProduct">Edit Products</a>  › 
       </div>
 
-      <div class="breadcrumb">
-        <span>Dashboard</span> › Product List
-      </div>
-
-      <div class="tabs">
-        <div class="tab active">All Products</div>
-        <div class="tab">In Stock</div>
-        <div class="tab">Out of Stock</div>
-      </div>
+      
 
       <div class="card">
         <table>
@@ -274,50 +334,185 @@ tbody td {
             <tr>
               <th>Product</th>
               <th>Category</th>
-              <th>Stock</th>
               <th>Price</th>
+              <th>Stock</th>
               <th>Status</th>
-              <th>Added</th>
+              
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <div class="product">
-                  <div class="checkbox">✓</div>
+        <% if (products.length === 0) { %>
+          <tr>
+            <td colspan="7" style="text-align:center; padding:20px;">
+              No products found
+            </td>
+          </tr>
+        <% } %>
+
+        <% products.forEach(product => { %>
+          <tr>
+            <td>
+              <div class="product">
+                <div class="checkbox">✓</div>
+
+                <% if (product.images && product.images.length > 0) { %>
+                  <img 
+                    src="/uploads/products/<%= product.images[0] %>" 
+                    class="img"
+                  />
+                <% } else { %>
                   <div class="img"></div>
-                  Black Ultron
-                </div>
-              </td>
-              <td>Hoodie</td>
-              <td>10</td>
-              <td>₹109000</td>
-              <td><span class="status">In Stock</span></td>
-              <td>24 Jun 2023</td>
-              <td class="action">✏️</td>
-            </tr>
-          </tbody>
+                <% } %>
+
+                <%= product.name %>
+              </div>
+            </td>
+
+            <td><%= product.category?.name || "—" %></td>
+
+            
+
+            <td>₹<%= product.price %></td>
+
+            <td>
+              <% if (product.stock > 0) { %>
+                <span class="status">In Stock</span>
+              <% } else { %>
+                <span class="status" style="background:#fee2e2;color:#dc2626;">
+                  Out of Stock
+                </span>
+              <% } %>
+            </td>
+
+            <td>
+            <% if (product.isBlocked) { %>
+              <span style="color:#dc2626;">Blocked</span>
+            <% } else { %>
+              <span style="color:#16a34a;">Active</span>
+            <% } %>
+          </td>
+
+
+            <td class="action">
+
+          <!-- Edit -->
+          <a class="edit-btn" href="/admin/editProduct/<%= product._id %>">Edit</a>
+
+          <!-- Block / Unblock -->
+          <% if (product.isBlocked) { %>
+            <button
+              onclick="unblockProduct('<%= product._id %>')"
+              class="btn btn-unblock"
+            >
+              Unblock
+            </button>
+          <% } else { %>
+            <button
+              onclick="blockProduct('<%= product._id %>')"
+              class="btn btn-block"
+            >
+              Block
+            </button>
+          <% } %>
+
+        </td>
+       </tr>
+     <% }) %>
+        </tbody>
+
         </table>
 
         <div class="pagination">
-          <div>Showing 1–10 from 100</div>
-          <div class="pages">
-            <div class="page">‹</div>
-            <div class="page active">01</div>
-            <div class="page">02</div>
-            <div class="page">03</div>
-            <div class="page">04</div>
-            <div class="page">›</div>
-          </div>
+
+      <div class="pages">
+
+        <!-- PREVIOUS -->
+        <% if (currentPage > 1) { %>
+          <a class="page" href="?page=<%= currentPage - 1 %>&search=<%= search %>">‹</a>
+        <% } %>
+
+        <!-- PAGE NUMBERS -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a 
+            class="page <%= i === currentPage ? 'active' : '' %>"
+            href="?page=<%= i %>&search=<%= search %>"
+          >
+            <%= i.toString().padStart(2, "0") %>
+          </a>
+        <% } %>
+
+        <!-- NEXT -->
+        <% if (currentPage < totalPages) { %>
+          <a class="page" href="?page=<%= currentPage + 1 %>&search=<%= search %>">›</a>
+        <% } %>
+
         </div>
-
+       </div>
       </div>
-
-    </div>
-  </div>
-
+     </div>
+   </div>
 </div>
+
+<script>
+
+  async function blockProduct(productId){
+    
+    const ok = confirm("Do you want to block the product")
+    if(!ok){
+      return
+    }
+    try {
+
+      const res = await fetch(`/admin/blockProduct/${productId}`,{
+        method: "PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+      })
+      const data = await res.json()
+
+      if(data.success){
+        location.reload()
+      }else{
+        alert("Failed to block")
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+  async function unblockProduct(productId){
+    
+    const ok = confirm("Do you want to unblock the product")
+    if(!ok){
+      return
+    }
+    try {
+
+      const res = await fetch(`/admin/unblockProduct/${productId}`,{
+        method: "PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+      })
+      const data = await res.json()
+
+      if(data.success){
+        location.reload()
+      }else{
+        alert("Failed to unblock")
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+</script>
 
 </body>
 </html>

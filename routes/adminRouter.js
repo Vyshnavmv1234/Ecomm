@@ -1,10 +1,10 @@
-import {adminAuth,userAuth} from "../middlewares/auth.js"
+import {adminAuth} from "../middlewares/auth.js"
 import express from "express"
 import adminController from "../controllers/admin/adminController.js"
 import customerController from "../controllers/admin/customerController.js"
-import profileController from "../controllers/user/profileController.js"
 import productController from "../controllers/admin/productController.js"
 import categoryController from "../controllers/admin/categoryController.js"
+import { uploadProduct } from "../middlewares/multer.js"
 
 const router = express.Router()
 
@@ -25,6 +25,13 @@ router.patch("/users/:id/unblock",adminAuth,customerController.customerUnBlock)
 //PRODUCT MANAGEMENT
 
 router.get("/products",adminAuth,productController.loadProducts)
+router.get("/addProducts",adminAuth,productController.loadAddProducts)
+router.post("/addProduct",uploadProduct.array("images", 5),adminAuth,productController.postAddProducts)
+
+router.get("/editProduct/:id",adminAuth,productController.loadEditProduct)
+router.patch("/updateProduct/:id",adminAuth,productController.postEditProduct)
+router.patch("/blockProduct/:id",adminAuth,productController.blockProduct)
+router.patch("/unblockProduct/:id",adminAuth,productController.unblockProduct)
 
 //CATEGORY MANAGEMENT
 
@@ -34,6 +41,7 @@ router.post("/addCategory",adminAuth,categoryController.postAddCategory)
 router.get("/editCategory",adminAuth,categoryController.loadEditCategory)
 router.patch("/category/block/:id",adminAuth,categoryController.blockCategory)
 router.patch("/category/unblock/:id",adminAuth,categoryController.unblockCategory)
+router.patch("/category/update/:id",adminAuth,categoryController.updateCategory)
 
 
 

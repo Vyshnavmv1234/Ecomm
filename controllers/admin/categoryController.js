@@ -13,16 +13,17 @@ const loadCategoryInfo = async (req,res)=>{
     const page = parseInt(req.query.page)||1
     const limit = 4
     const skip = (page-1)*limit
+    const search = req.query.search || ""
 
     const userData = await User.find({isAdmin:true})
     req.session.adminName = userData[0].name
 
-    const categoryData = await Category.find({})
+    const categoryData = await Category.find({$or:[{name:{$regex:search,$options:"i"}}]})
     .sort({createdAt:-1})
     .skip(skip)
     .limit(limit)
 
-    const totalCategories = await Category.countDocuments()
+    const totalCategories = await Category.countDocuments({$or:[{name:{$regex:search,$options:"i"}}]})
     const totalPages = Math.ceil(totalCategories/limit)
 
     res.render("admin/categoryManagement",{
@@ -30,7 +31,8 @@ const loadCategoryInfo = async (req,res)=>{
       categoryData,
       currentPage: page,
       totalPages,
-      totalCategories
+      totalCategories,
+      search
     })
     
   } catch (error) {
@@ -85,7 +87,13 @@ const loadEditCategory = async (req,res)=>{
   try {
 
     if(req.session.admin){
-      res.render("admin/editCategory",{admin:req.session.adminName})
+
+      const categoryId = req.query.id
+      const findCategory = await Category.findById(categoryId)
+      
+      if(findCategory){
+        res.render("admin/editCategory",{admin:req.session.adminName,categoryData:findCategory})
+      }
     }
     
   } catch (error) {
@@ -94,6 +102,34 @@ const loadEditCategory = async (req,res)=>{
     res.redirect("/admin/pageNotFound")
   }
 }
+const updateCategory = async (req,res)=>{
+  try {
+
+    const categoryId = req.params.id
+    const newName = req.body.name
+
+    const findCategory = await Category.findById(categoryId)
+
+    const existingCategory = await Category.findOne({name:newName})
+
+    if(existingCategory){ 
+     return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS})
+    }
+    
+    if(findCategory){
+      await Category.updateOne({_id:categoryId},{$set:{name:newName}})
+      res.json({success:true})
+    }else{
+      console.log("Category not found")
+    }
+    
+  } catch (error) {
+    console.log(error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.INTERNAL_ERROR });
+  }
+}
+
+
 const blockCategory = async (req,res)=>{
 
   try {
@@ -137,4 +173,4 @@ const unblockCategory = async (req,res)=>{
 
 }
 
-export default {loadCategoryInfo,loadaddCategory,postAddCategory,loadEditCategory,blockCategory,unblockCategory}
+export default {loadCategoryInfo,loadaddCategory,updateCategory,postAddCategory,loadEditCategory,blockCategory,unblockCategory}
