@@ -1,5 +1,68 @@
 <%- include("../../views/partials/user/header") %>
 <style>
+
+  .filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  z-index: 1999;
+}
+
+/* SIDEBAR */
+.filter-sidebar {
+  position: fixed;
+  top: 0;
+  right: -360px;
+  width: 360px;
+  height: 100%;
+  background: #fff;
+  z-index: 2000;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-title {
+  padding: 14px 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.filter-content {
+  display: none;
+  padding: 0 16px 12px;
+}
+
+.filter-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid #eee;
+}
+
+.apply-btn {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+}
+
+.reset-btn {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+}
   
   /* TOP BAR */
   .top-bar {
@@ -9,6 +72,45 @@
     font-size: 13px;
     color: #777;
   }
+     .pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.page-btn.active {
+  background-color: #cab3b3;
+  color: #ffffff;
+  border-color: #bdabab;
+  cursor: default;
+}
+
+.page-btn.arrow {
+  font-size: 14px;
+  font-weight: bold;
+}
   
   .filters {
     display: flex;
@@ -62,7 +164,7 @@
   }
   
   .price {
-    color: #e67e22;
+    color: #000000;
     font-weight: bold;
     margin: 6px 0;
   }
@@ -119,7 +221,7 @@
   <div class="filters">
     <div class="filter-btn">New ⌄</div>
     <div class="filter-btn">☷</div>
-    <div class="filter-btn">⇅</div>
+    <div class="filter-btn"><button onclick="openFilter()">⇅</button></div>
   </div>
 </div>
 
@@ -145,15 +247,129 @@
       <%})%>
 
 </div>
+     
+    
+
+      <!-- FILTER OVERLAY -->
+<div id="filterOverlay" class="filter-overlay" onclick="closeFilter()"></div>
+
+<!-- FILTER SIDEBAR -->
+<div id="filterSidebar" class="filter-sidebar">
+
+  <div class="filter-header">
+    <h3>Filter</h3>
+    <span style="cursor:pointer" onclick="closeFilter()">✕</span>
+  </div>
+
+  <form method="GET" action="/user/productList">
+
+    <div class="filter-section">
+      <div class="filter-title" onclick="toggleSection(this)">
+        Sort By <span>⌄</span>
+      </div>
+      <div class="filter-content">
+        <label><input type="radio" name="sort" value="price_asc"> Low → High</label>
+        <label><input type="radio" name="sort" value="price_desc"> High → Low</label>
+        <label><input type="radio" name="sort" value="az"> A–Z</label>
+        <label><input type="radio" name="sort" value="za"> Z–A</label>
+      </div>
+    </div>
+
+    <!-- CATEGORY -->
+<div class="filter-section">
+  <div class="filter-title" onclick="toggleSection(this)">
+    Category <span>⌄</span>
+  </div>
+
+  <div class="filter-content">
+    <% for (let i = 0; i < category.length; i++) { %>
+      
+      <% if (!category[i].isBlocked) { %>
+        <label>
+          <input 
+            type="checkbox" 
+            name="category" 
+            value="<%= category[i]._id %>"
+          >
+          <%= category[i].name %>
+        </label>
+      <% } %>
+
+    <% } %>
+  </div>
+</div>
+
+
+    <div class="filter-section">
+      <div class="filter-title" onclick="toggleSection(this)">
+        Price Range <span>⌄</span>
+      </div>
+      <div class="filter-content">
+        <label><input type="radio" name="price" value="0-999"> Under ₹999</label>
+        <label><input type="radio" name="price" value="1000-1999"> ₹1000–₹1999</label>
+        <label><input type="radio" name="price" value="2000-5000"> ₹2000–₹5000</label>
+      </div>
+    </div>
+
+    <div class="filter-footer">
+      <button class="apply-btn">APPLY FILTER</button>
+      <a href="/user/productList" class="reset-btn">RESET</a>
+    </div>
+
+  </form>
+</div>
+
+
+
 
 <!-- PAGINATION -->
-<div class="pagination">
-  <div class="page active">1</div>
-  <div class="page">2</div>
-  <div class="page">3</div>
-  <div class="page">4</div>
-  <div class="page">5</div>
-  <div class="page">›</div>
+<div class="pagination-wrapper">
+
+  <!-- PREVIOUS BUTTON -->
+  <% if (currentPage > 1) { %>
+    <a href="?page=<%= currentPage - 1 %>" class="page-btn arrow">
+      &#8592;
+    </a>
+  <% } %>
+
+  <!-- PAGE NUMBERS -->
+  <% for (let i = 1; i <= totalPages; i++) { %>
+
+    <% if (i === currentPage) { %>
+      <span class="page-btn active">
+        <%= i %>
+      </span>
+    <% } else { %>
+      <a href="?page=<%= i %>" class="page-btn">
+        <%= i %>
+      </a>
+    <% } %>
+
+  <% } %>
+
+  <!-- NEXT BUTTON -->
+  <% if (currentPage < totalPages) { %>
+    <a href="?page=<%= currentPage + 1 %>" class="page-btn arrow">
+      &#8594;
+    </a>
+  <% } %>
+
 </div>
+<Script>
+  function openFilter() {
+  filterSidebar.style.right = "0";
+  filterOverlay.style.display = "block";
+}
+
+function closeFilter() {
+  filterSidebar.style.right = "-360px";
+  filterOverlay.style.display = "none";
+}
+
+function toggleSection(el) {
+  const content = el.nextElementSibling;
+  content.style.display = content.style.display === "block" ? "none" : "block";
+}
+</Script>
 
 <%- include("../../views/partials/user/footer") %>

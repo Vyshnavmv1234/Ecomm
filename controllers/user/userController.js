@@ -2,6 +2,7 @@ import User from "../../models/userSchema.js"
 import nodemailer from "nodemailer"
 import env from "dotenv"
 import bcrypt from "bcrypt"
+import Category from "../../models/categorySchema.js"
 import product from "../../models/productSchema.js"
 env.config()
 
@@ -271,18 +272,62 @@ const logout = async (req,res)=>{
 const loadProductList = async(req,res)=>{
   try {
 
-    const userData = await User.findById(req.session.user)
-    const productData = await product.find({isBlocked:false})
-    console.log(productData.images)
+      const search = req.query.pSearch || ""
+      const limit = 8
+      const page = parseInt(req.query.page)||1
+      const skip = (page-1)*limit
+      const {category,price} = req.query
 
-    if(req.session.user){
-      res.render("user/productList",{user:userData,products:productData})
-    }
+      console.log(category)
+
+      const filter = {
+        isBlocked:false,
+      }
+      if(price){
+        const [min,max] = price.split("-").map(val=>{
+          return Number(val)
+        })
+        filter.price = {
+          $gte:min,$lte:max
+        }
+      }
+
+      if(category){
+        filter.category ={
+          $in: Array.isArray(category)?category:[category]
+        }
+      }
+
+      const userData = await User.findById(req.session.user)
+      const categoryData = await Category.find({isBlocked:false})
+      const productData = await product.find(filter)
+       .sort({createdAt:-1})
+       .skip(skip)
+       .limit(limit)
+
+       const totalProduct = await product.countDocuments(
+       {name:{$regex:search,$options:"i"}})
+
+       const totalPages = (totalProduct/limit)
+
+
+      return res.render("user/productList",{
+        user:userData,
+        products:productData,
+        limit,
+        currentPage:page,
+        totalPages,
+        skip,
+        search,
+        category:categoryData
+      })
     
-  } catch (error) {
     
+  } catch (error) {   
+    console.error("Error loading products",error)
   }
 }
+
 
 
 export default {loadHomepage,pageNotFound,loadSignup,loadLogin,login,signup,verifyOtp,resentOtp,logout,loadProductList}

@@ -8,7 +8,7 @@ const loadProducts = async(req,res)=>{
 
     if(req.session.admin){
       let page = parseInt(req.query.page)||1
-      let limit = 4
+      let limit = 3
       let skip = (page-1)*limit
       let search = req.query.search || ""
 

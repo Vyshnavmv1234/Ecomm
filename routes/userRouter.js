@@ -59,9 +59,9 @@ router.get("/edit-address",userAuth,profileController.loadEditAddress)
 router.post("/edit-address",userAuth,profileController.postEditAddress)
 router.get("/delete-address",userAuth,profileController.deleteAddress)
 
-//PRODUCT LIST
+//PRODUCT LISTINGS
 
-router.get("/productList",userAuth,userController.loadProductList)
+router.get("/productList",userController.loadProductList)
 
 
 export default router 

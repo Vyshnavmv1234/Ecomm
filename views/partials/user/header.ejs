@@ -116,11 +116,17 @@
   <header>
     <div class="header-top">
       <div class="logo"><a href="/user/homepage">WestLane</a></div>
-
+      
       <div class="search">
-        <input type="text" placeholder="What are you looking for?" />
+        <form method="get" action="/user/productList">
+        <input 
+        name="pSearch" 
+        value="<%= typeof search !== 'undefined' ? search : '' %>" 
+        type="text" 
+        placeholder="What are you looking for?" 
+      />
+      </form>
       </div>
-
       <div class="header-icons">
 
         <% if (user) { %>
