@@ -4,6 +4,7 @@ import env from "dotenv"
 import bcrypt from "bcrypt"
 import Category from "../../models/categorySchema.js"
 import product from "../../models/productSchema.js"
+import ERROR_MESSAGES from "../../utitls/errorMessages.js"
 env.config()
 
 //GEN OTP
@@ -276,12 +277,13 @@ const loadProductList = async(req,res)=>{
       const limit = 8
       const page = parseInt(req.query.page)||1
       const skip = (page-1)*limit
-      const {category,price} = req.query
+      const {category,price,sort} = req.query
 
-      console.log(category)
+      console.log(search)
 
       const filter = {
         isBlocked:false,
+        name:{$regex:search,$options:"i"}
       }
       if(price){
         const [min,max] = price.split("-").map(val=>{
@@ -291,25 +293,31 @@ const loadProductList = async(req,res)=>{
           $gte:min,$lte:max
         }
       }
-
       if(category){
         filter.category ={
           $in: Array.isArray(category)?category:[category]
         }
       }
+      let sortOption = {createdAt:-1}
+
+      if(sort == "price_asc") sortOption = {price:1}
+      if(sort == "price_desc") sortOption = {price:-1}
+      if(sort == "az"||sort == "az") sortOption = {name:1}
+      if(sort == "za"||sort == "za") sortOption = {name:-1}
+
 
       const userData = await User.findById(req.session.user)
       const categoryData = await Category.find({isBlocked:false})
       const productData = await product.find(filter)
-       .sort({createdAt:-1})
+      
+       .sort(sortOption)
        .skip(skip)
        .limit(limit)
+       .lean()
 
-       const totalProduct = await product.countDocuments(
-       {name:{$regex:search,$options:"i"}})
+       const totalProduct = await product.countDocuments(filter)
 
        const totalPages = (totalProduct/limit)
-
 
       return res.render("user/productList",{
         user:userData,
@@ -324,9 +332,10 @@ const loadProductList = async(req,res)=>{
     
     
   } catch (error) {   
-    console.error("Error loading products",error)
+    console.error(ERROR_MESSAGES.PRODUCT_LOAD_FAILED,error)
   }
 }
+
 
 
 

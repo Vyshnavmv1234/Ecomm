@@ -5,6 +5,8 @@ import {userAuth} from "../middlewares/auth.js"
 import uploadController from "../controllers/routeUpload.js";
 import express from "express"
 import {uploadUser} from "../middlewares/multer.js";
+import product from "../models/productSchema.js";
+import productController from "../controllers/user/productController.js";
 
 const router = express.Router()
 
@@ -59,9 +61,12 @@ router.get("/edit-address",userAuth,profileController.loadEditAddress)
 router.post("/edit-address",userAuth,profileController.postEditAddress)
 router.get("/delete-address",userAuth,profileController.deleteAddress)
 
-//PRODUCT LISTINGS
+//PRODUCT LISTINGS + Details
 
 router.get("/productList",userController.loadProductList)
+router.get("/productDetail",productController.productDetail)
+router.get("/addToCart",productController.addToCart)
+
 
 
 export default router 

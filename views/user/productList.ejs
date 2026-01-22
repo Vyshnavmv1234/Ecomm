@@ -235,8 +235,10 @@
 
        <span class="wishlist">♡</span>
 
-       <img src="<%=product.images[0].url%>"
+       <a href="/user/productDetail?id=<%=product._id%>">
+        <img src="<%=product.images[0].url%>"
         alt="<%= product.pName %>">
+       </a>
 
        <div class="brand"><%=product.name%></div>
        <p class="title"><%=product.title%></p>

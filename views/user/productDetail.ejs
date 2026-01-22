@@ -1,0 +1,422 @@
+<%- include("../../views/partials/user/header") %>
+
+
+<style>
+.gallery {
+  width: 620px;      /* dominant column */
+  padding: 32px;
+  border: 1px solid #f5f5f5;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.zoom-wrapper {
+  overflow: hidden;       /* hides zoom overflow */
+  cursor: zoom-in;
+}
+.zoom-wrapper img {
+  transition: transform 0.15s ease-out;
+  transform-origin: center center;
+}
+
+.thumbnail {
+  cursor: pointer;
+  transition: border 0.2s ease;
+}
+
+.thumbnail:hover {
+  border-color: #000;
+}
+
+.main-image {
+  width: 100%;
+  height: 640px;          /* 🔥 tall like reference */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.main-image img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+/* THUMBNAILS */
+.thumbnail-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.thumbnail {
+  width: 72px;
+  height: 72px;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: #fff;
+}
+
+.thumbnail img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* ACTIVE THUMBNAIL (UI ONLY) */
+.thumbnail.active {
+  border: 2px solid #000;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: #fff;
+}
+
+
+/* PRODUCT */
+.product-container {
+  max-width: 1400px;   /* 🔥 allows content to stretch */
+  margin: 0 auto;
+  display: flex;
+  gap: 64px;
+  padding: 56px 24px;  /* controlled side padding */
+  align-items: flex-start;
+}
+
+
+
+
+.product-details {
+   width: 620px;     /* slimmer like reference */
+  padding-top: 6px;     /* aligns brand with image top */
+}
+
+.brand {
+  font-size: 12px;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-size: 17px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.price {
+  font-size: 17px;
+  font-weight:900;
+  margin-bottom: 10PX;
+}
+
+
+.size span {
+  display: inline-block;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.action {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.add-btn {
+  width: 250px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 14px;
+}
+
+
+
+/* INFO */
+.section {
+  margin-bottom: 20px;
+}
+
+.section h4 {
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.section p,
+.section li {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.section ul {
+  list-style: none;
+}
+
+.accordion {
+  border-top: 1px solid #ddd;
+  padding: 12px 0;
+  font-size: 13px;
+}
+
+/* TABS */
+.tabs {
+  width: 80%;
+  margin: 40px auto;
+  border-top: 1px solid #ddd;
+}
+
+.tab-header {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.tab-header span {
+  padding: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-header .active {
+  border-color: orange;
+}
+
+/* DESCRIPTION */
+.description {
+  max-width: 800px;
+  margin: auto;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+}
+
+/* REVIEW */
+.review-container {
+  max-width: 900px;
+  margin: auto;
+}
+
+.review-top {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.rating-box {
+  background: #fff5cc;
+  padding: 30px;
+  text-align: center;
+  width: 200px;
+}
+
+.rating-box h1 {
+  font-size: 48px;
+}
+
+.rating-bars div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bar {
+  height: 6px;
+  background: #eee;
+  width: 200px;
+  margin: 0 10px;
+}
+
+.bar span {
+  display: block;
+  height: 6px;
+  background: orange;
+}
+
+.customer-review {
+  border-top: 1px solid #ddd;
+  padding: 20px 0;
+}
+
+.customer-review h4 {
+  font-size: 14px;
+}
+
+.customer-review p {
+  font-size: 13px;
+  color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PRODUCT -->
+<div class="product-container">
+  <div class="gallery">
+
+  <!-- <div class="wishlist">♡</div> -->
+
+          <!-- Main Image -->
+
+      <div class="main-image zoom-wrapper">
+      <img
+        id="mainProductImage"
+        src="<%= productData.images[0].url %>"
+        alt="Product"
+      >
+     </div>
+
+
+      <!-- Thumbnails -->
+      <div class="thumbnail-container">
+        <% productData.images.forEach((img, index) => { %>
+          <div 
+            class="thumbnail <%= index === 0 ? 'active' : '' %>"
+            onclick="changeImage('<%= img.url %>', this)"
+          >
+            <img src="<%= img.url %>" alt="thumbnail">
+          </div>
+        <% }) %>
+      </div>
+
+
+</div>
+
+  <div class="product-details">
+    <div class="brand"><%=productData.name%></div>
+    <div class="title"><%=productData.title%></div>
+    <div class="price">₹<%=productData.price%></div>
+    <div class="availablity">
+      <%if(productData.quantity>0){%>
+        Availablity: <span style="color: rgb(160, 194, 110);font-size: small;">INSTOCK</span>
+      <%}else{%>
+        Availablity: <span style="color: rgb(235, 64, 64);font-size: small;">OUT OF STOCK</span>
+      <%}%>
+    </div>
+
+    <div class="size">
+      <strong>Size</strong><br><br>                                  
+      <span>S</span><span>M</span><span>L</span>
+    </div>
+
+    <div class="action">
+      <a href="/user/addToCart"><button class="add-btn">+ ADD TO BASKET</button></a>
+      
+    </div>
+
+    <div class="section">
+      <h4>MATERIALS</h4>
+      <p>We ensure compliance with safety and quality standards.</p>
+    </div>
+
+    <div class="section">
+      <h4>CARE</h4>
+      <ul>
+        <li>Do not bleach</li>
+        <li>Do not tumble dry</li>
+        <li>Dry clean only</li>
+        <li>Iron max 110°C</li>
+      </ul>
+      
+    </div>
+
+    <div class="section">
+      <div class="description">
+        <h4>DESCRIPTION</h4>
+    <%=productData.description%>
+  </div>
+    </div>
+
+    <div class="accordion">🚚 Free Flat Rate Shipping</div>
+    <div class="accordion">💵 COD Policy</div>
+    <div class="accordion">↩ Return Policy</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab-header">
+    <span class="active">REVIEW</span>
+  </div>
+  
+
+  <!-- REVIEW -->
+  <div class="review-container">
+    <div class="review-top">
+      <div class="rating-box">
+        <h1>4.7</h1>
+        ⭐⭐⭐⭐⭐
+        <p>Customer Rating</p>
+      </div>
+
+      <div class="rating-bars">
+        <div>5★ <div class="bar"><span style="width:63%"></span></div> 63%</div>
+        <div>4★ <div class="bar"><span style="width:24%"></span></div> 24%</div>
+        <div>3★ <div class="bar"><span style="width:9%"></span></div> 9%</div>
+        <div>2★ <div class="bar"><span style="width:1%"></span></div> 1%</div>
+        <div>1★ <div class="bar"><span style="width:7%"></span></div> 7%</div>
+      </div>
+    </div>
+
+    <div class="customer-review">
+      <h4>Dianne Russell ⭐⭐⭐⭐⭐</h4>
+      <p>Excellent quality and very comfortable.</p>
+    </div>
+
+    <div class="customer-review">
+      <h4>Courtney Henry ⭐⭐⭐⭐</h4>
+      <p>Nice fabric and great fit.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function changeImage(imageUrl, el) {
+  
+      document.getElementById("mainProductImage").src = imageUrl;
+
+
+      document.querySelectorAll(".thumbnail").forEach(t => {
+        t.classList.remove("active");
+      });
+
+      el.classList.add("active");
+}
+
+      const zoomImage = document.getElementById("mainProductImage");
+
+      zoomImage.addEventListener("mousemove", function (e) {
+        const rect = this.getBoundingClientRect();
+
+        const x = ((e.clientX - rect.left) / rect.width) * 90;
+        const y = ((e.clientY - rect.top) / rect.height) * 90;
+
+        this.style.transformOrigin = `${x}% ${y}%`;
+        this.style.transform = "scale(1.8)";
+      });
+
+      zoomImage.addEventListener("mouseleave", function () {
+        this.style.transformOrigin = "center center";
+        this.style.transform = "scale(1)";
+});
+
+</script>
+
+
+<%- include("../../views/partials/user/footer") %>
