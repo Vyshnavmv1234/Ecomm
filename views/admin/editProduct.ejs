@@ -169,6 +169,17 @@ textarea{
     <textarea id="descriptionId" name="productDescription">
       <%=product.description%>
       </textarea>
+      
+       <!-- GENERAL PHOTO (TITLE ONLY LIKE SCREENSHOT) -->
+  <div class="card">
+        <h3 style="margin-bottom:20px;">General Photo</h3>
+
+        <div class="image-box">
+          <p>Drag and drop image here, or click add image</p>
+          <input id="imageInput" type="file" name="images" multiple>
+          <button type="button">Add Image</button>
+        </div>
+      </div>
 
       <div class="actions">
         <button id="buttonId" type="submit" class="btn btn-primary">Save Product</button>
@@ -177,44 +188,42 @@ textarea{
   </div>
   </form>
 
-  <!-- GENERAL PHOTO (TITLE ONLY LIKE SCREENSHOT) -->
-  <div class="card">
-        <h3 style="margin-bottom:20px;">General Photo</h3>
-
-        <div class="image-box">
-          <p>Drag and drop image here, or click add image</p>
-          <input type="file" name="images" multiple>
-          <button type="button">Add Image</button>
-        </div>
-      </div>
+ 
 
 </div>
 <script>
 
-  const form = document.getElementById("formId")
+ const form = document.getElementById("formId");
 
-  form.addEventListener("submit",async(e)=>{
-    e.preventDefault()
+  form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    const pName = document.getElementById("productId").value.trim()
-    const pDescripton = document.getElementById("descriptionId").value.trim()
-    const productId = "<%=product._id%>"
+  const productId = "<%= product._id %>";
+  const formData = new FormData();
 
-    const res = await fetch(`/admin/updateProduct/${productId}`,{
-      method: "PATCH",
-      headers: {
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({name:pName,description:pDescripton})
-    })
-    const data = await res.json()
+  formData.append("name", document.getElementById("productId").value.trim());
+  formData.append("description", document.getElementById("descriptionId").value.trim());
 
-    if(res.ok && data.success){
-      window.location.href = "/admin/products"
-    }else{
-      alert(data.message || "Failed to update category");
-    }
-  })
+  const images = document.getElementById("imageInput").files;
+
+  for (let img of images) {
+    formData.append("images", img);
+  }
+
+  const res = await fetch(`/admin/updateProduct/${productId}`, {
+    method: "PATCH",
+    body: formData   
+  });
+
+  const data = await res.json();
+
+  if (res.ok && data.success) {
+    window.location.href = "/admin/products";
+  } else {
+    alert(data.message || "Failed to update product");
+  }
+});
+
 </script>
 
 </body>

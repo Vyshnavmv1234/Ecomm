@@ -3,7 +3,7 @@ import nodemailer from "nodemailer"
 import env from "dotenv"
 import bcrypt from "bcrypt"
 import Category from "../../models/categorySchema.js"
-import product from "../../models/productSchema.js"
+import Product from "../../models/productSchema.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
 env.config()
 
@@ -274,15 +274,18 @@ const loadProductList = async(req,res)=>{
   try {
 
       const search = req.query.pSearch || ""
-      const limit = 8
+      const limit = 12
       const page = parseInt(req.query.page)||1
       const skip = (page-1)*limit
       const {category,price,sort} = req.query
 
-      console.log(search)
+
+      const unblockedCategories = await Category.find({isBlocked:false})
+      const allowedCategoriesId = unblockedCategories.map((category)=>category._id)
 
       const filter = {
         isBlocked:false,
+        category: {$in:allowedCategoriesId},
         name:{$regex:search,$options:"i"}
       }
       if(price){
@@ -308,14 +311,12 @@ const loadProductList = async(req,res)=>{
 
       const userData = await User.findById(req.session.user)
       const categoryData = await Category.find({isBlocked:false})
-      const productData = await product.find(filter)
-      
+      const productData = await Product.find(filter)
        .sort(sortOption)
        .skip(skip)
-       .limit(limit)
-       .lean()
+       .limit(limit)   
 
-       const totalProduct = await product.countDocuments(filter)
+       const totalProduct = await Product.countDocuments(filter)
 
        const totalPages = (totalProduct/limit)
 
@@ -325,6 +326,7 @@ const loadProductList = async(req,res)=>{
         limit,
         currentPage:page,
         totalPages,
+        totalProduct,
         skip,
         search,
         category:categoryData

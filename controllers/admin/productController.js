@@ -1,5 +1,6 @@
 import Product from "../../models/productSchema.js"
 import Category from "../../models/categorySchema.js"
+import cloudinary from "../../config/cloudinary.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
 
@@ -8,7 +9,7 @@ const loadProducts = async(req,res)=>{
 
     if(req.session.admin){
       let page = parseInt(req.query.page)||1
-      let limit = 3
+      let limit = 6
       let skip = (page-1)*limit
       let search = req.query.search || ""
 
@@ -54,7 +55,6 @@ const loadAddProducts = async (req,res)=>{
 const postAddProducts = async(req,res)=>{
   try {
     if(req.session.admin){
-      console.log("hi")
 
       const {pName,price,description,discount,category,pTitle} = req.body
 
@@ -116,33 +116,57 @@ const loadEditProduct = async (req,res)=>{
     console.error("error in loading edit products",error)
   }
 }
-const postEditProduct = async(req,res)=>{
+
+const postEditProduct = async (req, res) => {
+  console.log("BODY:", req.body);
+  console.log("FILES:", req.files);
+
   try {
+    if (!req.session.admin) {
+      return res.redirect("/admin/loadLogin");
+    }
 
-    if(req.session.admin){
+    const productId = req.params.id;
+    const NAME = req.body?.name;
+    const DESCRIPTION = req.body?.description;
 
-      const productId = req.params.id
-      const NAME = req.body.name
-      const DESCRIPTION = req.body.description
+    const product = await Product.findById(productId);
 
-      const findProduct = await Product.findById(productId)
-      console.log(findProduct)
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
 
-      if(findProduct){
-
-        await Product.updateOne({_id:productId},{$set:{name:NAME,description:DESCRIPTION}})
-        return res.json({success:true})
+    if (req.files && req.files.length > 0) {
+      for (let img of product.images) {
+        await cloudinary.uploader.destroy(img.public_id);
       }
 
-
-    }else{
-      return res.redirect("/admin/loadLogin")
+      product.images = req.files.map(file => ({
+        url: file.path,
+        public_id: file.filename
+      }));
     }
-    
+
+    if (NAME) product.name = NAME;
+    if (DESCRIPTION) product.description = DESCRIPTION;
+
+    await product.save();
+
+    return res.json({ success: true });
+
   } catch (error) {
-    console.error("error in editing products",error)
+    console.error("error in editing products", error);
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: ERROR_MESSAGES.PRODUCT_UPDATE_FAILED
+    });
   }
-}
+};
+
+
 
 const blockProduct = async (req,res)=>{
   try {

@@ -474,7 +474,6 @@ function validateForm() {
     const data = await res.json();
 
     if (data.success) {
-      alert("Product added successfully");
       window.location.href = "/admin/products";
     } else {
       alert("Failed to add product");

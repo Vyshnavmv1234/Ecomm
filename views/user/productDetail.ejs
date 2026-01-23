@@ -2,6 +2,60 @@
 
 
 <style>
+  /* SIMILAR PRODUCTS */
+.similar-section {
+  max-width: 1400px;
+  margin: 80px auto;
+  padding: 0 24px;
+}
+
+.similar-section h3 {
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.similar-products {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.similar-card {
+  width: 260px;
+  cursor: pointer;
+}
+
+.similar-card img {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  background: #f5f5f5;
+}
+
+.similar-info {
+  margin-top: 10px;
+}
+
+.similar-brand {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #777;
+  margin-bottom: 4px;
+}
+
+.similar-title {
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.similar-price {
+  font-size: 13px;
+  font-weight: bold;
+}
+
 .gallery {
   width: 620px;      /* dominant column */
   padding: 32px;
@@ -65,6 +119,7 @@
 .thumbnail img {
   max-width: 100%;
   max-height: 100%;
+  margin-left: 7px;
 }
 
 /* ACTIVE THUMBNAIL (UI ONLY) */
@@ -316,9 +371,9 @@ body {
     </div>
 
     <div class="action">
-      <a href="/user/addToCart"><button class="add-btn">+ ADD TO BASKET</button></a>
-      
+      <a><button onclick="return eFun()" class="add-btn">+ ADD TO BASKET</button></a>
     </div>
+    <strong style="color: red; margin-bottom: 9px;" id="addError"></strong>
 
     <div class="section">
       <h4>MATERIALS</h4>
@@ -343,9 +398,9 @@ body {
   </div>
     </div>
 
-    <div class="accordion">🚚 Free Flat Rate Shipping</div>
-    <div class="accordion">💵 COD Policy</div>
-    <div class="accordion">↩ Return Policy</div>
+    <div class="accordion">Free Flat Rate Shipping</div>
+    <div class="accordion">COD Policy</div>
+    <div class="accordion">Return Policy</div>
   </div>
 </div>
 
@@ -385,6 +440,32 @@ body {
     </div>
   </div>
 </div>
+<!-- SIMILAR PRODUCTS -->
+<div class="similar-section">
+  <h3>Similar Products</h3>
+
+  <div class="similar-wrapper">
+    <% similarProduct.forEach(product=>{%>
+    <div class="similar-products">
+
+
+         
+      <div class="similar-card">
+        <img src="<%=product.images[0].url%>" alt="product">
+        <div class="similar-info">
+          <p class="similar-brand"><%=product.name%></p>
+          <p class="similar-title">
+            <%=product.title%>
+          </p>
+          <p class="similar-price">₹<%=product.price%></p>
+        </div>
+      </div>
+
+      <%})%>
+    </div>
+  </div>
+</div>
+
 
 <script>
 function changeImage(imageUrl, el) {
@@ -415,6 +496,18 @@ function changeImage(imageUrl, el) {
         this.style.transformOrigin = "center center";
         this.style.transform = "scale(1)";
 });
+
+function eFun(){
+  const qty = "<%=productData.quantity%>"
+
+  const addError = document.getElementById('addError')
+
+  if(qty ==0){
+    addError.innerText = "Cannot add to cart"
+  }else{
+    addError.innerText = "success"
+  }
+}
 
 </script>
 

@@ -29,9 +29,9 @@ router.get("/addProducts",adminAuth,productController.loadAddProducts)
 router.post("/addProduct",uploadProduct.array("images", 5),adminAuth,productController.postAddProducts)
 
 router.get("/editProduct/:id",adminAuth,productController.loadEditProduct)
-router.patch("/updateProduct/:id",adminAuth,productController.postEditProduct)
 router.patch("/blockProduct/:id",adminAuth,productController.blockProduct)
 router.patch("/unblockProduct/:id",adminAuth,productController.unblockProduct)
+router.patch("/updateProduct/:id",adminAuth,uploadProduct.array("images", 5),productController.postEditProduct)
 
 //CATEGORY MANAGEMENT
 
