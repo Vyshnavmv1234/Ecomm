@@ -12,6 +12,22 @@
   box-sizing: border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
 
 body {
   background: #f6f7fb;
@@ -136,7 +152,7 @@ body {
 }
 
 .add-btn {
-  background: #cbb8b3;
+  background:#cbb8b3;
   border: none;
   padding: 10px 16px;
   border-radius: 10px;
@@ -146,14 +162,22 @@ body {
 }
 
 /* BREADCRUMB */
-.breadcrumb {
-  margin-top: 6px;
-  font-size: 13px;
-  color: #9ca3af;
+
+.breadcrumb-container {
+  display: flex;
+  justify-content: space-between; /* pushes button to right */
+  align-items: center;
+  margin-left: 200px;
 }
 
-.breadcrumb span {
-  color: #3b82f6;
+
+
+.add-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #d6c4b8;
+  border: none;
+  cursor: pointer;
 }
 
 /* TABS */
@@ -322,11 +346,16 @@ tbody td {
   </form>
   <h2 style="margin-left: 200px;">Products</h2>
 
-      <div style="margin-left: 200px;" class="breadcrumb">
-       › <a href="/admin/products">Products</a> › <a href="/admin/addProducts">Add Products</a> › <a href="/admin/editProduct">Edit Products</a>  › 
-      </div>
+      <div class="breadcrumb-container">
+  <nav class="breadcrumb">
+  <a href="/admin/adminDashboard">Dashboard</a>
+  <span>›</span>
+  <span class="active">Products</span>
+  </nav>
 
-      
+  <a href="/admin/addProducts" ><button id="addProductBtn" class="add-btn">＋ Add Product</button></a>
+</div>
+
 
       <div class="card">
         <table>

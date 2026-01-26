@@ -12,6 +12,22 @@
   box-sizing: border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
 .action {
   display: flex;
   gap: 10px;
@@ -142,7 +158,7 @@
   margin-top: 6px;
   font-size: 14px;
   color: #9ca3af;
-  margin-left: 218px;
+  margin-left: 110px;
 }
 
 .breadcrumb span {
@@ -299,7 +315,12 @@ tbody td {
       </div>
 
       <div class="breadcrumb">
-       › <a href="/admin/category">Categories</a> › <a href="/admin/addCategory">Add Categories</a> › <a href="/admin/editCategory">Edit Category</a>  › 
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <span class="active">Categories</span>
+    </nav>
+
       </div>
 
       <div class="card">

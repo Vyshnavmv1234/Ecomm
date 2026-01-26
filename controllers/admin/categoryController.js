@@ -60,13 +60,19 @@ const loadaddCategory = async (req,res)=>{
 const postAddCategory = async(req,res)=>{
   try {
 
-    const name = req.body.search
+    let name = req.body.search
 
     if(!req.session.admin){
     return res.redirect("/admin/adminLogin")
     }
+    if (!name || !name.trim()) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Category name is required" });
+    }
+    name = name.trim()
     
     const existingCategory = await Category.findOne({name})
+    .collation({ locale: "en", strength: 2 })
+    
     if(existingCategory){
       return res.status(STATUS_CODES.BAD_REQUEST).json({error:ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS})
     }
@@ -74,7 +80,7 @@ const postAddCategory = async(req,res)=>{
       name
     })
     await newCategory.save()
-    res.json({message:"Category added successfully"})
+    res.json({message:"Category added successfully"}) 
     
   } catch (error) {
 

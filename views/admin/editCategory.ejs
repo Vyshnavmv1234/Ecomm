@@ -11,6 +11,22 @@
   box-sizing:border-box;
   font-family:"Inter",Arial,sans-serif;
 }
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
 .btn{
   padding:10px 16px;
   border-radius:8px;
@@ -203,7 +219,14 @@ input{
   </div>
 
   <div class="breadcrumb">
-       › <a href="/admin/category">Categories</a> › <a href="/admin/addCategory">Add Categories</a> › <a href="/admin/editCategory">Edit Category</a>  › 
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <a href="/admin/category">Categories</a>
+      <span>›</span>
+      <span class="active">Edit Category</span>
+    </nav>
+
       </div>
 
   <div class="form-grid">
