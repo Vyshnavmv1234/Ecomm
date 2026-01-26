@@ -45,6 +45,4 @@ router.patch("/category/update/:id",adminAuth,categoryController.updateCategory)
 
 
 
-
-
 export default router     

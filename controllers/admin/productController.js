@@ -58,14 +58,14 @@ const postAddProducts = async(req,res)=>{
 
       const {pName,price,description,discount,category,pTitle} = req.body
 
-      if(!pName || !price || !description || !discount || !category || !pTitle){
-        return res.json({
+      if(!pName || !price || !description || !category || !pTitle){
+        return res.status(STATUS_CODES.BAD_REQUEST).json({
           success:false,
           message:"All fields must be filled"
         })
       }
       if(!req.files || req.files.length<3){
-        return res.json({
+        return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: "Minimum 3 images required"
         })
@@ -87,7 +87,7 @@ const postAddProducts = async(req,res)=>{
       })
       
       await newProduct.save()
-      return res.json({ success: true });
+      return res.status(STATUS_CODES.CREATED).json({ success: true,message: "Product added successfully"});
 
     }else{
       return res.redirect("/admin/pageNotFound")
@@ -105,6 +105,7 @@ const loadEditProduct = async (req,res)=>{
 
       const productId = req.params.id
       const findProduct = await Product.findById(productId)
+      console.log(findProduct)
       
       if(findProduct){
         return res.render("admin/editProduct",{admin:req.session.adminData.name,product:findProduct})
@@ -118,8 +119,6 @@ const loadEditProduct = async (req,res)=>{
 }
 
 const postEditProduct = async (req, res) => {
-  console.log("BODY:", req.body);
-  console.log("FILES:", req.files);
 
   try {
     if (!req.session.admin) {
@@ -129,6 +128,9 @@ const postEditProduct = async (req, res) => {
     const productId = req.params.id;
     const NAME = req.body?.name;
     const DESCRIPTION = req.body?.description;
+    const DISCOUNT = req.body?.discount;
+    const PRICE = req.body?.price;
+    const TITLE = req.body?.title;
 
     const product = await Product.findById(productId);
 
@@ -152,6 +154,9 @@ const postEditProduct = async (req, res) => {
 
     if (NAME) product.name = NAME;
     if (DESCRIPTION) product.description = DESCRIPTION;
+    if (DISCOUNT) product.discount = DISCOUNT;
+    if (PRICE) product.price = PRICE;
+    if (TITLE) product.title = TITLE;
 
     await product.save();
 

@@ -12,6 +12,22 @@
   box-sizing:border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
 .error{
   color:#dc2626;
   font-size:12px;
@@ -198,7 +214,14 @@ textarea{
       </div>
 
        <div style="margin-bottom: 10px;" class="breadcrumb">
-       › <a href="/admin/products">Products</a> › <a href="/admin/addProducts">Add Products</a> › <a href="/admin/editProduct">Edit Products</a>  › 
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <a href="/admin/products">Products</a>
+      <span>›</span>
+      <span class="active">Add Product</span>
+    </nav>
+
        
       </div>
 
@@ -297,13 +320,38 @@ textarea{
 
 </div>
 
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.css"
-/>
-<script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.css"
+    />
+    <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
   <script>
+
+        function showToast(message, type = "success") {
+        Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",       
+        position: "center",    
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background:
+            type === "success"
+              ? "linear-gradient(to right, #16a34a, #22c55e)"
+              : "linear-gradient(to right, #dc2626, #ef4444)",
+        }
+      }).showToast();
+    }
 
     const imageInput = document.getElementById("imageInput");
     const previewContainer = document.getElementById("previewContainer");
@@ -473,10 +521,15 @@ function validateForm() {
 
     const data = await res.json();
 
-    if (data.success) {
-      window.location.href = "/admin/products";
+    if (res.ok && data.success) {
+      showToast("Product added successfully", "success");
+
+      setTimeout(() => {
+        window.location.href = "/admin/products";
+      }, 1000);
+
     } else {
-      alert("Failed to add product");
+      showToast(data.error || "Failed to add product", "error");
     }
 
     return false;

@@ -12,6 +12,22 @@
   box-sizing: border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
 
 /* CONTENT */
 .content {
@@ -182,7 +198,14 @@ input[type="text"] {
       </div>
 
       <div class="breadcrumb">
-       › <a href="/admin/category">Categories</a> › <a href="/admin/addCategory">Add Categories</a> › <a href="/admin/editCategory">Edit Category</a>  › 
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <a href="/admin/category">Categories</a>
+      <span>›</span>
+      <span class="active">Add Category</span>
+    </nav>
+
       </div>
 
       <!-- FORM -->
@@ -234,6 +257,20 @@ input[type="text"] {
       return;
     }
 
+    if (name.length < 3) {
+      errorMsg.textContent = "Category name must be at least 3 characters";
+      return;
+    }
+
+    const nameRegex = /^[A-Za-z ]+$/;
+    if (!nameRegex.test(name)) {
+      errorMsg.textContent = "Category name can contain only letters";
+      return;
+    }
+
+    addBtn.disabled = true;
+    addBtn.textContent = "Adding...";
+
     try {
       const res = await fetch("/admin/addCategory", {
         method: "POST",
@@ -246,21 +283,29 @@ input[type="text"] {
       const data = await res.json();
 
       if (!res.ok) {
-        errorMsg.textContent = data.error;
+        errorMsg.textContent = data.error || "Failed to add category";
+        addBtn.disabled = false;
+        addBtn.textContent = "+ Add Category";
         return;
       }
-      setTimeout(()=>{
-        window.location.href = "/admin/category"
-      },1000)
-      successMsg.textContent = data.message;
+
+      successMsg.textContent = data.message || "Category added successfully";
       input.value = "";
+
+      setTimeout(() => {
+        window.location.href = "/admin/category";
+      }, 1000);
 
     } catch (error) {
       console.error(error);
       errorMsg.textContent = "Something went wrong";
+    } finally {
+      addBtn.disabled = false;
+      addBtn.textContent = "+ Add Category";
     }
   });
 </script>
+
 
 
 </body>
