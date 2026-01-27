@@ -57,35 +57,45 @@ const loadaddCategory = async (req,res)=>{
   }
 }
 
-const postAddCategory = async(req,res)=>{
+const postAddCategory = async (req, res) => {
   try {
-
-    let name = req.body.search
-
-    if(!req.session.admin){
-    return res.redirect("/admin/adminLogin")
+    if (!req.session.admin) {
+      return res.status(401).json({ error: "Unauthorized" })
     }
+
+    let name = req.body.categoryName
+
     if (!name || !name.trim()) {
-      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Category name is required" });
+      return res.status(400).json({ error: "Category name required" })
     }
-    name = name.trim()
-    
-    const existingCategory = await Category.findOne({name})
-    .collation({ locale: "en", strength: 2 })
-    
-    if(existingCategory){
-      return res.status(STATUS_CODES.BAD_REQUEST).json({error:ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS})
-    }
-    const newCategory = new Category({
-      name
-    })
-    await newCategory.save()
-    res.json({message:"Category added successfully"}) 
-    
-  } catch (error) {
 
-    console.error(ERROR_MESSAGES.CATEGORY_CREATE_FAILED,error)
-    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({error:ERROR_MESSAGES.INTERNAL_ERROR})
+    if (!req.file) {
+      return res.status(400).json({ error: "Category image required" })
+    }
+
+    name = name.trim()
+
+    const existingCategory = await Category.findOne({ name })
+      .collation({ locale: "en", strength: 2 })
+
+    if (existingCategory) {
+      return res.status(409).json({ error: "Category already exists" })
+    }
+
+    const newCategory = new Category({
+      name,
+      image: req.file.path // ✅ Cloudinary URL
+    })
+
+    await newCategory.save()
+
+    return res.status(201).json({
+      message: "Category added successfully"
+    })
+
+  } catch (error) {
+    console.error("Category create failed:", error)
+    return res.status(500).json({ error: "Internal server error" })
   }
 }
 
@@ -108,33 +118,55 @@ const loadEditCategory = async (req,res)=>{
     res.redirect("/admin/pageNotFound")
   }
 }
-const updateCategory = async (req,res)=>{
+
+const updateCategory = async (req, res) => {
   try {
+    const { id } = req.params
+    const { categoryName } = req.body
 
-    const categoryId = req.params.id
-    const newName = req.body.name
-
-    const findCategory = await Category.findById(categoryId)
-
-    const existingCategory = await Category.findOne({name:newName})
-
-    if(existingCategory){ 
-     return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS})
+    const category = await Category.findById(id)
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" })
     }
-    
-    if(findCategory){
-      await Category.updateOne({_id:categoryId},{$set:{name:newName}})
-      res.json({success:true})
-    }else{
-      console.log("Category not found")
+    console.log(category)
+
+    const updateData = {}
+
+    // ✅ Name update (only if changed)
+    if (categoryName?.trim() && categoryName.trim() !== category.name) {
+      const exists = await Category.findOne({
+        name: { $regex: `^${categoryName.trim()}$`, $options: "i" }
+      })
+
+      if (exists && exists._id.toString() !== id) {
+        return res.status(409).json({
+          success: false,
+          message: ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS
+        })
+      }
+
+      updateData.name = categoryName.trim()
     }
-    
-  } catch (error) {
-    console.log(error);
-    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.INTERNAL_ERROR });
+
+    // ✅ Image update
+    if (req.file) {
+      updateData.image = req.file.path
+    }
+
+    // 🚫 Nothing changed
+    if (!Object.keys(updateData).length) {
+      return res.status(400).json({ success: false, message: "Nothing to update" })
+    }
+
+    await Category.findByIdAndUpdate(id, { $set: updateData })
+
+    res.json({ success: true, message: "Category updated successfully" })
+
+  } catch (err) {
+    console.error("Update category failed:", err)
+    res.status(500).json({ success: false, message: "Internal server error" })
   }
 }
-
 
 const blockCategory = async (req,res)=>{
 
@@ -155,8 +187,8 @@ const blockCategory = async (req,res)=>{
     console.error(ERROR_MESSAGES.CATEGORY_BLOCK_FAILED)
     res.json({success:false})
   }
-
 }
+
 const unblockCategory = async (req,res)=>{
 
   try {

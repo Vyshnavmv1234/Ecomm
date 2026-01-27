@@ -12,6 +12,20 @@
   box-sizing: border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-img img {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
 .breadcrumb {
   display: flex;
   gap: 6px;
@@ -346,7 +360,14 @@ tbody td {
               <%= category.isBlocked ? '' : '✓' %>
             </div>
 
-            <div class="cat-img"></div>
+            <div class="cat-img">
+            <img
+              src="<%= category.image %>"
+              alt="<%= category.name %>"
+              onerror="this.style.display='none'"
+            />
+          </div>
+
 
             <%= category.name %>
           </div>
