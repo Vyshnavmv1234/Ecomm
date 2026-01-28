@@ -145,10 +145,6 @@ const signup = async (req,res)=>{
     req.session.userData = {name,phone,email,password}
     console.log("OTP is :",otp)
     return res.redirect("/user/userOtp")
-    
-    if(!emailSent){
-      console.log("email")
-    } 
 
   } catch (error) {
     console.error("Signup Error",error)
@@ -296,6 +292,7 @@ const logout = async (req,res)=>{
 
 const loadProductList = async(req,res)=>{
   try {
+    console.log(req.query)
 
       const search = req.query.pSearch || ""
       const limit = 12
@@ -310,7 +307,9 @@ const loadProductList = async(req,res)=>{
       const filter = {
         isBlocked:false,
         category: {$in:allowedCategoriesId},
-        name:{$regex:search,$options:"i"}
+        $or:[
+          {name:{$regex:search,$options:"i"}},{title:{$regex:search,$options:"i"}}
+        ]
       }
       if(price){
         const [min,max] = price.split("-").map(val=>{
@@ -320,17 +319,22 @@ const loadProductList = async(req,res)=>{
           $gte:min,$lte:max
         }
       }
-      if(category){
-        filter.category ={
-          $in: Array.isArray(category)?category:[category]
-        }
+
+      if (category) {
+      const selectedCategories = Array.isArray(category) ? category : [category]
+      filter.category = {
+        $in: selectedCategories.filter(id =>
+          allowedCategoriesId.map(String).includes(id)
+        )
       }
+    }
       let sortOption = {createdAt:-1}
 
       if(sort == "price_asc") sortOption = {price:1}
       if(sort == "price_desc") sortOption = {price:-1}
-      if(sort == "az"||sort == "az") sortOption = {name:1}
-      if(sort == "za"||sort == "za") sortOption = {name:-1}
+      if (sort === "az") sortOption = { name: 1 }
+      if (sort === "za") sortOption = { name: -1 }
+
 
 
       const userData = await User.findById(req.session.user)
@@ -338,11 +342,12 @@ const loadProductList = async(req,res)=>{
       const productData = await Product.find(filter)
        .sort(sortOption)
        .skip(skip)
-       .limit(limit)   
+       .limit(limit)  
+       .lean() 
 
        const totalProduct = await Product.countDocuments(filter)
 
-       const totalPages = (totalProduct/limit)
+       const totalPages = Math.ceil(totalProduct/limit)
 
       return res.render("user/productList",{
         user:userData,
@@ -353,7 +358,8 @@ const loadProductList = async(req,res)=>{
         totalProduct,
         skip,
         search,
-        category:categoryData
+        category:categoryData,
+        query:req.query
       })
     
     
@@ -361,8 +367,6 @@ const loadProductList = async(req,res)=>{
     console.error(ERROR_MESSAGES.PRODUCT_LOAD_FAILED,error)
   }
 }
-
-
 
 
 export default {loadHomepage,pageNotFound,loadSignup,loadLogin,login,signup,loadOTP,verifyOtp,resentOtp,logout,loadProductList}

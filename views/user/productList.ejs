@@ -271,60 +271,54 @@
 <div id="filterOverlay" class="filter-overlay" onclick="closeFilter()"></div>
 
 <!-- FILTER SIDEBAR -->
-<div id="filterSidebar" class="filter-sidebar">
+<div id="filterOverlay" class="filter-overlay" onclick="closeFilter()"></div>
 
+<div id="filterSidebar" class="filter-sidebar">
   <div class="filter-header">
     <h3>Filter</h3>
-    <span style="cursor:pointer" onclick="closeFilter()">✕</span>
+    <span onclick="closeFilter()" style="cursor:pointer">✕</span>
   </div>
 
   <form method="GET" action="/user/productList">
 
+    <!-- SORT -->
     <div class="filter-section">
-      <div class="filter-title" onclick="toggleSection(this)">
-        Sort By <span>⌄</span>
-      </div>
+      <div class="filter-title" onclick="toggleSection(this)">Sort By <span>⌄</span></div>
       <div class="filter-content">
-        <label><input type="radio" name="sort" value="price_asc"> Low → High</label>
-        <label><input type="radio" name="sort" value="price_desc"> High → Low</label>
-        <label><input type="radio" name="sort" value="az"> A–Z</label>
-        <label><input type="radio" name="sort" value="za"> Z–A</label>
+        <label><input type="radio" name="sort" value="price_asc" <%= query.sort === "price_asc" ? "checked" : "" %>> Low → High</label>
+        <label><input type="radio" name="sort" value="price_desc" <%= query.sort === "price_desc" ? "checked" : "" %>> High → Low</label>
+        <label><input type="radio" name="sort" value="az" <%= query.sort === "az" ? "checked" : "" %>> A–Z</label>
+        <label><input type="radio" name="sort" value="za" <%= query.sort === "za" ? "checked" : "" %>> Z–A</label>
       </div>
     </div>
 
     <!-- CATEGORY -->
-<div class="filter-section">
-  <div class="filter-title" onclick="toggleSection(this)">
-    Category <span>⌄</span>
-  </div>
-
-  <div class="filter-content">
-    <% for (let i = 0; i < category.length; i++) { %>
-      
-      <% if (!category[i].isBlocked) { %>
-        <label>
-          <input 
-            type="checkbox" 
-            name="category" 
-            value="<%= category[i]._id %>"
-          >
-          <%= category[i].name %>
-        </label>
-      <% } %>
-
-    <% } %>
-  </div>
-</div>
-
-
     <div class="filter-section">
-      <div class="filter-title" onclick="toggleSection(this)">
-        Price Range <span>⌄</span>
-      </div>
+      <div class="filter-title" onclick="toggleSection(this)">Category <span>⌄</span></div>
       <div class="filter-content">
-        <label><input type="radio" name="price" value="0-999"> Under ₹999</label>
-        <label><input type="radio" name="price" value="1000-1999"> ₹1000–₹1999</label>
-        <label><input type="radio" name="price" value="2000-5000"> ₹2000–₹5000</label>
+        <% category.forEach(cat => { %>
+          <label>
+            <input
+              type="checkbox"
+              name="category"
+              value="<%= cat._id %>"
+              <%= Array.isArray(query.category) 
+                    ? query.category.includes(cat._id.toString())
+                    : query.category === cat._id.toString() ? "checked" : "" %>
+            >
+            <%= cat.name %>
+          </label>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- PRICE -->
+    <div class="filter-section">
+      <div class="filter-title" onclick="toggleSection(this)">Price Range <span>⌄</span></div>
+      <div class="filter-content">
+        <label><input type="radio" name="price" value="0-999" <%= query.price === "0-999" ? "checked" : "" %>> Under ₹999</label>
+        <label><input type="radio" name="price" value="1000-1999" <%= query.price === "1000-1999" ? "checked" : "" %>> ₹1000–₹1999</label>
+        <label><input type="radio" name="price" value="2000-5000" <%= query.price === "2000-5000" ? "checked" : "" %>> ₹2000–₹5000</label>
       </div>
     </div>
 
@@ -337,41 +331,33 @@
 </div>
 
 
-
-
 <!-- PAGINATION -->
 <div class="pagination-wrapper">
 
-  <!-- PREVIOUS BUTTON -->
   <% if (currentPage > 1) { %>
-    <a href="?page=<%= currentPage - 1 %>" class="page-btn arrow">
+    <a href="?<%= new URLSearchParams({ ...query, page: currentPage - 1 }).toString() %>" class="page-btn arrow">
       &#8592;
     </a>
   <% } %>
 
-  <!-- PAGE NUMBERS -->
   <% for (let i = 1; i <= totalPages; i++) { %>
-
     <% if (i === currentPage) { %>
-      <span class="page-btn active">
-        <%= i %>
-      </span>
+      <span class="page-btn active"><%= i %></span>
     <% } else { %>
-      <a href="?page=<%= i %>" class="page-btn">
+      <a href="?<%= new URLSearchParams({ ...query, page: i }).toString() %>" class="page-btn">
         <%= i %>
       </a>
     <% } %>
-
   <% } %>
 
-  <!-- NEXT BUTTON -->
   <% if (currentPage < totalPages) { %>
-    <a href="?page=<%= currentPage + 1 %>" class="page-btn arrow">
+    <a href="?<%= new URLSearchParams({ ...query, page: currentPage + 1 }).toString() %>" class="page-btn arrow">
       &#8594;
     </a>
   <% } %>
 
 </div>
+
 <Script>
   function openFilter() {
   filterSidebar.style.right = "0";

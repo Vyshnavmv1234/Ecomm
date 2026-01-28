@@ -27,7 +27,6 @@ const productDetail = async(req,res)=>{
   }
 }
 
-
 const addToCart = async (req,res)=>{
   try {
 

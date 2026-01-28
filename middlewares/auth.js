@@ -28,20 +28,24 @@ const userAuth = async (req, res, next) => {
 };
 
 
+const adminAuth = async (req, res, next) => {
+  try {
 
-const adminAuth = (req, res, next) => {
-  User.findOne({isAdmin:true})
-  .then(data=>{
-    if(data){
-      next()
-    }else{
-      res.redirect("/admin/adminLogin")
+    if(!req.session.admin){
+      return res.redirect("/admin/adminLogin")
     }
-  })
-  .catch(error=>{
-    console.log("error in admin MW auth")
-    res.status(500).send("ServerError")
-  })
+    const admin = await User.findOne({isAdmin:true})
+    console.log(admin)
+
+    if(!admin){
+      return res.redirect("/admin/adminLogin")
+    }
+    next()
+    
+  } catch (error) {
+    console.log("error in adminauth mw", error);
+    return res.redirect("/admin/adminLogin");
+  }
 }
 
 

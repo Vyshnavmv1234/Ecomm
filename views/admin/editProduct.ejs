@@ -244,65 +244,115 @@ textarea{
     <!-- Toastify JS -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
+  function showToast(message, type = "success") {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      close: true,
+      stopOnFocus: true,
+      style: {
+        background:
+          type === "success"
+            ? "linear-gradient(to right, #16a34a, #22c55e)"
+            : "linear-gradient(to right, #dc2626, #ef4444)",
+      }
+    }).showToast();
+  }
 
-   function showToast(message, type = "success") {
-        Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "bottom",       
-        position: "center",    
-        close: true,
-        stopOnFocus: true,
-        style: {
-          background:
-            type === "success"
-              ? "linear-gradient(to right, #16a34a, #22c55e)"
-              : "linear-gradient(to right, #dc2626, #ef4444)",
-        }
-      }).showToast();
-    }
-
- const form = document.getElementById("formId");
+  const form = document.getElementById("formId");
 
   form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const productId = "<%= product._id %>";
-  const formData = new FormData();
+    // -------- GET VALUES --------
+    const name = document.getElementById("productId").value.trim();
+    const title = document.getElementById("productTitle").value.trim();
+    const description = document.getElementById("descriptionId").value.trim();
+    const price = document.getElementById("priceId").value.trim();
+    const discount = document.getElementById("discountId").value.trim();
+    const images = document.getElementById("imageInput").files;
 
-  formData.append("name", document.getElementById("productId").value.trim());
-  formData.append("description", document.getElementById("descriptionId").value.trim());
-  formData.append("price", document.getElementById("priceId").value.trim());
-  formData.append("discount", document.getElementById("discountId").value.trim());
-  formData.append("title", document.getElementById("productTitle").value.trim());
-  
+    // -------- VALIDATION --------
+    const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
 
-  const images = document.getElementById("imageInput").files;
+    if (!name || name.length < 3) {
+      return showToast("Product name must be at least 3 characters", "error");
+    }
 
-  for (let img of images) {
-    formData.append("images", img);
-  }
+    if (!nameRegex.test(name)) {
+      return showToast(
+        "Product name must contain letters (not only numbers or symbols)",
+        "error"
+      );
+    }
 
-  const res = await fetch(`/admin/updateProduct/${productId}`, {
-    method: "PATCH",
-    body: formData   
+    const titleRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
+
+    if (!title || title.length < 3) {
+      return showToast("Product title must be at least 3 characters", "error");
+    }
+
+    if (!titleRegex.test(title)) {
+      return showToast(
+        "Product title must contain letters (not only numbers)",
+        "error"
+      );
+    }
+
+
+    if (!description || description.length < 10) {
+      return showToast("Description must be at least 10 characters", "error");
+    }
+
+    if (!price || isNaN(price) || Number(price) <= 0) {
+      return showToast("Price must be a valid number greater than 0", "error");
+    }
+
+    if (
+      discount === "" ||
+      isNaN(discount) ||
+      Number(discount) < 0 ||
+      Number(discount) > 100
+    ) {
+      return showToast("Discount must be between 0 and 100", "error");
+    }
+
+    // -------- FORM DATA --------
+    const productId = "<%= product._id %>";
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("discount", discount);
+
+    // images are OPTIONAL in edit
+    for (let img of images) {
+      formData.append("images", img);
+    }
+
+    // -------- API CALL --------
+    const res = await fetch(`/admin/updateProduct/${productId}`, {
+      method: "PATCH",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showToast("Product Edited Successfully", "success");
+      setTimeout(() => {
+        window.location.href = "/admin/products";
+      }, 1500);
+    } else {
+      showToast(data.message || "Failed to update product", "error");
+    }
   });
-
-  const data = await res.json();
-
-  if (res.ok && data.success) {
-   
-    showToast("Product Edited Successfully","success")
-    setTimeout(()=>{
-      window.location.href = "/admin/products"
-    },1500)
-
-  } else {
-    alert(data.message || "Failed to update product","error");
-  }
-});
-
 </script>
+
 
 </body>
 </html>
