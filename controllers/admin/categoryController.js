@@ -128,11 +128,9 @@ const updateCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ success: false, message: "Category not found" })
     }
-    console.log(category)
 
     const updateData = {}
 
-    // ✅ Name update (only if changed)
     if (categoryName?.trim() && categoryName.trim() !== category.name) {
       const exists = await Category.findOne({
         name: { $regex: `^${categoryName.trim()}$`, $options: "i" }
@@ -148,12 +146,10 @@ const updateCategory = async (req, res) => {
       updateData.name = categoryName.trim()
     }
 
-    // ✅ Image update
     if (req.file) {
       updateData.image = req.file.path
     }
 
-    // 🚫 Nothing changed
     if (!Object.keys(updateData).length) {
       return res.status(400).json({ success: false, message: "Nothing to update" })
     }

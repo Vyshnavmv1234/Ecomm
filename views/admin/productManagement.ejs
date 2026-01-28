@@ -387,7 +387,7 @@ tbody td {
 
                 <% if (product.images && product.images.length > 0) { %>
                   <img 
-                    src="/uploads/products/<%= product.images[0] %>" 
+                    src="<%= product.images[0].url %>" 
                     class="img"
                   />
                 <% } else { %>
