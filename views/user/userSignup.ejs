@@ -86,7 +86,7 @@
 
 
   <!-- Submit -->
-  <button type="submit" class="signup-btn">Signup</button>
+  <button  type="submit" class="signup-btn">Signup</button>
   <p class="login-text">
   Already have an account? <a href="/user/login">Login Now</a>
 </p>
@@ -140,7 +140,7 @@
 
     function emailValidateCheck() {
   const emailval = emailid.value
-  const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const emailpattern = /^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
   if (emailval.trim() === "") {
     emailError.style.display = "block"

@@ -7,6 +7,10 @@ const categorySchema = new Schema({
     required: true,
     unique: true
   },
+  image: {                    
+    type: String,
+    required: true
+  },
   isBlocked: {
       type: Boolean,
       default: false

@@ -9,12 +9,11 @@ const productDetail = async(req,res)=>{
 
     const userId = req.session.user
     const productId = req.query.id
-    const categoryId = req.query.catId
     req.session.productId = productId
 
-    const similarProduct = await Product.find({category:categoryId,_id:{$ne:productId},isBlocked:false})
-    const userData = await User.findById(userId)
     const productData = await Product.findById(productId)
+    const similarProduct = await Product.find({category:productData.category,_id:{$ne:productId},isBlocked:false})
+    const userData = await User.findById(userId)
 
     return res.render("user/productDetail",{
       user:userData,

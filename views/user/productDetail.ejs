@@ -3,6 +3,7 @@
 
 <style>
   /* SIMILAR PRODUCTS */
+/* SECTION */
 .similar-section {
   max-width: 1400px;
   margin: 80px auto;
@@ -10,21 +11,39 @@
 }
 
 .similar-section h3 {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   font-size: 18px;
   margin-bottom: 24px;
 }
-
-.similar-products {
+.slider-container {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: 12px; /* arrow distance */
 }
 
+
+.slider-window {
+  overflow: hidden;
+  max-width: calc((300px * 3) + (20px * 2)); /* max 3 cards */
+  width: fit-content; /* 🔥 key line */
+}
+
+
+.similar-wrapper {
+  display: flex;
+  gap: 20px;
+  transition: transform 0.4s ease;
+}
+
+
 .similar-card {
-  width: 260px;
-  cursor: pointer;
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.similar-card:last-child {
+  margin-right: 0;
 }
 
 .similar-card img {
@@ -34,6 +53,7 @@
   background: #f5f5f5;
 }
 
+/* INFO */
 .similar-info {
   margin-top: 10px;
 }
@@ -55,6 +75,18 @@
   font-size: 13px;
   font-weight: bold;
 }
+
+/* ARROWS */
+.arrow {
+  background: black;
+  color: white;
+  border: none;
+  font-size: 28px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+
 
 .gallery {
   width: 620px; 
@@ -424,31 +456,35 @@ body {
     </div>
   </div>
 </div>
+
 <!-- SIMILAR PRODUCTS -->
+
 <div class="similar-section">
   <h3>Similar Products</h3>
 
-  <div class="similar-wrapper">
-    <% similarProduct.forEach(product=>{%>
-    <div class="similar-products">
+  <div class="slider-container">
+    <button class="arrow left" onclick="slideLeft()">‹</button>
 
-
-         
-      <div class="similar-card">
-        <img src="<%=product.images[0].url%>" alt="product">
-        <div class="similar-info">
-          <p class="similar-brand"><%=product.name%></p>
-          <p class="similar-title">
-            <%=product.title%>
-          </p>
-          <p class="similar-price">₹<%=product.price%></p>
-        </div>
+    <div class="slider-window">
+      <div class="similar-wrapper" id="slider">
+        <% similarProduct.forEach(product => { %>
+          <div class="similar-card">
+            <img src="<%= product.images[0].url %>" alt="product">
+            <div class="similar-info">
+              <p class="similar-brand"><%= product.name %></p>
+              <p class="similar-title"><%= product.title %></p>
+              <p class="similar-price">₹<%= product.price %></p>
+            </div>
+          </div>
+        <% }) %>
       </div>
-
-      <%})%>
     </div>
+
+    <button class="arrow right" onclick="slideRight()">›</button>
   </div>
 </div>
+
+
 
 
 <script>
@@ -492,6 +528,25 @@ function eFun(){
     addError.innerText = "success"
   }
 }
+
+  let currentIndex = 0;
+    const cardWidth = 340; // card + margin
+    const slider = document.getElementById("slider");
+
+    function slideRight() {
+      const maxIndex = slider.children.length - 3;
+      if (currentIndex < maxIndex) {
+        currentIndex++;
+        slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+      }
+    }
+
+    function slideLeft() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+      }
+    }
 
 </script>
 

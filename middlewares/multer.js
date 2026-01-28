@@ -20,6 +20,15 @@ const productStorage = new CloudinaryStorage({
   }
 });
 
+const categoryStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "categories",
+    allowed_formats: ["jpg", "png", "jpeg", "webp"]
+  }
+})
+
 
 export const uploadUser = multer({ storage: userStorage });
 export const uploadProduct = multer({ storage: productStorage });
+export const uploadCategory = multer({ storage: categoryStorage })

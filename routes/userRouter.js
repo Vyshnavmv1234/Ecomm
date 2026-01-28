@@ -13,6 +13,7 @@ const router = express.Router()
 //AUTHENTICATION
 router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
+router.get("/userOtp",userController.loadOTP)
 router.get("/homepage",userController.loadHomepage)
 router.get("/pageNotFound",userController.pageNotFound)
 router.get("/signup",userController.loadSignup)
