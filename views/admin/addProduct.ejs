@@ -12,6 +12,109 @@
   box-sizing:border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+/* ================= VARIANT BOX ================= */
+.variant-box {
+  border: 1px solid #d8b4a0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+/* Title */
+.variant-box h4 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Inputs */
+#variantSize,
+#price {
+  width: 100%;
+  height: 42px;
+  margin-bottom: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+#variantSize:focus,
+#price:focus {
+  outline: none;
+  border-color: #c59a8a;
+}
+
+/* Error message */
+.error {
+  display: block;
+  margin-top: -6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #d60000;
+}
+
+/* Add Variant Button */
+.add-variant-btn {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #c59a8a;
+  background: transparent;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.add-variant-btn:hover {
+  background: #f6eae4;
+}
+
+/* ================= VARIANT LIST ================= */
+.variant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Variant Row */
+.variant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #faf7f6;
+  border: 1px solid #e4d2cc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Size */
+.variant-size {
+  font-weight: 600;
+  min-width: 24px;
+}
+
+/* Price */
+.variant-price {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Remove Button */
+.remove-variant {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #9b1c1c;
+  cursor: pointer;
+}
+
+.remove-variant:hover {
+  color: #e60000;
+}
+
+
 .breadcrumb {
   display: flex;
   gap: 6px;
@@ -241,19 +344,6 @@ textarea{
         <small class="error" id="descriptionError"></small>
       </div>
 
-      <!-- PRICING -->
-      <div class="card">
-        <h3 style="margin-bottom:20px;">Pricing</h3>
-
-        <label>Base Price</label>
-        <input id="price" name="price" type="number" placeholder="Type base price here...">
-        <small class="error" id="priceError"></small>
-
-        <label>Discount Percentage (%)</label>
-        <input id="discount" name="discount" type="number" placeholder="Type discount percentage...">
-        <small class="error" id="discountError"></small>
-      </div>
-
       <!-- IMAGE -->
             <div class="card">
         <h3 style="margin-bottom:20px;">Product Images</h3>
@@ -313,6 +403,22 @@ textarea{
        <%}%>
       </select>
       <small class="error" id="categoryError"></small>
+
+      <div class="variant-box">
+      <h4>Variant</h4>
+
+      <input id="variantSize" placeholder="Size (S, M, L, XL)">
+      <input id="price" name="price" type="number" placeholder="Type price here...">
+        <small class="error" id="priceError"></small>
+
+      <button class="add-variant-btn" type="button" onclick="addVariant()">+ Add Variant</button>
+
+      <div class="variant-list" id="variantList"></div>
+
+      <input type="hidden" name="variants" id="variantsInput">
+    </div>
+
+
     </div>
 
   </div>
@@ -352,6 +458,53 @@ textarea{
         }
       }).showToast();
     }
+
+    let variants = []
+    console.log(variants)
+
+    function addVariant() {
+
+      const size = document.getElementById("variantSize").value
+      const price = document.getElementById("price").value
+
+      if (!size || !price) return alert("Fill all fields")
+      
+
+      // prevent duplicate size
+      if (variants.some(v => v.size === size)) {
+        return alert("Size already added")
+      }
+
+      variants.push({ size, price })
+      renderVariants()
+    }
+
+
+    function renderVariants() {
+
+    const list = document.getElementById("variantList")
+    list.innerHTML = ""
+
+    variants.forEach((v, index) => {
+      list.innerHTML += `
+        <div class="variant-row">
+          <span class = "variant-size">${v.size}</span>
+          <span class = "variant-price">₹${v.price}</span>
+          <button onclick="removeVariant(${index})">✖</button>
+        </div>
+      `
+    })
+
+    document.getElementById("variantsInput").value = JSON.stringify(variants)
+  }
+
+function removeVariant(index) {
+
+    variants.splice(index, 1)
+    renderVariants()
+  }
+
+
 
     const imageInput = document.getElementById("imageInput");
     const previewContainer = document.getElementById("previewContainer");
@@ -441,8 +594,8 @@ function validateForm() {
       const name = document.getElementById("pName").value.trim();
       const title = document.getElementById("pTitle").value.trim()
       const description = document.getElementById("description").value.trim();
-      const price = document.getElementById("price").value;
-      const discount = document.getElementById("discount").value;
+      // const price = document.getElementById("price").value;
+      // const discount = document.getElementById("discount").value;
       const category = document.getElementById("category").value;
 
       // IMAGE VALIDATION
@@ -486,23 +639,12 @@ function validateForm() {
     }
 
 
-      if (!price) {
-      priceError.innerText = "Price is required";
-      isValid = false;
-    } else if (isNaN(price) || price <= 0) {
-      priceError.innerText = "Price must be a positive number";
-      isValid = false;
-    } else if (price > 1000000) {
-      priceError.innerText = "Price is too high";
-      isValid = false;
-    }
-
-      if (discount !== "") {
-      if (isNaN(discount) || discount < 0 || discount > 90) {
-        discountError.innerText = "Discount must be between 0 and 90";
-        isValid = false;
-      }
-    }
+    //   if (discount !== "") {
+    //   if (isNaN(discount) || discount < 0 || discount > 90) {
+    //     discountError.innerText = "Discount must be between 0 and 90";
+    //     isValid = false;
+    //   }
+    // }
 
     if (!category) {
       document.getElementById("categoryError").innerText = "Please select a category";
@@ -510,6 +652,30 @@ function validateForm() {
     }
 
      return isValid;
+}
+   function validateVariants() {
+  const allowedSizes = ["S", "M", "L", "XL"];
+
+  if (variants.length === 0) {
+    showToast("Please add at least one variant", "error");
+    return false;
+  }
+
+  for (let v of variants) {
+    // Size validation
+    if (!allowedSizes.includes(v.size)) {
+      showToast(`Invalid size: ${v.size}. Allowed sizes are S, M, L, XL`, "error");
+      return false;
+    }
+
+    // Price validation
+    if (isNaN(v.price) || Number(v.price) <= 0) {
+      showToast(`Invalid price for size ${v.size}`, "error");
+      return false;
+    }
+  }
+
+  return true;
 }
 
    async function submitWithCrop(e) {
@@ -521,15 +687,17 @@ function validateForm() {
       imageError.innerText = "Please crop all images";
       return false;
     }
+   if (!validateVariants()) {
+  return false;
+}
 
     const formData = new FormData();
 
     formData.append("pName", document.getElementById("pName").value);
     formData.append("description", document.getElementById("description").value);
-    formData.append("price", document.getElementById("price").value);
-    formData.append("discount", document.getElementById("discount").value);
     formData.append("category", document.getElementById("category").value);
     formData.append("pTitle",document.getElementById("pTitle").value)
+    formData.append("variants",document.getElementById("variantsInput").value)
 
     croppedImages.forEach((img, i) => {
       formData.append("images", img, `product_${i}.jpg`);

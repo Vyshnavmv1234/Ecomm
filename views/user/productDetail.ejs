@@ -4,6 +4,36 @@
 <style>
   /* SIMILAR PRODUCTS */
 /* SECTION */
+/* Size buttons */
+.size-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ccc;
+  margin-right: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  transition: all 0.2s ease;
+  user-select: none;
+  position: relative;
+  z-index: 10;
+}
+
+.size-option:hover {
+  border-color: #000;
+}
+
+
+.size-option.active {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #000 !important;
+}
+
 .similar-section {
   max-width: 1400px;
   margin: 80px auto;
@@ -389,7 +419,7 @@ body {
   <div class="product-details">
     <div class="brand"><%=productData.name%></div>
     <div class="title"><%=productData.title%></div>
-    <div class="price">₹<%=productData.price%></div>
+    <div id="productPrice" class="price">₹<%=productData.variants[0].price%></div>
     <div class="availablity">
       <%if(productData.quantity>0){%>
         Availablity: <span style="color: rgb(160, 194, 110);font-size: small;">INSTOCK</span>
@@ -399,9 +429,20 @@ body {
     </div>
 
     <div class="size">
-      <strong>Size</strong><br><br>                                  
-      <span>S</span><span>M</span><span>L</span>
+  <strong>Size</strong><br><br>
+
+  <% productData.variants.forEach((v, i) => { %>
+    <span
+          class="size-option <%= i === 0 ? 'active' : '' %>"
+          data-size="<%= v.size %>"
+          data-price="<%= v.price %>"
+          data-stock="<%= v.stock %>"
+          onclick="selectSize(this)">
+          <%= v.size %>
+        </span>
+      <% }) %>
     </div>
+
 
     <div class="action">
       <a><button onclick="return eFun()" class="add-btn">+ ADD TO BASKET</button></a>
@@ -473,7 +514,7 @@ body {
             <div class="similar-info">
               <p class="similar-brand"><%= product.name %></p>
               <p class="similar-title"><%= product.title %></p>
-              <p class="similar-price">₹<%= product.price %></p>
+              <p class="similar-price">₹<%= product.variants[0].price %></p>
             </div>
           </div>
         <% }) %>
@@ -484,71 +525,97 @@ body {
   </div>
 </div>
 
-
-
+<script id="product-data" type="application/json">
+  <%- JSON.stringify(productData) %>
+</script>
 
 <script>
-function changeImage(imageUrl, el) {
-  
-      document.getElementById("mainProductImage").src = imageUrl;
+  /* ===== READ PRODUCT DATA SAFELY ===== */
+  const PRODUCT = JSON.parse(
+    document.getElementById("product-data").textContent
+  );
 
+  /* ===== IMAGE GALLERY ===== */
 
-      document.querySelectorAll(".thumbnail").forEach(t => {
-        t.classList.remove("active");
-      });
+  function changeImage(imageUrl, el) {
+    document.getElementById("mainProductImage").src = imageUrl;
 
-      el.classList.add("active");
-}
+    document.querySelectorAll(".thumbnail").forEach(t => {
+      t.classList.remove("active");
+    });
 
-      const zoomImage = document.getElementById("mainProductImage");
-
-      zoomImage.addEventListener("mousemove", function (e) {
-        const rect = this.getBoundingClientRect();
-
-        const x = ((e.clientX - rect.left) / rect.width) * 90;
-        const y = ((e.clientY - rect.top) / rect.height) * 90;
-
-        this.style.transformOrigin = `${x}% ${y}%`;
-        this.style.transform = "scale(1.8)";
-      });
-
-      zoomImage.addEventListener("mouseleave", function () {
-        this.style.transformOrigin = "center center";
-        this.style.transform = "scale(1)";
-});
-
-function eFun(){
-  const qty = "<%=productData.quantity%>"
-
-  const addError = document.getElementById('addError')
-
-  if(qty ==0){
-    addError.innerText = "Cannot add to cart"
-  }else{
-    addError.innerText = "success"
+    el.classList.add("active");
   }
-}
 
-  let currentIndex = 0;
-    const cardWidth = 340; // card + margin
-    const slider = document.getElementById("slider");
+  /* ===== IMAGE ZOOM ===== */
 
-    function slideRight() {
-      const maxIndex = slider.children.length - 3;
-      if (currentIndex < maxIndex) {
-        currentIndex++;
-        slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-      }
-    }
+  const zoomImage = document.getElementById("mainProductImage");
 
-    function slideLeft() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-      }
-    }
+  zoomImage.addEventListener("mousemove", function (e) {
+    const rect = this.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 90;
+    const y = ((e.clientY - rect.top) / rect.height) * 90;
+
+    this.style.transformOrigin = `${x}% ${y}%`;
+    this.style.transform = "scale(1.8)";
+  });
+
+  zoomImage.addEventListener("mouseleave", function () {
+    this.style.transform = "scale(1)";
+  });
+
+  /* ===== VARIANT LOGIC ===== */
+
+  let selectedSize  = PRODUCT.variants[0].size;
+  let selectedPrice = PRODUCT.variants[0].price;
+  // let selectedStock = PRODUCT.variants[0].stock;
+
+  const priceEl = document.getElementById("productPrice");
+  // const stockEl = document.getElementById("stockStatus");
+  const addError = document.getElementById("addError");
+
+  // function updateStockUI() {
+  //   if (selectedStock > 0) {
+  //     stockEl.innerText = "INSTOCK";
+  //     stockEl.style.color = "rgb(160, 194, 110)";
+  //   } else {
+  //     stockEl.innerText = "OUT OF STOCK";
+  //     stockEl.style.color = "rgb(235, 64, 64)";
+  //   }
+  // }
+
+
+  function selectSize(el) {
+    selectedSize  = el.dataset.size;
+    selectedPrice = Number(el.dataset.price);
+    // selectedStock = Number(el.dataset.stock);
+
+    priceEl.innerText = "₹" + selectedPrice;
+
+    document.querySelectorAll(".size-option")
+      .forEach(s => s.classList.remove("active"));
+
+    el.classList.add("active");
+    addError.innerText = "";
+  }
+
+  /* ===== ADD TO CART ===== */
+
+  function eFun() {
+    // if (selectedStock <= 0) {
+    //   addError.innerText = "Selected size is out of stock";
+    //   addError.style.color = "red";
+    //   return false;
+    // }
+
+    addError.innerText = "Added to cart ✅";
+    addError.style.color = "green";
+    return true;
+  }
 
 </script>
+
+
 
 
 <%- include("../../views/partials/user/footer") %>
