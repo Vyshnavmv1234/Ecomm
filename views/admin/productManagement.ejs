@@ -402,7 +402,7 @@ tbody td {
 
             
 
-            <td>₹<%= product.price %></td>
+            <td>₹<%= product.variants[0].price %></td>
 
             <td>
               <% if (product.quantity > 0) { %>
@@ -421,7 +421,6 @@ tbody td {
               <span style="color:#16a34a;">Active</span>
             <% } %>
           </td>
-
 
             <td class="action">
 

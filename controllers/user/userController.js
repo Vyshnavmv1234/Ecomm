@@ -5,6 +5,8 @@ import bcrypt from "bcrypt"
 import Category from "../../models/categorySchema.js"
 import Product from "../../models/productSchema.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
+import mongoose from "mongoose"
+
 env.config()
 
 //GEN OTP
@@ -292,10 +294,9 @@ const logout = async (req,res)=>{
 
 const loadProductList = async(req,res)=>{
   try {
-    console.log(req.query)
 
       const search = req.query.pSearch || ""
-      const limit = 12
+      const limit = 8
       const page = parseInt(req.query.page)||1
       const skip = (page-1)*limit
       const {category,price,sort} = req.query
@@ -304,50 +305,78 @@ const loadProductList = async(req,res)=>{
       const unblockedCategories = await Category.find({isBlocked:false})
       const allowedCategoriesId = unblockedCategories.map((category)=>category._id)
 
-      const filter = {
-        isBlocked:false,
-        category: {$in:allowedCategoriesId},
-        $or:[
-          {name:{$regex:search,$options:"i"}},{title:{$regex:search,$options:"i"}}
-        ]
+      const pipeline = []
+
+      if(search){
+
+        pipeline.push({
+          $match:{
+            $or:[
+              {name:{$regex:search,$options:"i"}},{title:{$regex:search,$options:"i"}}
+            ]
+          }
+        })
       }
+
+      let selectedIds = allowedCategoriesId;
+
+      if (category) {
+        const selectedCat = Array.isArray(category) ? category : [category];
+        const allowed = allowedCategoriesId.map(String);
+
+        selectedIds = selectedCat
+          .filter(id => allowed.includes(id))
+          .map(id => new mongoose.Types.ObjectId(id));
+      }
+
+      pipeline.push({
+        $match:{
+          isBlocked:false,
+          category:{$in:selectedIds}
+        }
+      })
+
+      pipeline.push({
+        $addFields:{
+          minVariantPrice:{$min:"$variants.price"}
+        }
+      })
+
       if(price){
         const [min,max] = price.split("-").map(val=>{
           return Number(val)
         })
-        filter.price = {
-          $gte:min,$lte:max
-        }
+        pipeline.push({
+          $match:{
+            minVariantPrice:{$gte:min,$lte:max}
+          }
+        })
       }
 
-      if (category) {
-      const selectedCategories = Array.isArray(category) ? category : [category]
-      filter.category = {
-        $in: selectedCategories.filter(id =>
-          allowedCategoriesId.map(String).includes(id)
-        )
-      }
-    }
       let sortOption = {createdAt:-1}
 
-      if(sort == "price_asc") sortOption = {price:1}
-      if(sort == "price_desc") sortOption = {price:-1}
+      if(sort == "price_asc") sortOption = {minVariantPrice:1}
+      if(sort == "price_desc") sortOption = {minVariantPrice:-1}
       if (sort === "az") sortOption = { name: 1 }
       if (sort === "za") sortOption = { name: -1 }
 
+      pipeline.push({$sort: sortOption})
+      pipeline.push({$skip:skip},{$limit:limit})
 
+      const countPipeline = pipeline.filter(val=>{
+        return !val.$limit &&!val.$skip && !val.$sort
+      })
+      countPipeline.push({$count:"total"})
+
+      const countResult = await Product.aggregate(countPipeline)
+      console.log(countResult[0])
+      const totalProduct = countResult[0]?.total ||0
+      const totalPages = Math.ceil(totalProduct/limit)
 
       const userData = await User.findById(req.session.user)
       const categoryData = await Category.find({isBlocked:false})
-      const productData = await Product.find(filter)
-       .sort(sortOption)
-       .skip(skip)
-       .limit(limit)  
-       .lean() 
+      const productData = await Product.aggregate(pipeline) 
 
-       const totalProduct = await Product.countDocuments(filter)
-
-       const totalPages = Math.ceil(totalProduct/limit)
 
       return res.render("user/productList",{
         user:userData,

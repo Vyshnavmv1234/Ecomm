@@ -3,6 +3,7 @@ import Category from "../../models/categorySchema.js"
 import cloudinary from "../../config/cloudinary.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
+import { json } from "express"
 
 const loadProducts = async(req,res)=>{
   try {
@@ -56,9 +57,15 @@ const postAddProducts = async(req,res)=>{
   try {
     if(req.session.admin){
 
-      const {pName,price,description,discount,category,pTitle} = req.body
+      const {pName,description,discount,category,pTitle} = req.body
+      const variants = JSON.parse(req.body.variants)
+      console.log(variants)
 
-      if(!pName || !price || !description || !category || !pTitle){
+      if(!variants || variants.length==0){
+        return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,error: "At least one variant is required"})
+      }
+
+      if(!pName || !description || !category || !pTitle){
         return res.status(STATUS_CODES.BAD_REQUEST).json({
           success:false,
           message:"All fields must be filled"
@@ -79,7 +86,7 @@ const postAddProducts = async(req,res)=>{
       const newProduct = new Product({
        name:pName,
        description,
-       price,
+       variants,
        discount: discount||0,
        category,
        title:pTitle,
@@ -129,7 +136,7 @@ const postEditProduct = async (req, res) => {
     const NAME = req.body?.name;
     const DESCRIPTION = req.body?.description;
     const DISCOUNT = req.body?.discount;
-    const PRICE = req.body?.price;
+    const variants = JSON.parse(req.body.variants)
     const TITLE = req.body?.title;
 
     const product = await Product.findById(productId);
@@ -155,7 +162,7 @@ const postEditProduct = async (req, res) => {
     if (NAME) product.name = NAME;
     if (DESCRIPTION) product.description = DESCRIPTION;
     if (DISCOUNT) product.discount = DISCOUNT;
-    if (PRICE) product.price = PRICE;
+    if (variants) product.variants = variants;
     if (TITLE) product.title = TITLE;
 
     await product.save();

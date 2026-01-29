@@ -19,10 +19,6 @@ const productSchema = new Schema({
     ref:"Category",
     required: true
   },
-  price: {
-    type: Number,
-    required: true
-  },
   discount: {
     type: Number,
     required: false
@@ -37,6 +33,26 @@ const productSchema = new Schema({
     url: String,
     public_id: String
   }],
+
+  variants: [
+    {
+      size: {
+        type: String,
+        enum: ["S", "M", "L", "XL"],
+        required: true
+      },
+      stock: {
+        type: Number,
+        required: false,
+        min: 0
+      },
+      price: {
+        type: Number,
+        required: true,
+        min:0
+      }
+    }
+  ],
 
   isBlocked: {
     type: Boolean,
