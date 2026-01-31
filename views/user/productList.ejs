@@ -68,7 +68,7 @@
   .top-bar {
     display: flex;
     justify-content: space-between;
-    padding: 24px 48px 10px;
+    padding: 2px 48px 10px;
     font-size: 13px;
     color: #777;
   }
@@ -231,7 +231,14 @@
 
 <!-- TOP BAR -->
 <div class="top-bar">
-  <div>240 PRODUCTS FOUND</div>
+  <div class="breadcrumb">
+       <nav class="breadcrumb">
+      <a href="/user/homepage">Home</a>
+      <span>/</span>
+      <a href="/user/productList">All</a>
+
+    </nav>
+      </div>
   <div class="filters">
     
     <div class="filter-btn"><button onclick="openFilter()">⇅</button></div>
@@ -289,6 +296,7 @@
         <label><input type="radio" name="sort" value="price_desc" <%= query.sort === "price_desc" ? "checked" : "" %>> High → Low</label>
         <label><input type="radio" name="sort" value="az" <%= query.sort === "az" ? "checked" : "" %>> A–Z</label>
         <label><input type="radio" name="sort" value="za" <%= query.sort === "za" ? "checked" : "" %>> Z–A</label>
+        <label><input type="radio" name="sort" value="all" <%= !query.sort||query.sort === "" ? "checked" : "" %>> All</label>
       </div>
     </div>
 
@@ -309,7 +317,16 @@
             <%= cat.name %>
           </label>
         <% }) %>
+        <label>
+    <input
+      type="checkbox"
+      id="selectAllCategories"
+      <%= !query.category ? "checked" : "" %>
+    >
+    All 
+  </label>
       </div>
+      
     </div>
 
     <!-- PRICE -->
@@ -319,6 +336,7 @@
         <label><input type="radio" name="price" value="0-999" <%= query.price === "0-999" ? "checked" : "" %>> Under ₹999</label>
         <label><input type="radio" name="price" value="1000-1999" <%= query.price === "1000-1999" ? "checked" : "" %>> ₹1000–₹1999</label>
         <label><input type="radio" name="price" value="2000-5000" <%= query.price === "2000-5000" ? "checked" : "" %>> ₹2000–₹5000</label>
+        <label><input type="radio" name="price" value="all" <%= !query.price||query.price === "" ? "checked" : "" %>> All</label>
       </div>
     </div>
 
@@ -357,8 +375,41 @@
   <% } %>
 
 </div>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 <Script>
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.get("blockedCategory") === "true") {
+      Toastify({
+        text: "This Product has been temporarily disabled by admin",
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #000, #333)"
+        }
+      }).showToast()
+
+      // ✅ clean URL
+      params.delete("blockedCategory")
+
+      const newUrl =
+        window.location.pathname +
+        (params.toString() ? "?" + params.toString() : "")
+
+      window.history.replaceState({}, "", newUrl)
+    }
+  })
+
   function openFilter() {
   filterSidebar.style.right = "0";
   filterOverlay.style.display = "block";

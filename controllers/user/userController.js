@@ -222,7 +222,7 @@ const verifyOtp = async (req, res) => {
     phone: user.phone,
     password: passwordHash 
   })
-
+  
   await saveUserData.save()
   req.session.user = saveUserData._id
   res.json({
@@ -342,7 +342,7 @@ const loadProductList = async(req,res)=>{
         }
       })
 
-      if(price){
+      if(price && price!=="all"){
         const [min,max] = price.split("-").map(val=>{
           return Number(val)
         })
@@ -369,7 +369,6 @@ const loadProductList = async(req,res)=>{
       countPipeline.push({$count:"total"})
 
       const countResult = await Product.aggregate(countPipeline)
-      console.log(countResult[0])
       const totalProduct = countResult[0]?.total ||0
       const totalPages = Math.ceil(totalProduct/limit)
 

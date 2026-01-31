@@ -34,6 +34,7 @@ router.get("/editProduct/:id",adminAuth,productController.loadEditProduct)
 router.patch("/blockProduct/:id",adminAuth,productController.blockProduct)
 router.patch("/unblockProduct/:id",adminAuth,productController.unblockProduct)
 router.patch("/updateProduct/:id",adminAuth,uploadProduct.array("images", 5),productController.postEditProduct)
+router.patch("/remove-product-image",adminAuth,productController.removeProductImage)
 
 //CATEGORY MANAGEMENT
 

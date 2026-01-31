@@ -12,6 +12,42 @@
   box-sizing:border-box;
   font-family: "Inter", Arial, sans-serif;
 }
+.existing-images {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.preview-image {
+  position: relative;
+  width: 120px;
+  height: 140px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #000;
+  color: #fff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+}
+
 .variant-box {
   border: 1px solid #d8b4a0;
   border-radius: 12px;
@@ -322,6 +358,25 @@ textarea{
 
       <!-- IMAGES -->
       <div class="card">
+
+        <div class="existing-images">
+  <% if (product.images && product.images.length > 0) { %>
+    <% product.images.forEach((img, index) => { %>
+      <div class="preview-image">
+        <img src="<%= img.url %>" alt="product image">
+
+        <button
+          type="button"
+          class="remove-btn"
+          onclick="removeImage('<%= img._id %>', '<%= product._id %>')">
+          ✕
+        </button>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p style="color:#777;">No images uploaded yet</p>
+  <% } %>
+</div>
         <h3>General Photo</h3>
 
         <div class="image-box">
@@ -397,6 +452,25 @@ textarea{
   let variants = JSON.parse(
   document.getElementById("existing-variants").textContent
 );
+
+   function removeImage(imageId, productId) {
+  fetch("/admin/remove-product-image", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ imageId, productId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      location.reload()
+    }else{
+      showToast(data.message || "Cannot remove image", "error");
+    }
+  })
+}
+
 
 
     function addVariant() {
