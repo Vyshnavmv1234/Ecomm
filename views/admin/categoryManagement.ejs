@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Categories</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+.category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-img img {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
+.action {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Common button */
+.btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+/* Block */
+.btn-block {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Unblock */
+.btn-unblock {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #e0e7ff;
+}
+
+
+
+/* CONTENT */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  height: 70px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search {
+  width: 520px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* MAIN */
+.main {
+  padding: 28px 32px;
+}
+
+/* TITLE */
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-row h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.create-btn {
+  background: #cbb8b3;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* BREADCRUMB */
+.breadcrumb {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #9ca3af;
+  margin-left: 110px;
+}
+
+.breadcrumb span {
+  color: #3b82f6;
+}
+
+/* CARD */
+.card {
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 8px;
+  margin-left: 200px;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 16px;
+  border-bottom: 1px solid #eef0f4;
+  text-align: left;
+}
+
+tbody td {
+  padding: 18px 16px;
+  border-bottom: 1px solid #f1f3f7;
+  font-size: 14px;
+  color: #374151;
+}
+
+.category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox.gray {
+  background: #e5e7eb;
+}
+
+.cat-img {
+  width: 38px;
+  height: 38px;
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+
+.action {
+  font-size: 18px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+/* PAGINATION */
+.pagination {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.pages {
+  display: flex;
+  gap: 10px;
+}
+
+.page {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.page.active {
+  background: #cbb8b3;
+  color: #fff;
+  border: none;
+}
+</style>
+</head>
+  <%- include("../../views/partials/admin/header") %>
+
+
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+    <%- include("../../views/partials/admin/sidebar") %>
+
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HEADER -->
+    <div class="header">
+      <input class="search" placeholder="" />
+      <div class="profile">
+        <div class="avatar">V</div>
+        <strong>Vyshnav</strong>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <form method="get" action="/admin/category">
+    <div style="flex: 1; display: flex; justify-content: center;">
+    <input
+      name="search"
+      type="text"
+      placeholder="Search..."
+      value="<%=search%>"
+      style="
+        width: 60%;
+        max-width: 520px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 14px;
+      "
+    />
+  </div>
+  </form>
+
+      <div class="title-row">
+        <h2 style="margin-left: 220px;">Categories</h2>
+        <a href="/admin/addCategory"><button class="create-btn">＋ Create Category</button></a>
+      </div>
+
+      <div class="breadcrumb">
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <span class="active">Categories</span>
+    </nav>
+
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Category Name</th>
+              <th>Sold</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+  <% if (categoryData && categoryData.length > 0) { %>
+    <% categoryData.forEach((category) => { %>
+      <tr>
+        <!-- Category Name -->
+        <td>
+          <div class="category">
+            <div class="checkbox <%= category.isBlocked ? 'gray' : '' %>">
+              <%= category.isBlocked ? '' : '✓' %>
+            </div>
+
+            <div class="cat-img">
+            <img
+              src="<%= category.image %>"
+              alt="<%= category.name %>"
+              onerror="this.style.display='none'"
+            />
+          </div>
+
+
+            <%= category.name %>
+          </div>
+        </td>
+
+        <!-- Sold (placeholder for now) -->
+        <td>0</td>
+
+        <!-- Stock (placeholder for now) -->
+        <td>0</td>
+
+        <!-- Status -->
+        <td>
+          <% if (category.isBlocked) { %>
+              <span style="color:#dc2626;">Blocked</span>
+            <% } else { %>
+              <span style="color:#16a34a;">Active</span>
+            <% } %>
+        </td>
+
+        <!-- Action -->
+        <td class="action">
+
+  <!-- Edit -->
+  
+      <a
+        href="/admin/editCategory?id=<%=category._id%>"
+        class="edit-btn"
+        title="Edit Category"
+      >
+        Edit
+      </a>
+
+  <!-- Block / Unblock -->
+      <% if (category.isBlocked) { %>
+          <button
+            onclick="unblockCategory('<%= category._id %>')"
+            class="btn btn-unblock"
+          >
+            Unblock
+          </button>
+        <% } else { %>
+          <button
+            onclick="blockCategory('<%= category._id %>')"
+            class="btn btn-block"
+          >
+            Block
+          </button>
+        <% } %>
+        </td>
+
+
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="5" style="text-align:center; color:#9ca3af;">
+        No categories found
+      </td>
+    </tr>
+  <% } %>
+</tbody>
+
+</table>
+
+    <!--Pagination-->
+
+        <div class="pagination" style="display: flex; justify-content: center;">
+
+      <div class="pages">
+
+        <!-- Previous -->
+        <% if (currentPage > 1) { %>
+          <a href="/admin/category?page=<%= currentPage - 1 %>" class="page">‹</a>
+        <% } else { %>
+          <div class="page" style="opacity:0.4; cursor:not-allowed;">‹</div>
+        <% } %>
+
+        <!-- Page Numbers -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <% if (i === currentPage) { %>
+            <div class="page active"><%= i %></div>
+          <% } else { %>
+            <a href="/admin/category?page=<%= i %>" class="page"><%= i %></a>
+          <% } %>
+        <% } %>
+
+        <!-- Next -->
+        <% if (currentPage < totalPages) { %>
+          <a href="/admin/category?page=<%= currentPage + 1 %>" class="page">›</a>
+        <% } else { %>
+          <div class="page" style="opacity:0.4; cursor:not-allowed;">›</div>
+        <% } %>
+
+      </div>
+    </div>
+
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  async function blockCategory(categoryId) {
+    const ok = confirm("Are you sure you want to block this category?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/admin/category/block/${categoryId}`, {
+        method: "PATCH"
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("Failed to block category");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+  async function unblockCategory(categoryId) {
+    const ok = confirm("Are you sure you want to unblock this category?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`/admin/category/unblock/${categoryId}`, {
+        method: "PATCH"
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("Failed to unblock category");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+</script>
+
+
+</body>
+</html>

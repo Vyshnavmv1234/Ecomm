@@ -1,0 +1,77 @@
+
+  <style>
+.sidebar {
+  width:240px;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.08);
+  height: auto;        /* important */
+}
+
+.menu {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.menu-item {
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+  color:#777;
+}
+
+.menu-item a {
+  text-decoration:none;
+  color:inherit;
+  width:100%;
+  display:block;
+}
+
+.menu-item.active {
+  background:#cbbdbb;
+
+  font-weight:600;
+}
+</style>
+
+
+<%
+  const page = typeof activePage !== "undefined" ? activePage : "";
+  const active = (name) => page === name ? "active" : "";
+%>
+
+<aside class="sidebar">
+  <ul class="menu">
+
+    <li class="menu-item <%= active('dashboard') %>">
+      <a href="/user/userDashboard">Dashboard</a>
+    </li>
+
+    <li class="menu-item <%= active('account') %>">
+      <a href="/user/userProfile">Account Details</a>
+    </li>
+
+    <li class="menu-item <%= active('orders') %>">
+      <a href="/user/orders">Order History</a>
+    </li>
+
+    <li class="menu-item <%= active('cart') %>">
+      <a href="/user/cart">Shopping Cart</a>
+    </li>
+
+    <li class="menu-item <%= active('wishlist') %>">
+      <a href="/user/wishlist">Wishlist</a>
+    </li>
+
+    <li class="menu-item <%= active('address') %>">
+      <a href="/user/userAddress">Address</a>
+    </li>
+
+    <li class="menu-item <%= active('wallet') %>">
+      <a href="/user/wallet">Wallet</a>
+    </li>
+
+  </ul>
+</aside>

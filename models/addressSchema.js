@@ -7,11 +7,12 @@ const addressSchema = new Schema({
     ref: "User",
     required: true
   },
-    username: {
+  address:[{
+    name: {
       type: String,
       required: true
     },
-    street_name: {
+    streetName: {
       type: String,
       required: true
     },
@@ -24,13 +25,15 @@ const addressSchema = new Schema({
       required: true
     },
     pincode: {
-      type: String,
+      type: Number,
       required: true
     },
     phone: {
       type: String,
       required: true
     }
+  }]
+    
 },{timestamps: true})
 const address = mongoose.model("Address",addressSchema)
 export default address

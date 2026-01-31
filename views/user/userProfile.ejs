@@ -1,0 +1,160 @@
+<%- include("../../views/partials/user/header") %>
+
+<style>
+.dashboard-layout {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  align-items: stretch; /* FIXES SIDEBAR HEIGHT */
+}
+
+.dashboard-content {
+  flex: 1;
+}
+</style>
+
+<!-- MAIN DASHBOARD LAYOUT -->
+<div class="dashboard-layout">
+
+  <!-- ========== SIDEBAR ========== -->
+  <%- include("../../views/partials/user/sidebar") %>
+
+  <!-- ========== CONTENT ========== -->
+  <main class="dashboard-content">
+
+    <!-- ACCOUNT SETTINGS -->
+    <section style="background:#fff; padding:25px; border-radius:8px;">
+      <h5 style="margin-bottom:20px;">ACCOUNT SETTING</h5>
+
+      <div style="display:flex; gap:30px;">
+
+        <!-- PROFILE PHOTO -->
+        <div style="text-align:center;">
+          <form action="/user/upload" method="POST" enctype="multipart/form-data">
+
+            <label for="profileImage" style="cursor:pointer;">
+              <img
+                id="avatarPreview"
+                src="<%= user.profileImage %>"
+                alt="profile"
+                style="
+                  width:140px;
+                  height:140px;
+                  border-radius:50%;
+                  object-fit:cover;
+                  border:3px solid #e5e5e5;
+                "
+              />
+            </label>
+
+            <input
+              type="file"
+              id="profileImage"
+              name="image"
+              accept="image/*"
+              hidden
+            />
+
+            <br><br>
+
+            <button
+              type="submit"
+              style="
+                background:#4db6ac;
+                color:#fff;
+                border:none;
+                padding:10px 18px;
+                border-radius:6px;
+                cursor:pointer;
+              "
+            >
+              Update photo
+            </button>
+          </form>
+        </div>
+
+        <!-- FORM -->
+        <div style="flex:1;">
+          <div style="display:flex; gap:20px;">
+            <div style="flex:1;">
+              <label>Name</label>
+              <input
+                type="text"
+                value="<%= user.name %>"
+                readonly
+                style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"
+              />
+            </div>
+
+            <div style="flex:1;">
+              <label>Email</label>
+              <input
+                type="email"
+                value="<%= user.email %>"
+                readonly
+                style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"
+              />
+
+              <button
+                style="float:right; margin-top:20px; background:#4db6be; border:none; padding:10px 20px; color:white; border-radius:5px;"
+              >
+                <a href="/user/change-email" style="color:white; text-decoration:none;">
+                  Change Email
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top:15px; width:50%;">
+            <label>Phone Number</label>
+            <input
+              type="text"
+              value="<%= user.phone %>"
+              readonly
+              style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"
+            />
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CHANGE PASSWORD -->
+    <section style="background:#fff; padding:25px; border-radius:8px; margin-top:30px;">
+      <h5>CHANGE PASSWORD</h5>
+
+      <div style="max-width:400px;">
+        <label>Current Password</label>
+        <input
+          type="password"
+          readonly
+          placeholder="*********"
+          style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px"
+        />
+
+        <button
+          style="background:#4db6be; border:none; padding:10px 25px; color:white; border-radius:5px;"
+        >
+          <a href="/user/change-password" style="color:white; text-decoration:none;">
+            Change Password
+          </a>
+        </button>
+      </div>
+    </section>
+
+    <script>
+      const fileInput = document.getElementById("profileImage");
+      const preview = document.getElementById("avatarPreview");
+
+      fileInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+          preview.src = URL.createObjectURL(file);
+        }
+      });
+    </script>
+
+  </main>
+</div>
+
+<%- include("../../views/partials/user/footer") %>

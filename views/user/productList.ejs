@@ -1,0 +1,429 @@
+<%- include("../../views/partials/user/header") %>
+<style>
+
+  .filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  z-index: 1999;
+}
+
+/* SIDEBAR */
+.filter-sidebar {
+  position: fixed;
+  top: 0;
+  right: -360px;
+  width: 360px;
+  height: 100%;
+  background: #fff;
+  z-index: 2000;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-title {
+  padding: 14px 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.filter-content {
+  display: none;
+  padding: 0 16px 12px;
+}
+
+.filter-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid #eee;
+}
+
+.apply-btn {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+}
+
+.reset-btn {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+}
+  
+  /* TOP BAR */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 48px 10px;
+    font-size: 13px;
+    color: #777;
+  }
+     .pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.page-btn.active {
+  background-color: #cab3b3;
+  color: #ffffff;
+  border-color: #bdabab;
+  cursor: default;
+}
+
+.page-btn.arrow {
+  font-size: 14px;
+  font-weight: bold;
+}
+  
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .filter-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  /* PRODUCT GRID */
+ .products {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 50px;
+  padding: 20px 48px;
+}
+
+.product {
+  position: relative;
+}
+
+/* IMAGE WRAPPER */
+.product-image {
+  width: 100%;
+  aspect-ratio: 3 / 4;     /* 🔥 consistent portrait ratio */
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* IMAGE */
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;    /* no cropping */
+}
+
+  
+  .wishlist {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .brand {
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin: 12px 0 4px;
+  }
+  
+  .title {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+  
+  .price {
+    color: #000000;
+    font-weight: bold;
+    margin: 6px 0;
+  }
+  
+  .rating {
+    font-size: 12px;
+    color: #777;
+  }
+  
+  .sizes {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  
+  .size {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* PAGINATION */
+  .pagination {
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 40px;
+  }
+  
+  .page {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+  }
+  
+  .active {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+  }
+  
+  
+</style>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="breadcrumb">
+       <nav class="breadcrumb">
+      <a href="/user/homepage">Home</a>
+      <span>/</span>
+      <a href="/user/productList">All</a>
+
+    </nav>
+      </div>
+  <div class="filters">
+    
+    <div class="filter-btn"><button onclick="openFilter()">⇅</button></div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div class="products">
+
+  <!-- PRODUCT CARD -->
+   
+    <% products.forEach(product =>{%>
+
+     <div class="product">
+
+       <span class="wishlist">♡</span>
+
+       <a href="/user/productDetail?id=<%=product._id%>">
+        <div class="product-image"><img src="<%=product.images[0].url%>"></div>
+        
+       </a>
+
+       <div class="brand"><%=product.name%></div>
+       <p class="title"><%=product.title%></p>
+       <div class="price">₹ <%=product.variants[0].price%></div>
+       <div class="rating">★ 4.8 Ratings</div>
+
+      </div>
+      <%})%>
+   
+
+</div>
+     
+    
+<!-- FILTER OVERLAY -->
+
+<div id="filterOverlay" class="filter-overlay" onclick="closeFilter()"></div>
+
+<!-- FILTER SIDEBAR -->
+<div id="filterOverlay" class="filter-overlay" onclick="closeFilter()"></div>
+
+<div id="filterSidebar" class="filter-sidebar">
+  <div class="filter-header">
+    <h3>Filter</h3>
+    <span onclick="closeFilter()" style="cursor:pointer">✕</span>
+  </div>
+
+  <form method="GET" action="/user/productList">
+
+    <!-- SORT -->
+    <div class="filter-section">
+      <div class="filter-title" onclick="toggleSection(this)">Sort By <span>⌄</span></div>
+      <div class="filter-content">
+        <label><input type="radio" name="sort" value="price_asc" <%= query.sort === "price_asc" ? "checked" : "" %>> Low → High</label>
+        <label><input type="radio" name="sort" value="price_desc" <%= query.sort === "price_desc" ? "checked" : "" %>> High → Low</label>
+        <label><input type="radio" name="sort" value="az" <%= query.sort === "az" ? "checked" : "" %>> A–Z</label>
+        <label><input type="radio" name="sort" value="za" <%= query.sort === "za" ? "checked" : "" %>> Z–A</label>
+        <label><input type="radio" name="sort" value="all" <%= !query.sort||query.sort === "" ? "checked" : "" %>> All</label>
+      </div>
+    </div>
+
+    <!-- CATEGORY -->
+    <div class="filter-section">
+      <div class="filter-title" onclick="toggleSection(this)">Category <span>⌄</span></div>
+      <div class="filter-content">
+        <% category.forEach(cat => { %>
+          <label>
+            <input
+              type="checkbox"
+              name="category"
+              value="<%= cat._id %>"
+              <%= Array.isArray(query.category) 
+                    ? query.category.includes(cat._id.toString())
+                    : query.category === cat._id.toString() ? "checked" : "" %>
+            >
+            <%= cat.name %>
+          </label>
+        <% }) %>
+        <label>
+    <input
+      type="checkbox"
+      id="selectAllCategories"
+      <%= !query.category ? "checked" : "" %>
+    >
+    All 
+  </label>
+      </div>
+      
+    </div>
+
+    <!-- PRICE -->
+    <div class="filter-section">
+      <div class="filter-title" onclick="toggleSection(this)">Price Range <span>⌄</span></div>
+      <div class="filter-content">
+        <label><input type="radio" name="price" value="0-999" <%= query.price === "0-999" ? "checked" : "" %>> Under ₹999</label>
+        <label><input type="radio" name="price" value="1000-1999" <%= query.price === "1000-1999" ? "checked" : "" %>> ₹1000–₹1999</label>
+        <label><input type="radio" name="price" value="2000-5000" <%= query.price === "2000-5000" ? "checked" : "" %>> ₹2000–₹5000</label>
+        <label><input type="radio" name="price" value="all" <%= !query.price||query.price === "" ? "checked" : "" %>> All</label>
+      </div>
+    </div>
+
+    <div class="filter-footer">
+      <button class="apply-btn">APPLY FILTER</button>
+      <a href="/user/productList" class="reset-btn">RESET</a>
+    </div>
+
+  </form>
+</div>
+
+
+<!-- PAGINATION -->
+<div class="pagination-wrapper">
+
+  <% if (currentPage > 1) { %>
+    <a href="?<%= new URLSearchParams({ ...query, page: currentPage - 1 }).toString() %>" class="page-btn arrow">
+      &#8592;
+    </a>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <% if (i === currentPage) { %>
+      <span class="page-btn active"><%= i %></span>
+    <% } else { %>
+      <a href="?<%= new URLSearchParams({ ...query, page: i }).toString() %>" class="page-btn">
+        <%= i %>
+      </a>
+    <% } %>
+  <% } %>
+
+  <% if (currentPage < totalPages) { %>
+    <a href="?<%= new URLSearchParams({ ...query, page: currentPage + 1 }).toString() %>" class="page-btn arrow">
+      &#8594;
+    </a>
+  <% } %>
+
+</div>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<Script>
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.get("blockedCategory") === "true") {
+      Toastify({
+        text: "This Product has been temporarily disabled by admin",
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #000, #333)"
+        }
+      }).showToast()
+
+      // ✅ clean URL
+      params.delete("blockedCategory")
+
+      const newUrl =
+        window.location.pathname +
+        (params.toString() ? "?" + params.toString() : "")
+
+      window.history.replaceState({}, "", newUrl)
+    }
+  })
+
+  function openFilter() {
+  filterSidebar.style.right = "0";
+  filterOverlay.style.display = "block";
+}
+
+function closeFilter() {
+  filterSidebar.style.right = "-360px";
+  filterOverlay.style.display = "none";
+}
+
+function toggleSection(el) {
+  const content = el.nextElementSibling;
+  content.style.display = content.style.display === "block" ? "none" : "block";
+}
+</Script>
+
+<%- include("../../views/partials/user/footer") %>

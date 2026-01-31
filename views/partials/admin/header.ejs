@@ -1,0 +1,136 @@
+<header
+  style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+  "
+>
+  <!-- LEFT : LOGO -->
+  <div style="font-size: 22px; font-weight: 700; color: #000;">
+    WestLane
+  </div>
+
+  <!-- CENTER : SEARCH -->
+ 
+
+  <!-- RIGHT : USER DROPDOWN -->
+  <div style="position: relative;">
+
+    <!-- TRIGGER -->
+    <div
+      id="userTrigger"
+      style="
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+      "
+      onmouseenter="showDropdown()"
+      onmouseleave="hideDropdownLater()"
+      onclick="toggleDropdown(event)"
+    >
+      <!-- Avatar -->
+      <div
+        style="
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background-color: #22c55e;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-weight: bold;
+          font-size: 16px;
+        "
+      >
+        A
+      </div>
+
+      <!-- Name -->
+      <div style="line-height: 1.2;">
+        <div style="font-weight: 600; font-size: 14px;">
+          <%= admin %>
+        </div>
+      </div>
+    </div>
+
+    <!-- DROPDOWN -->
+    <div
+      id="userDropdown"
+      style="
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 56px;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        min-width: 140px;
+        z-index: 1100;
+      "
+      onmouseenter="cancelHide()"
+      onmouseleave="hideDropdown()"
+    >
+      <a
+        href="/admin/logout"
+        style="
+          display: block;
+          padding: 10px 14px;
+          font-size: 14px;
+          color: #333;
+          text-decoration: none;
+        "
+        onmouseover="this.style.background='#f5f5f5'"
+        onmouseout="this.style.background='transparent'"
+      >
+        Logout
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- INLINE SCRIPT (SAFE IN PARTIAL) -->
+<script>
+  let hideTimeout;
+
+  function showDropdown() {
+    clearTimeout(hideTimeout);
+    document.getElementById("userDropdown").style.display = "block";
+  }
+
+  function hideDropdown() {
+    document.getElementById("userDropdown").style.display = "none";
+  }
+
+  function hideDropdownLater() {
+    hideTimeout = setTimeout(hideDropdown, 150);
+  }
+
+  function cancelHide() {
+    clearTimeout(hideTimeout);
+  }
+
+  function toggleDropdown(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById("userDropdown");
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
+  }
+
+  // Close when clicking outside
+  document.addEventListener("click", () => {
+    hideDropdown();
+  });
+</script>

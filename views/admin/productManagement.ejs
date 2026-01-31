@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WestLane – Products</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
+
+body {
+  background: #f6f7fb;
+  color: #1f2937;
+}
+
+/* LAYOUT */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+/* Common button */
+.btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+/* Block */
+.btn-block {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Unblock */
+.btn-unblock {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #e0e7ff;
+}
+
+
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px 20px;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.sidebar h6 {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #9ca3af;
+  margin: 24px 0 12px;
+}
+
+.nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #374151;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.nav a.active,
+.nav a:hover {
+  background: #f0f3ff;
+  color: #3b82f6;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* MAIN */
+.main {
+  padding: 28px 32px;
+}
+
+/* TITLE */
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-row h2 {
+  font-size: 22px;
+}
+
+.add-btn {
+  background:#cbb8b3;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* BREADCRUMB */
+
+.breadcrumb-container {
+  display: flex;
+  justify-content: space-between; /* pushes button to right */
+  align-items: center;
+  margin-left: 200px;
+}
+
+
+
+.add-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #d6c4b8;
+  border: none;
+  cursor: pointer;
+}
+
+/* TABS */
+.tabs {
+  margin-top: 18px;
+  display: inline-flex;
+  background: #fff;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid #eef0f4;
+  gap: 6px;
+  margin-left: 215px
+}
+
+.tab {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #eef2ff;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* TABLE CARD */
+.card {
+  margin-top: 18px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 8px;
+  margin-left: 200px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 14px;
+  border-bottom: 1px solid #eef0f4;
+  text-align: left;
+}
+
+tbody td {
+  padding: 16px 14px;
+  border-bottom: 1px solid #f1f3f7;
+  font-size: 14px;
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img {
+  width: 36px;
+  height: 44px;
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+
+.status {
+  background: #e7faf3;
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.action {
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* PAGINATION */
+.pagination {
+  padding: 18px 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+  color: #ececec;
+}
+
+.pages {
+  display: flex;
+  gap: 10px;
+}
+
+.page {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.page.active {
+  background: #cbb8b3;
+  color: #fff;
+  border: none;
+}
+</style>
+</head>
+
+<body>
+  
+
+<div class="layout">
+
+  <%- include("../../views/partials/admin/sidebar") %>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HEADER -->
+   <%- include("../../views/partials/admin/header") %>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="main">
+      <form method="get" action="/admin/products">
+    <div style="margin-top: 18px; flex: 1; display: flex; justify-content: center;">
+    <input
+      name="search"
+      type="text"
+      placeholder="Search..."
+      value="<%=search%>"
+      style="
+        width: 60%;
+        max-width: 520px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        outline: none;
+        font-size: 14px;
+      "
+    />
+  </div>
+  </form>
+  <h2 style="margin-left: 200px;">Products</h2>
+
+      <div class="breadcrumb-container">
+  <nav class="breadcrumb">
+  <a href="/admin/adminDashboard">Dashboard</a>
+  <span>›</span>
+  <span class="active">Products</span>
+  </nav>
+
+  <a href="/admin/addProducts" ><button id="addProductBtn" class="add-btn">＋ Add Product</button></a>
+</div>
+
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+        <% if (products.length === 0) { %>
+          <tr>
+            <td colspan="7" style="text-align:center; padding:20px;">
+              No products found
+            </td>
+          </tr>
+        <% } %>
+
+        <% products.forEach(product => { %>
+          <tr>
+            <td>
+              <div class="product">
+                <div class="checkbox">✓</div>
+
+                <% if (product.images && product.images.length > 0) { %>
+                  <img 
+                    src="<%= product.images[0].url %>" 
+                    class="img"
+                  />
+                <% } else { %>
+                  <div class="img"></div>
+                <% } %>
+
+                <%= product.name %>
+              </div>
+            </td>
+
+            <td><%= product.category?.name || "—" %></td>
+
+            
+
+            <td>₹<%= product.variants[0].price %></td>
+
+            <td>
+              <% if (product.quantity > 0) { %>
+                <span class="status">In Stock</span>
+              <% } else { %>
+                <span class="status" style="background:#fee2e2;color:#dc2626;">
+                  Out of Stock
+                </span>
+              <% } %>
+            </td>
+
+            <td>
+            <% if (product.isBlocked) { %>
+              <span style="color:#dc2626;">Blocked</span>
+            <% } else { %>
+              <span style="color:#16a34a;">Active</span>
+            <% } %>
+          </td>
+
+            <td class="action">
+
+          <!-- Edit -->
+          <a class="edit-btn" href="/admin/editProduct/<%= product._id %>">Edit</a>
+
+          <!-- Block / Unblock -->
+          <% if (product.isBlocked) { %>
+            <button
+              onclick="unblockProduct('<%= product._id %>')"
+              class="btn btn-unblock"
+            >
+              Unblock
+            </button>
+          <% } else { %>
+            <button
+              onclick="blockProduct('<%= product._id %>')"
+              class="btn btn-block"
+            >
+              Block
+            </button>
+          <% } %>
+
+        </td>
+       </tr>
+     <% }) %>
+        </tbody>
+
+        </table>
+
+        <div class="pagination">
+
+      <div class="pages">
+
+        <!-- PREVIOUS -->
+        <% if (currentPage > 1) { %>
+          <a class="page" href="?page=<%= currentPage - 1 %>&search=<%= search %>">‹</a>
+        <% } %>
+
+        <!-- PAGE NUMBERS -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a 
+            class="page <%= i === currentPage ? 'active' : '' %>"
+            href="?page=<%= i %>&search=<%= search %>"
+          >
+            <%= i.toString().padStart(2, "0") %>
+          </a>
+        <% } %>
+
+        <!-- NEXT -->
+        <% if (currentPage < totalPages) { %>
+          <a class="page" href="?page=<%= currentPage + 1 %>&search=<%= search %>">›</a>
+        <% } %>
+
+        </div>
+       </div>
+      </div>
+     </div>
+   </div>
+</div>
+
+<script>
+
+  async function blockProduct(productId){
+    
+    const ok = confirm("Do you want to block the product")
+    if(!ok){
+      return
+    }
+    try {
+
+      const res = await fetch(`/admin/blockProduct/${productId}`,{
+        method: "PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+      })
+      const data = await res.json()
+
+      if(data.success){
+        location.reload()
+      }else{
+        alert("Failed to block")
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+  async function unblockProduct(productId){
+    
+    const ok = confirm("Do you want to unblock the product")
+    if(!ok){
+      return
+    }
+    try {
+
+      const res = await fetch(`/admin/unblockProduct/${productId}`,{
+        method: "PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+      })
+      const data = await res.json()
+
+      if(data.success){
+        location.reload()
+      }else{
+        alert("Failed to unblock")
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Category</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Inter",Arial,sans-serif;
+}
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
+.btn{
+  padding:10px 16px;
+  border-radius:8px;
+  font-size:14px;
+  cursor:pointer;
+  border:none;
+}
+
+.btn-cancel{
+  margin-top: auto;
+  background:#fff;
+  border:1px solid #b0b6c3;
+  color:#333;
+}
+
+.btn-primary{
+  background:#c9b1a8;
+  color:#fff;
+}
+
+
+body{
+  background:#f6f7fb;
+  color:#111827;
+}
+
+/* MAIN CONTENT */
+.main{
+  padding:28px 32px;
+  margin-left:220px;   /* sidebar width */
+  margin-top:70px;     /* header height */
+}
+
+
+/* TITLE ROW */
+.title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.title-row h2{
+  font-size:24px;
+  font-weight:600;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+}
+
+.cancel-btn{
+  padding:10px 16px;
+  border-radius:10px;
+  border:1px solid #9ca3af;
+  background:#fff;
+  color:#6b7280;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.save-btn{
+  padding:10px 16px;
+  border-radius:10px;
+  border:none;
+  background:#cbb8b3;
+  color:#fff;
+  font-size:14px;
+  cursor:pointer;
+}
+
+/* BREADCRUMB */
+.breadcrumb{
+  margin-top:6px;
+  font-size:14px;
+  color:#9ca3af;
+}
+
+.breadcrumb span{
+  color:#2563eb;
+}
+
+/* FORM GRID */
+.form-grid{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:24px;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+}
+
+/* THUMBNAIL */
+.card h4{
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:10px;
+}
+
+.label{
+  font-size:14px;
+  color:#6b7280;
+  margin-bottom:8px;
+}
+
+.upload-box{
+  border:2px dashed #e5e7eb;
+  border-radius:14px;
+  padding:26px 16px;
+  text-align:center;
+  background:#fafafa;
+}
+
+.thumb{
+  width:90px;
+  height:120px;
+  background:#e5e7eb;
+  border-radius:12px;
+  margin:0 auto 14px;
+  position:relative;
+}
+
+.thumb::after{
+  content:"✓";
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  background:#d1fae5;
+  color:#059669;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:700;
+}
+
+.upload-text{
+  font-size:14px;
+  color:#6b7280;
+  margin-bottom:14px;
+}
+
+.upload-btn{
+  background:#eef2ff;
+  color:#4f46e5;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+/* INPUT */
+.input-label{
+  font-size:14px;
+  color:#6b7280;
+  margin-bottom:8px;
+}
+
+input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  font-size:14px;
+  background:#f9fafb;
+}
+</style>
+</head>
+
+<body>
+
+  <%- include("../../views/partials/admin/header") %>
+
+  <%- include("../../views/partials/admin/sidebar") %>
+
+<div class="main">
+
+  <div class="title-row">
+    <h2>Edit Category</h2>
+    
+  </div>
+
+  <div class="breadcrumb">
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <a href="/admin/category">Categories</a>
+      <span>›</span>
+      <span class="active">Edit Category</span>
+    </nav>
+
+      </div>
+
+  <div class="form-grid">
+
+  <!-- THUMBNAIL -->
+  <div class="card">
+    <h4>Thumbnail</h4>
+    <div class="label">Photo</div>
+
+    <div class="upload-box" id="uploadBox">
+      <img 
+        id="previewImage"
+        src="<%= categoryData.image %>"
+        alt="Category Image"
+        style="width:100px;height:100px;object-fit:cover;border-radius:8px;"
+      />
+
+      <input 
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        hidden
+      />
+
+      <button type="button" class="upload-btn" id="changeImageBtn">
+        Change Image
+      </button>
+    </div>
+  </div>
+
+  <!-- GENERAL INFO -->
+  <div class="card">
+    <h4>General Information</h4>
+
+    <form id="editCategoryForm">
+      <div class="input-label">Category Name</div>
+      <input 
+        id="categoryName"
+        type="text"
+        value="<%= categoryData.name %>"
+        required
+      />
+
+      <div class="actions">
+        <button type="submit" class="save-btn">Save Category</button>
+        <a href="/admin/category" class="btn btn-cancel">Cancel</a>
+      </div>
+    </form>
+
+    <div id="messageBox" style="margin-bottom:12px;">
+      <small id="successMsg" style="color:#16a34a; display:none;"></small>
+      <small id="errorMsg" style="color:#dc2626; display:none;"></small>
+    </div>
+
+  </div>
+
+</div>
+
+
+</div>
+<script>
+const form = document.getElementById("editCategoryForm")
+const imageInput = document.getElementById("imageInput")
+const previewImage = document.getElementById("previewImage")
+const changeImageBtn = document.getElementById("changeImageBtn")
+
+const successMsg = document.getElementById("successMsg")
+const errorMsg = document.getElementById("errorMsg")
+
+const categoryId = "<%= categoryData._id %>"
+
+// Open file picker
+changeImageBtn.addEventListener("click", () => {
+  imageInput.click()
+})
+
+// Preview selected image
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files[0]
+  if (file) {
+    previewImage.src = URL.createObjectURL(file)
+  }
+})
+
+// Submit form (AJAX)
+form.addEventListener("submit", async (e) => {
+  e.preventDefault()
+
+  catName = document.getElementById("categoryName").value.trim()
+  const nameRegex = /^[A-Za-z ]+$/
+
+  if (!catName) {
+    errorMsg.textContent = "Category name is required"
+    errorMsg.style.display = "block"
+    return false
+  }
+  if (catName.length < 3) {
+    errorMsg.textContent = "Category name must be at least 3 characters"
+    errorMsg.style.display = "block"
+    return false
+  }
+  if (!nameRegex.test(catName)) {
+    errorMsg.textContent = "Category name can contain only letters"
+    errorMsg.style.display = "block"
+    return false
+  }
+
+
+  successMsg.style.display = "none"
+  errorMsg.style.display = "none"
+
+  const formData = new FormData()
+  formData.append("categoryName", document.getElementById("categoryName").value.trim())
+
+  if (imageInput.files[0]) {
+    formData.append("image", imageInput.files[0])
+  }
+
+  try {
+    const res = await fetch(`/admin/category/update/${categoryId}`, {
+      method: "PATCH",
+      body: formData
+    })
+
+    const data = await res.json()
+
+    if (res.ok && data.success) {
+      successMsg.textContent = data.message || "Category updated successfully"
+      successMsg.style.display = "block"
+
+      // Redirect after short delay
+      setTimeout(() => {
+        window.location.href = "/admin/category"
+      }, 1200)
+
+    } else {
+      errorMsg.textContent = data.message || "Failed to update category"
+      errorMsg.style.display = "block"
+    }
+
+  } catch (err) {
+    console.error(err)
+    errorMsg.textContent = "Something went wrong"
+    errorMsg.style.display = "block"
+  }
+})
+</script>
+
+
+
+</body>
+</html>

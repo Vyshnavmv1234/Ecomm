@@ -1,73 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WestLane</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #222;
+      background: #fff;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      width: 100%;
+      display: block;
+    }
+
+    /* ================= HEADER ================= */
+    header {
+      border-bottom: 1px solid #eee;
+      padding: 18px 60px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .search {
+      flex: 1;
+      margin: 0 40px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #f2f2f2;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 18px;
+      font-size: 14px;
+    }
+
+    nav {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      font-size: 14px;
+    }
+
+    /* ================= HERO ================= */
+    .hero {
+      padding: 40px 60px;
+    }
+
+    .hero img {
+      max-height: 650px;
+      object-fit: cover;
+    }
+
+    /* ================= EXPLORE ================= */
+    .explore {
+      text-align: center;
+      margin: 40px 0;
+      font-size: 14px;
+    }
+
+    /* ================= PRODUCT GRID ================= */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      padding: 0 60px 60px;
+    }
+
+    .product-card {
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .product-card p {
+      margin-top: 10px;
+      color: #555;
+    }
+
+    /* ================= SECTION TITLE ================= */
+    .section-title {
+      padding: 60px 60px 20px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      color: #777;
+    }
+
+    /* ================= INFO SECTION ================= */
+    .info {
+      background: #f7f7f7;
+      padding: 80px 60px;
+      text-align: center;
+    }
+
+    .info h3 {
+      font-size: 22px;
+      margin-bottom: 14px;
+      font-weight: normal;
+    }
+
+    .info p {
+      max-width: 600px;
+      margin: 0 auto 40px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      font-size: 13px;
+    }
+
+    /* ================= FOOTER ================= */
+    footer {
+      padding: 60px;
+      border-top: 1px solid #eee;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 40px;
+      font-size: 13px;
+    }
+
+    footer h4 {
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    footer p {
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .store-buttons img {
+      height: 36px;
+      margin-right: 10px;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 900px) {
+      .product-grid,
+      .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      footer {
+        grid-template-columns: 1fr;
+      }
+
+      header,
+      .hero,
+      .section-title,
+      .product-grid,
+      .info {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
   <%-include("../../views/partials/user/header")%>
 
-  <!-- HERO -->
-  <section class="hero">
+<!-- HERO -->
+<section class="hero">
   <img  src="/images/default-hero.jpg"></section>
+</section>
 
-  <!-- EXPLORE -->
-  <div class="explore">Explore More →</div>
+<!-- EXPLORE -->
+<div class="explore">Explore More →</div>
 
-  <!-- PRODUCTS -->
-  <section class="product-grid">
-    <div class="product-card">   
+<!-- PRODUCT GRID -->
+<div class="product-grid">
+  <div class="product-card">
       <img src="/images/Rectangle 325.jpg">
-      <p>ZWV reversible angora cardigan</p>
-    </div>
-    <div class="product-card">
+    <p>23FW reversible angora cardigan</p>
+  </div>
+  <div class="product-card">
       <img src="/images/expm2.jpg">
-      <p>Clothing bag</p>
-    </div>
-    <div class="product-card">
+    <p>Oblong bag</p>
+  </div>
+  <div class="product-card">
       <img src="/images/expm3.jpg">
-      <p>ZWV reversible angora cardigan</p>
-    </div>
-    <div class="product-card">
+    <p>23FW reversible angora cardigan</p>
+  </div>
+  <div class="product-card">
       <img src="/images/expm4.jpg">
-      <p>ZWV reversible angora cardigan</p>
-    </div>
-  </section>
+    <p>23FW reversible angora cardigan</p>
+  </div>
+</div>
 
-  <!-- CELEBRITY -->
-  <div class="section-title">CELEBRITY APPROVED STYLES</div>
-
-  <section class="hero">
+<!-- CELEBRITY -->
+<div class="section-title">Celebrity Approved Styles</div>
+<section class="hero">
     <img src="/images/pexels-aksioart-1926769.jpg">
-  </section>
+</section>
 
-  <!-- OLD MONEY -->
-  <div class="section-title">OLD MONEY</div>
-
-  <section class="product-grid">
-    <div class="product-card">
+<!-- OLD MONEY -->
+<div class="section-title">OLD MONEY</div>
+<div class="product-grid">
+  <div class="product-card">
       <img src="/images/Rectangle 325.jpg">
-      <p>ZWV reversible angora cardigan</p>
-    </div>
-    <div class="product-card">
+    <p>23FW reversible angora cardigan</p>
+  </div>
+  <div class="product-card">
       <img src="/images/expm2.jpg">
-      <p>Linen espada</p>
-    </div>
-    <div class="product-card">
+    <p>Oblong bag</p>
+  </div>
+  <div class="product-card">
       <img src="/images/expm3.jpg">
-      <p>ZWV reversible angora cardigan</p>
-    </div>
-    <div class="product-card">
+    <p>23FW reversible angora cardigan</p>
+  </div>
+  <div class="product-card">
       <img src="/images/expm4.jpg">
-      <p>ZWV reversible angora cardigan</p>
-    </div>
-  </section>
+    <p>23FW reversible angora cardigan</p>
+  </div>
+</div>
 
-  <!-- INFO -->
-  <section class="info">
-    <h3>WestLane</h3>
-    <p>Making a luxurious lifestyle accessible for a generous group of women is our daily drive.</p>
+<!-- INFO -->
+<section class="info">
+  <h3>WestLane</h3>
+  <p>Making a luxurious lifestyle accessible for a generous group of women in our daily drive.</p>
 
-    <div class="info-grid">
-      <div>Fast shipping. Free on orders over $25.</div>
-      <div>Sustainable process from start to finish.</div>
-      <div>Unique designs and high-quality materials.</div>
-      <div>Fast shipping. Free on orders over $25.</div>
-    </div>
-  </section>
+  <div class="info-grid">
+    <div>Fast shipping<br>Free on orders over $25</div>
+    <div>Sustainable process<br>from start to finish</div>
+    <div>Unique designs<br>and high-quality materials</div>
+    <div>Fast shipping<br>Free on orders over $25</div>
+  </div>
+</section>
 
   <%-include("../../views/partials/user/footer")%>
-  

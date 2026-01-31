@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Category</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+.breadcrumb {
+  display: flex;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* MAIN */
+.main{
+  padding:28px 32px;
+  margin-left:220px;   /* sidebar width */
+  margin-top:70px;     /* header height */
+}
+
+
+/* TITLE ROW */
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-row h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #9ca3af;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #cbb8b3;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* BREADCRUMB */
+.breadcrumb {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.breadcrumb span {
+  color: #2563eb;
+}
+
+/* FORM LAYOUT */
+.form-grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+}
+
+/* CARD */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+/* THUMBNAIL */
+.card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.upload-box {
+  border: 2px dashed #e5e7eb;
+  border-radius: 14px;
+  padding: 26px 16px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.upload-icon {
+  width: 42px;
+  height: 42px;
+  background: #4f46e5;
+  border-radius: 10px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+}
+
+.upload-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 14px;
+}
+
+.upload-btn {
+  background: #eef2ff;
+  color: #4f46e5;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* INPUT */
+.input-label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+  <%- include("../../views/partials/admin/header") %>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/admin/sidebar") %>
+
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <div class="title-row">
+        <h2>Add Category</h2>
+        <div class="actions">
+          <button class="cancel-btn">✕ Cancel</button>
+          <button type="button" id="addCategoryBtn" class="add-btn">＋ Add Category</button>
+        </div>
+      </div>
+
+      <div class="breadcrumb">
+       <nav class="breadcrumb">
+      <a href="/admin/adminDashboard">Dashboard</a>
+      <span>›</span>
+      <a href="/admin/category">Categories</a>
+      <span>›</span>
+      <span class="active">Add Category</span>
+    </nav>
+
+      </div>
+
+      <!-- FORM -->
+      <div class="form-grid">
+
+        <!-- THUMBNAIL -->
+        <div class="card">
+          <h4>Thumbnail</h4>
+          <div class="label">Photo</div>
+
+          <form action="/admin/add-category" method="POST" enctype="multipart/form-data">
+  
+          <input 
+            type="file" 
+            name="image" 
+            id="imageInput" 
+            hidden 
+            accept="image/*"
+          />
+
+          <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+            <img id="preview" style="display:none; width:100%; height:100%; object-fit:cover;">
+            <span id="uploadText">Add Image</span>
+          </div>
+
+
+          <!-- CATEGORY NAME -->
+          <div class="card">
+            <div class="input-label">Category Name</div>
+              <input id="categoryName" name = "search" type="text" placeholder="Type category name here . . ." />
+              <small id="errorMsg" style="width: 500px; color:red;  margin-top:8px;"></small>
+                <small id="successMsg" style=" color:green;margin-left: 14px; margin-top:8px;"></small>
+          </div>
+        </form>
+
+        </div>
+
+
+      </div>
+
+        
+    </div>
+  </div>
+</div>
+
+<script>
+const addBtn = document.getElementById("addCategoryBtn")
+const categoryInput = document.getElementById("categoryName")
+const imageInput = document.getElementById("imageInput")
+const errorMsg = document.getElementById("errorMsg")
+const successMsg = document.getElementById("successMsg")
+
+addBtn.addEventListener("click", async () => {
+  errorMsg.textContent = ""
+  successMsg.textContent = ""
+
+  const name = categoryInput.value.trim()
+  const imageFile = imageInput.files[0]
+
+  //  Validations
+  if (!name) {
+    errorMsg.textContent = "Category name is required"
+    return
+  }
+
+  if (name.length < 3) {
+    errorMsg.textContent = "Category name must be at least 3 characters"
+    return
+  }
+
+  if (!/^[A-Za-z ]+$/.test(name)) {
+    errorMsg.textContent = "Category name can contain only letters"
+    return
+  }
+
+  if (!imageFile) {
+    errorMsg.textContent = "Category image is required"
+    return
+  }
+
+  addBtn.disabled = true
+  addBtn.textContent = "Adding..."
+
+  try {
+    // ✅ FormData (THIS IS THE KEY)
+    const formData = new FormData()
+    formData.append("categoryName", name)
+    formData.append("image", imageFile)
+
+    const res = await fetch("/admin/add-category", {
+      method: "POST",
+      body: formData
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to add category")
+    }
+
+    successMsg.textContent = data.message || "Category added successfully"
+    categoryInput.value = ""
+    imageInput.value = ""
+
+    setTimeout(() => {
+      window.location.href = "/admin/category"
+    }, 1000)
+
+  } catch (err) {
+    console.error(err)
+    errorMsg.textContent = err.message || "Something went wrong"
+  } finally {
+    addBtn.disabled = false
+    addBtn.textContent = "+ Add Category"
+  }
+})
+
+
+const preview = document.getElementById("preview")
+const uploadText = document.getElementById("uploadText")
+
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files[0]
+  if (file) {
+    preview.src = URL.createObjectURL(file)
+    preview.style.display = "block"
+    uploadText.style.display = "none"
+  }
+})
+</script>
+
+
+
+
+</body>
+</html>
+

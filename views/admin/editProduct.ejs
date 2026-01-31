@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Product | WestLane</title>
+
+<style>
+/* ===== RESET ===== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+.existing-images {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.preview-image {
+  position: relative;
+  width: 120px;
+  height: 140px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #000;
+  color: #fff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.variant-box {
+  border: 1px solid #d8b4a0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+/* Title */
+.variant-box h4 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Inputs */
+#variantSize,
+#price {
+  width: 100%;
+  height: 42px;
+  margin-bottom: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+#variantSize:focus,
+#price:focus {
+  outline: none;
+  border-color: #c59a8a;
+}
+
+/* Error message */
+.error {
+  display: block;
+  margin-top: -6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #d60000;
+}
+
+/* Add Variant Button */
+.add-variant-btn {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #c59a8a;
+  background: transparent;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.add-variant-btn:hover {
+  background: #f6eae4;
+}
+
+/* ================= VARIANT LIST ================= */
+.variant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Variant Row */
+.variant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #faf7f6;
+  border: 1px solid #e4d2cc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Size */
+.variant-size {
+  font-weight: 600;
+  min-width: 24px;
+}
+
+/* Price */
+.variant-price {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Remove Button */
+.remove-variant {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #9b1c1c;
+  cursor: pointer;
+}
+
+.remove-variant:hover {
+  color: #e60000;
+}
+
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 300px;
+  gap:25px;
+}
+.breadcrumb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%; /* 🔥 THIS IS THE KEY */
+}
+
+.breadcrumb {
+  display: flex;
+
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #6b46c1;
+  text-decoration: none;
+}
+
+.breadcrumb .active {
+  color: #111;
+  font-weight: 500;
+}
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:25px;
+  margin-bottom:25px;
+}
+.image-box{
+  border:2px dashed #ddd;
+  border-radius:12px;
+  padding:40px;
+  text-align:center;
+  background:#fafafa;
+}
+
+.image-box p{
+  font-size:13px;
+  color:#777;
+  margin:15px 0;
+}
+
+.image-box button{
+  background:#ece7ff;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  color:#5b4bdb;
+  cursor:pointer;
+}
+
+body{
+  background:#f6f6f8;
+  min-height:100vh;
+}
+
+/* ===== MAIN ===== */
+.main{
+  margin-top: 60px;
+  margin-left:230px; /* sidebar width */
+  padding:30px 40px;
+}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:25px;
+}
+
+.topbar h2{
+  font-size:22px;
+  font-weight:600;
+}
+
+.breadcrumb{
+  font-size:13px;
+  color:#888;
+  margin-top:6px;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+}
+
+.btn{
+  padding:10px 16px;
+  border-radius:8px;
+  font-size:14px;
+  cursor:pointer;
+  border:none;
+}
+
+.btn-cancel{
+  background:#fff;
+  border:1px solid #b0b6c3;
+  color:#333;
+}
+
+.btn-primary{
+  background:#c9b1a8;
+  color:#fff;
+}
+
+/* ===== CARD ===== */
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:28px;
+  max-width:1500px;
+}
+
+/* ===== FORM ===== */
+label{
+  font-size:13px;
+  color:#6b7280;
+  display:block;
+  margin-bottom:6px;
+}
+
+input, textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid #e2e2e2;
+  background:#fafafa;
+  font-size:14px;
+  margin-bottom:18px;
+}
+
+textarea{
+  min-height:140px;
+  resize:none;
+}
+
+/* ===== SECTION TITLE ===== */
+.section-title{
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<%- include("../../views/partials/admin/header") %>
+
+<!-- SIDEBAR -->
+<%- include("../../views/partials/admin/sidebar") %>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>Edit Product</h2>
+
+      <nav class="breadcrumb">
+        <a href="/admin/adminDashboard">Dashboard</a>
+        <span>›</span>
+        <a href="/admin/products">Products</a>
+        <span>›</span>
+        <span class="active">Edit Product</span>
+      </nav>
+    </div>
+
+    <form id="formId">
+      <div class="actions">
+        <button class="btn btn-primary">Save Product</button>
+        <button class="btn btn-cancel">Cancel</button>
+      </div>
+  </div>
+
+  <!-- ✅ GRID START -->
+  <div class="grid">
+
+    <!-- ✅ LEFT COLUMN -->
+    <div>
+
+      <!-- GENERAL INFORMATION -->
+      <div class="card">
+        <div class="section-title">General Information</div>
+
+        <label>Product Name</label>
+        <input id="productName" value="<%=product.name%>">
+
+        <label>Product Title</label>
+        <input id="productTitle" value="<%=product.title%>">
+
+        <label>Description</label>
+        <textarea id="productDescription"><%=product.description%></textarea>
+      </div>
+
+      <!-- IMAGES -->
+      <div class="card">
+
+        <div class="existing-images">
+  <% if (product.images && product.images.length > 0) { %>
+    <% product.images.forEach((img, index) => { %>
+      <div class="preview-image">
+        <img src="<%= img.url %>" alt="product image">
+
+        <button
+          type="button"
+          class="remove-btn"
+          onclick="removeImage('<%= img._id %>', '<%= product._id %>')">
+          ✕
+        </button>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p style="color:#777;">No images uploaded yet</p>
+  <% } %>
+</div>
+        <h3>General Photo</h3>
+
+        <div class="image-box">
+          <p>Drag and drop image here, or click add image</p>
+          <input id="imageInput" type="file" name="images" multiple>
+          <button type="button">Add Image</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ✅ RIGHT COLUMN -->
+    <div>
+
+      
+
+      <!-- ✅ VARIANTS -->
+      <div class="variant-box">
+        <h4>Variant</h4>
+
+        <input value="<%=product.variants[0].size%>" id="variantSize">
+        <input id="price" type="number" value="<%=product.variants[0].price%>">
+
+        <button class="add-variant-btn" type="button" onclick="addVariant()">
+          + Add Variant
+        </button>
+
+        <div class="variant-list" id="variantList"></div>
+        <input type="hidden" id="variantsInput">
+      </div>
+
+    </div>
+
+  </div>
+  <!-- ✅ GRID END -->
+
+  </form>
+</div>
+
+  <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+
+    <script id="existing-variants" type="application/json">
+  <%- JSON.stringify(product.variants || []) %>
+</script>
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+
+  let editIndex = null;
+
+
+  function showToast(message, type = "success") {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      close: true,
+      stopOnFocus: true,
+      style: {
+        background:
+          type === "success"
+            ? "linear-gradient(to right, #16a34a, #22c55e)"
+            : "linear-gradient(to right, #dc2626, #ef4444)",
+      }
+    }).showToast();
+  }
+
+  let variants = JSON.parse(
+  document.getElementById("existing-variants").textContent
+);
+
+   function removeImage(imageId, productId) {
+  fetch("/admin/remove-product-image", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ imageId, productId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      location.reload()
+    }else{
+      showToast(data.message || "Cannot remove image", "error");
+    }
+  })
+}
+
+
+
+    function addVariant() {
+    const size = document.getElementById("variantSize").value.trim();
+    const price = document.getElementById("price").value.trim();
+
+    if (!size || !price) {
+      return alert("Fill all fields");
+    }
+
+    // 🔁 EDIT MODE
+    if (editIndex !== null) {
+      variants[editIndex] = { size, price };
+      editIndex = null;
+
+      document.querySelector(".add-variant-btn").innerText = "+ Add Variant";
+    }
+    // ➕ ADD MODE
+    else {
+      if (variants.some(v => v.size === size)) {
+        return alert("Size already added");
+      }
+      variants.push({ size, price });
+    }
+
+    document.getElementById("variantSize").value = "";
+    document.getElementById("price").value = "";
+
+    renderVariants();
+  }
+
+
+
+    function renderVariants() {
+
+    const list = document.getElementById("variantList")
+    list.innerHTML = ""
+
+    variants.forEach((v, index) => {
+      list.innerHTML += `
+        <div class="variant-row">
+          <span class = "variant-size">${v.size}</span>
+          <span class = "variant-price">₹${v.price}</span>
+          <button onclick="editbtn(${index})" event.stopPropagation()">Edit</button>
+          <button onclick="removeVariant(${index})">✖</button>
+        </div>
+      `
+    })
+
+    document.getElementById("variantsInput").value = JSON.stringify(variants)
+  }
+
+function editbtn(index) {
+  const v = variants[index];
+
+  document.getElementById("variantSize").value = v.size;
+  document.getElementById("price").value = v.price;
+
+  editIndex = index;
+
+  const btn = document.querySelector(".add-variant-btn");
+  btn.innerText = "Save Variant";
+}
+
+
+function removeVariant(index) {
+
+    variants.splice(index, 1)
+    renderVariants()
+  }
+
+
+  const form = document.getElementById("formId");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // -------- GET VALUES --------
+    const name = document.getElementById("productName").value.trim();
+    const title = document.getElementById("productTitle").value.trim();
+    const description = document.getElementById("productDescription").value.trim();
+    // const discount = document.getElementById("discountId").value.trim();
+    const images = document.getElementById("imageInput").files;
+
+    // -------- VALIDATION --------
+    const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
+
+    if (!name || name.length < 3) {
+      return showToast("Product name must be at least 3 characters", "error");
+    }
+
+    if (!nameRegex.test(name)) {
+      return showToast(
+        "Product name must contain letters (not only numbers or symbols)",
+        "error"
+      );
+    }
+
+    const titleRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
+
+    if (!title || title.length < 3) {
+      return showToast("Product title must be at least 3 characters", "error");
+    }
+
+    if (!titleRegex.test(title)) {
+      return showToast(
+        "Product title must contain letters (not only numbers)",
+        "error"
+      );
+    }
+
+
+    if (!description || description.length < 10) {
+      return showToast("Description must be at least 10 characters", "error");
+    }
+
+
+    // -------- FORM DATA --------
+    const productId = "<%= product._id %>";
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("variants", document.getElementById("variantsInput").value);
+    // formData.append("discount", discount);
+
+
+    for (let img of images) {
+      formData.append("images", img);
+    }
+
+    // -------- API CALL --------
+    const res = await fetch(`/admin/updateProduct/${productId}`, {
+      method: "PATCH",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showToast("Product Edited Successfully", "success");
+      setTimeout(() => {
+        window.location.href = "/admin/products";
+      }, 1500);
+    } else {
+      showToast(data.message || "Failed to update product", "error");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+  renderVariants();
+});
+</script>
+
+
+</body>
+</html>
