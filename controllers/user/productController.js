@@ -3,6 +3,7 @@ import Product from "../../models/productSchema.js"
 import Category from "../../models/categorySchema.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
+import category from "../../models/categorySchema.js"
 
 const productDetail = async(req,res)=>{
   try {
@@ -10,11 +11,21 @@ const productDetail = async(req,res)=>{
     const userId = req.session.user
     const productId = req.query.id
     req.session.productId = productId
+    const catData = await Category.find({isBlocked:false})
 
-    const productData = await Product.findById(productId)
+    const unblockedIds = []
+    for(let val of catData){
+      unblockedIds.push(val._id)
+    }
+
+    const productData = await Product.findOne({_id:productId,category:{$in:unblockedIds},isBlocked:false})
+    console.log(productData)
+    if(!productData){
+      return res.redirect("/user/productList?blockedCategory=true")
+    }
     const similarProduct = await Product.find({category:productData.category,_id:{$ne:productId},isBlocked:false})
     const userData = await User.findById(userId)
-
+  
     return res.render("user/productDetail",{
       user:userData,
       productData,

@@ -126,58 +126,86 @@ const loadEditProduct = async (req,res)=>{
 }
 
 const postEditProduct = async (req, res) => {
-
   try {
     if (!req.session.admin) {
       return res.redirect("/admin/loadLogin");
     }
 
     const productId = req.params.id;
-    const NAME = req.body?.name;
-    const DESCRIPTION = req.body?.description;
-    const DISCOUNT = req.body?.discount;
-    const variants = JSON.parse(req.body.variants)
-    const TITLE = req.body?.title;
+    const { name, description, discount, title } = req.body;
+    const variants = JSON.parse(req.body.variants || "[]");
 
     const product = await Product.findById(productId);
-
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found"
-      });
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
 
     if (req.files && req.files.length > 0) {
-      for (let img of product.images) {
-        await cloudinary.uploader.destroy(img.public_id);
-      }
-
-      product.images = req.files.map(file => ({
+      const newImages = req.files.map(file => ({
         url: file.path,
         public_id: file.filename
       }));
+
+      product.images.push(...newImages);
     }
 
-    if (NAME) product.name = NAME;
-    if (DESCRIPTION) product.description = DESCRIPTION;
-    if (DISCOUNT) product.discount = DISCOUNT;
-    if (variants) product.variants = variants;
-    if (TITLE) product.title = TITLE;
+    if (name) product.name = name;
+    if (description) product.description = description;
+    if (discount) product.discount = discount;
+    if (title) product.title = title;
+    if (variants.length) product.variants = variants;
+
+    if (product.images.length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: "Minimum 3 images are required"
+      });
+    }
 
     await product.save();
-
     return res.json({ success: true });
 
   } catch (error) {
     console.error("error in editing products", error);
-    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+    return res.status(500).json({
       success: false,
-      message: ERROR_MESSAGES.PRODUCT_UPDATE_FAILED
+      message: "Failed to update product"
     });
   }
 };
 
+
+const removeProductImage = async (req, res) => {
+  try {
+    const { productId, imageId } = req.body;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false });
+    }
+
+    const image = product.images.find(
+      img => img._id.toString() === imageId
+    );
+
+    if (!image) {
+      return res.status(404).json({ success: false });
+    }
+
+    // delete from cloudinary
+    await cloudinary.uploader.destroy(image.public_id);
+
+    await Product.findByIdAndUpdate(productId, {
+      $pull: { images: { _id: imageId } }
+    });
+
+    return res.json({ success: true });
+
+  } catch (error) {
+    console.error("remove image error", error);
+    return res.status(500).json({ success: false });
+  }
+};
 
 
 const blockProduct = async (req,res)=>{
@@ -219,4 +247,4 @@ const unblockProduct = async (req,res)=>{
   }
 }
 
-export default {loadProducts,loadAddProducts,loadEditProduct,postAddProducts,postEditProduct,blockProduct,unblockProduct}
+export default {loadProducts,loadAddProducts,loadEditProduct,postAddProducts,postEditProduct,blockProduct,unblockProduct,removeProductImage}

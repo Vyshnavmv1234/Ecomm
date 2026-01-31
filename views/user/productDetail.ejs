@@ -207,11 +207,9 @@ body {
   margin: 0 auto;
   display: flex;
   gap: 64px;
-  padding: 56px 24px;  /* controlled side padding */
+  padding: 36px 14px;  /* controlled side padding */
   align-items: flex-start;
 }
-
-
 
 
 .product-details {
@@ -379,10 +377,25 @@ body {
   font-size: 13px;
   color: #555;
 }
+.breadcrumb{
+  display: flex;
+  justify-content: start;
+  margin-left: 25px;
+}
 </style>
 </head>
 
 <body>
+
+         <div class="breadcrumb">
+       <nav class="breadcrumb">
+      <a href="/user/homepage">Home</a>
+      <span>/</span>
+      <a href="/user/productList">All</a>
+      <span>/</span>
+      <span class="active"><%=productData.title%></span>
+    </nav>
+      </div>
 
 <!-- PRODUCT -->
 <div class="product-container">
@@ -524,12 +537,20 @@ body {
     <button class="arrow right" onclick="slideRight()">›</button>
   </div>
 </div>
+<link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 <script id="product-data" type="application/json">
   <%- JSON.stringify(productData) %>
 </script>
 
 <script>
+
   /* ===== READ PRODUCT DATA SAFELY ===== */
   const PRODUCT = JSON.parse(
     document.getElementById("product-data").textContent
