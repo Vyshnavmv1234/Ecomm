@@ -19,7 +19,7 @@ const productDetail = async(req,res)=>{
     }
 
     const productData = await Product.findOne({_id:productId,category:{$in:unblockedIds},isBlocked:false})
-    console.log(productData)
+    
     if(!productData){
       return res.redirect("/user/productList?blockedCategory=true")
     }
@@ -38,18 +38,5 @@ const productDetail = async(req,res)=>{
   }
 }
 
-const addToCart = async (req,res)=>{
-  try {
 
-    const product = await Product.findById(req.session.productId)
-
-    if(!product || product.quantity<1 || product.isBlocked){
-      return res.status(STATUS_CODES.BAD_REQUEST)
-    }
-    
-  } catch (error) {
-    
-  }
-}
-
-export default {productDetail,addToCart} 
+export default {productDetail} 

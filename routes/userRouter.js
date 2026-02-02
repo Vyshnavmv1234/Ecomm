@@ -7,6 +7,7 @@ import express from "express"
 import {uploadUser} from "../middlewares/multer.js";
 import product from "../models/productSchema.js";
 import productController from "../controllers/user/productController.js";
+import cartControlller from "../controllers/user/cartController.js"
 
 const router = express.Router()
 
@@ -66,8 +67,12 @@ router.get("/delete-address",userAuth,profileController.deleteAddress)
 
 router.get("/productList",userController.loadProductList)
 router.get("/productDetail",productController.productDetail)
-router.get("/addToCart",productController.addToCart)
 
+//CART MANAGEMENT
+
+router.get("/cart",userAuth,cartControlller.loadAddToCart)
+router.post("/cart",userAuth,cartControlller.addToCart)
+router.delete("/cart/remove",userAuth,cartControlller.cartRemove)
 
 
 export default router 

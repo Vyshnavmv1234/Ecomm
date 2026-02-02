@@ -450,7 +450,7 @@ body {
           data-size="<%= v.size %>"
           data-price="<%= v.price %>"
           data-stock="<%= v.stock %>"
-          onclick="selectSize(this)">
+          onclick="selectSize(this,'<%=v._id%>')">
           <%= v.size %>
         </span>
       <% }) %>
@@ -458,7 +458,7 @@ body {
 
 
     <div class="action">
-      <a><button onclick="return eFun()" class="add-btn">+ ADD TO BASKET</button></a>
+      <a><button onclick="return eFun('<%=productData.id%>')" class="add-btn">+ ADD TO BASKET</button></a>
     </div>
     <strong style="color: red; margin-bottom: 9px;" id="addError"></strong>
 
@@ -550,6 +550,25 @@ body {
 </script>
 
 <script>
+  const priceEl = document.getElementById("productPrice")
+  const addError = document.getElementById("addError")  
+
+  function showToast(message, type = "success") {
+        Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",       
+        position: "center",    
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background:
+            type === "success"
+              ? "linear-gradient(to right, #16a34a, #22c55e)"
+              : "linear-gradient(to right, #dc2626, #ef4444)",
+        }
+      }).showToast();
+    }
 
   /* ===== READ PRODUCT DATA SAFELY ===== */
   const PRODUCT = JSON.parse(
@@ -587,14 +606,6 @@ body {
 
   /* ===== VARIANT LOGIC ===== */
 
-  let selectedSize  = PRODUCT.variants[0].size;
-  let selectedPrice = PRODUCT.variants[0].price;
-  // let selectedStock = PRODUCT.variants[0].stock;
-
-  const priceEl = document.getElementById("productPrice");
-  // const stockEl = document.getElementById("stockStatus");
-  const addError = document.getElementById("addError");
-
   // function updateStockUI() {
   //   if (selectedStock > 0) {
   //     stockEl.innerText = "INSTOCK";
@@ -605,33 +616,91 @@ body {
   //   }
   // }
 
+let selectedVariantId = null
+let selectedSize = null
+let selectedPrice = null
 
-  function selectSize(el) {
-    selectedSize  = el.dataset.size;
-    selectedPrice = Number(el.dataset.price);
-    // selectedStock = Number(el.dataset.stock);
-
-    priceEl.innerText = "₹" + selectedPrice;
-
-    document.querySelectorAll(".size-option")
-      .forEach(s => s.classList.remove("active"));
-
-    el.classList.add("active");
-    addError.innerText = "";
+document.addEventListener("DOMContentLoaded", () => {
+  const firstOption = document.querySelector(".size-option")
+  if (firstOption) {
+    selectSize(firstOption, firstOption.getAttribute("onclick").match(/'([^']+)'/)[1])
   }
+})
+
+function selectSize(el, id) {
+  selectedVariantId = id
+  selectedSize = el.dataset.size
+  selectedPrice = Number(el.dataset.price)
+
+  priceEl.innerText = "₹" + selectedPrice
+
+  document.querySelectorAll(".size-option")
+    .forEach(s => s.classList.remove("active"))
+
+  el.classList.add("active")
+  addError.innerText = ""
+}
 
   /* ===== ADD TO CART ===== */
 
-  function eFun() {
-    // if (selectedStock <= 0) {
-    //   addError.innerText = "Selected size is out of stock";
-    //   addError.style.color = "red";
-    //   return false;
-    // }
+ async function eFun(id){
 
-    addError.innerText = "Added to cart ✅";
-    addError.style.color = "green";
-    return true;
+  if (!selectedVariantId) {
+  addError.innerText = "Please select a size"
+  addError.style.color = "red"
+  return
+}
+
+
+    const res = await fetch("/user/cart",{
+      
+      method: "POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({productId:id,variantId:selectedVariantId})
+    })
+
+    const data = await res.json()
+
+    if (res.status === 401) {
+      showToast(data.message || "Please login", "error")
+
+      setTimeout(() => {
+        window.location.href = "/user/login"
+      }, 1200)
+
+      return
+    }
+    if (res.status === 500) {
+      showToast(data.message || "Please login", "error")
+
+      setTimeout(() => {
+        window.location.href = "/user/pageNotFound"
+      }, 1200)
+
+      return
+    }
+    if (res.status === 403) {
+      showToast(data.message || "Product is blocked by admin", "error")
+
+      setTimeout(() => {
+        window.location.href = "/user/productList"
+      }, 1200)
+
+      return
+    }
+
+    if(res.ok && data.success){
+      showToast("Product added to cart successfully","success")
+
+      setTimeout(()=>{
+        window.location.href = "/user/cart"
+      },1100)
+    }else{
+      showToast("An error occured","error")
+    }
+    
   }
 
 </script>

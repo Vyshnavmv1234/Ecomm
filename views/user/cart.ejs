@@ -1,0 +1,270 @@
+<%- include("../../views/partials/user/header") %>
+
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Arial", sans-serif;
+    }
+
+    body {
+      background: #fff;
+      color: #222;
+    }
+
+
+
+    /* ---------- MAIN ---------- */
+    main {
+      padding: 60px;
+    }
+
+    h2 {
+      text-align: center;
+      letter-spacing: 4px;
+      font-size: 16px;
+      margin-bottom: 60px;
+    }
+
+    .cart-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 80px;
+      align-items: flex-start;
+    }
+
+    /* ---------- CART ITEMS ---------- */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+      margin-left: 40px;
+    }
+
+    .cart-item img {
+      width: 120px;
+      height: auto;
+      margin-right: 30px;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-info h4 {
+      font-size: 14px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .item-info p {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .qty {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-right: 40px;
+    }
+
+    .qty button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #ddd;
+      background: none;
+      cursor: pointer;
+    }
+
+    .price {
+      font-size: 14px;
+      color: #e86b4f;
+      margin-right:50px;
+      width: 70px;
+      text-align: right;
+    }
+
+    /* ---------- SUMMARY ---------- */
+    .summary {
+      border: 1px solid #eee;
+      padding: 30px;
+    }
+
+    .summary h3 {
+      text-align: center;
+      font-size: 14px;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .row span:last-child {
+      font-weight: 500;
+    }
+
+    .total {
+      border-top: 1px solid #eee;
+      margin-top: 20px;
+      padding-top: 20px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .buy-btn {
+      margin-top: 25px;
+      width: 100%;
+      padding: 14px;
+      background: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 2px;
+    }
+
+   
+  </style>
+</head>
+
+<body>
+
+<!-- MAIN -->
+<main>
+  <h2>CART</h2>
+
+  <div class="cart-container">
+
+    <!-- LEFT -->
+    <div>
+
+      <% if (cartItems.length === 0) { %>
+        <p>Your cart is empty</p>
+      <% } else { %>
+
+        <% cartItems.forEach(item => { %>
+
+          <!-- ONE PRODUCT -->
+          <div class="cart-item">
+
+            <img src="<%= item.productId.images[0].url %>" alt="">
+
+            <div class="item-info">
+              <h4><%= item.productId.name %></h4>
+              <p><%= item.productId.title %></p>
+            </div>
+
+            <div class="qty">
+              <button>-</button>
+              <span><%= item.quantity %></span>
+              <button>+</button>
+            </div>
+
+            <% const selectedVariant = item.productId.variants.find(val=>val._id.toString()===item.variantId.toString()) %>
+
+            <div class="price">
+              ₹<%= selectedVariant.price%>
+            </div>
+
+            <div><button onclick="return cFun('<%=item.productId._id%>','<%=item.variantId%>')" style="font-weight: 500;">REMOVE</button></div>
+
+          </div>
+
+        <% }) %>
+
+      <% } %>
+
+    </div>
+      
+
+      <!-- RIGHT -->
+      <div class="summary">
+        <h3>CARD TOTAL</h3>
+
+        <div class="row"><span>Sub-total</span><span>₹121,999</span></div>
+        <div class="row"><span>Shipping</span><span>Free</span></div>
+        <div class="row"><span>Discount</span><span>₹999</span></div>
+        <div class="row"><span>Tax</span><span>₹2,999</span></div>
+
+        <div class="row total">
+          <span>Total</span>
+          <span>₹163,999 INR</span>
+        </div>
+
+        <button class="buy-btn">👜 BUY NOW</button>
+      </div>
+
+    </div>
+  </main>
+
+     <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <script>
+
+    function showToast(message, type = "success") {
+        Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",       
+        position: "center",    
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background:
+            type === "success"
+              ? "linear-gradient(to right, #16a34a, #22c55e)"
+              : "linear-gradient(to right, #dc2626, #ef4444)",
+        }
+      }).showToast();
+    }
+
+    async function cFun(pId,vId) {
+
+      confirm("Are you sure you want to remove this item?")
+
+      const res = await fetch("/user/cart/remove",{
+        method: "DELETE",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({productId:pId, variantId:vId})
+      })
+
+      const data = await res.json()
+
+          if (res.status === 401) {
+          showToast(data.message || "Please login", "error")
+
+          setTimeout(() => {
+            window.location.href = "/user/login"
+          }, 1200)
+
+          return
+    }
+
+      if(res.ok && data.success){
+
+        window.location.reload()
+        showToast(data.message,"error")
+      }else{
+        showToast("Error occured while removing product","error") 
+      }
+      
+    }
+
+  </script>
+
+ <%- include("../../views/partials/user/footer") %>
