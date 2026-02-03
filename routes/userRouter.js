@@ -8,6 +8,7 @@ import {uploadUser} from "../middlewares/multer.js";
 import product from "../models/productSchema.js";
 import productController from "../controllers/user/productController.js";
 import cartControlller from "../controllers/user/cartController.js"
+import wishlistController from "../controllers/user/wishlistController.js"
 
 const router = express.Router()
 
@@ -73,6 +74,15 @@ router.get("/productDetail",productController.productDetail)
 router.get("/cart",userAuth,cartControlller.loadAddToCart)
 router.post("/cart",userAuth,cartControlller.addToCart)
 router.delete("/cart/remove",userAuth,cartControlller.cartRemove)
+
+//WISHLIST
+
+router.get("/wishlist",userAuth,wishlistController.loadWishlist)
+router.post("/wishlist",userAuth,wishlistController.postWishlist)
+
+//CHECKOUT
+
+
 
 
 export default router 

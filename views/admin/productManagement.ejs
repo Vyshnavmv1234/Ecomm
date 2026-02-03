@@ -405,13 +405,9 @@ tbody td {
             <td>₹<%= product.variants[0].price %></td>
 
             <td>
-              <% if (product.quantity > 0) { %>
-                <span class="status">In Stock</span>
-              <% } else { %>
-                <span class="status" style="background:#fee2e2;color:#dc2626;">
-                  Out of Stock
-                </span>
-              <% } %>
+            
+                <span class="status"><%=product.totalStock%></span>
+
             </td>
 
             <td>

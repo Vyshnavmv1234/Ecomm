@@ -399,6 +399,7 @@ textarea{
 
         <input value="<%=product.variants[0].size%>" id="variantSize">
         <input id="price" type="number" value="<%=product.variants[0].price%>">
+        <input id="stock" type="number" value="<%=product.variants[0].stock%>">
 
         <button class="add-variant-btn" type="button" onclick="addVariant()">
           + Add Variant
@@ -476,14 +477,15 @@ textarea{
     function addVariant() {
     const size = document.getElementById("variantSize").value.trim();
     const price = document.getElementById("price").value.trim();
+    const stock = document.getElementById("stock").value.trim();
 
-    if (!size || !price) {
+    if (!size || !price || !stock) {
       return alert("Fill all fields");
     }
 
     // 🔁 EDIT MODE
     if (editIndex !== null) {
-      variants[editIndex] = { size, price };
+      variants[editIndex] = { size, price, stock};
       editIndex = null;
 
       document.querySelector(".add-variant-btn").innerText = "+ Add Variant";
@@ -493,11 +495,12 @@ textarea{
       if (variants.some(v => v.size === size)) {
         return alert("Size already added");
       }
-      variants.push({ size, price });
+      variants.push({ size, price ,stock});
     }
 
     document.getElementById("variantSize").value = "";
     document.getElementById("price").value = "";
+    document.getElementById("stock").value = "";
 
     renderVariants();
   }
@@ -514,6 +517,7 @@ textarea{
         <div class="variant-row">
           <span class = "variant-size">${v.size}</span>
           <span class = "variant-price">₹${v.price}</span>
+          <span class = "variant-stock">${v.stock}</span>
           <button onclick="editbtn(${index})" event.stopPropagation()">Edit</button>
           <button onclick="removeVariant(${index})">✖</button>
         </div>
@@ -528,6 +532,7 @@ function editbtn(index) {
 
   document.getElementById("variantSize").value = v.size;
   document.getElementById("price").value = v.price;
+  document.getElementById("stock").value = v.stock;
 
   editIndex = index;
 

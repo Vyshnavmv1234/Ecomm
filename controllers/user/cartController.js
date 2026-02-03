@@ -1,6 +1,7 @@
 import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import Product from "../../models/productSchema.js"
+import STATUS_CODES from "../../utitls/statusCodes.js"
 
 const loadAddToCart = async(req,res)=>{
   try {
@@ -34,6 +35,14 @@ const addToCart = async (req,res)=>{
     if(productData.isBlocked === true){
       return res.status(403).json({success:false})
     }
+    const variant = productData.variants.id(variantId)
+
+    if(!variant){
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Invaild Variant"})
+    }
+    if(variant.stock<=0){
+      return res.status(STATUS_CODES.NOT_FOUND).json({status:false,message:"This Size is Out of stock"})
+    }
 
     let cart = await Cart.findOne({userId})
 
@@ -43,7 +52,21 @@ const addToCart = async (req,res)=>{
         items:[{productId,quantity:1,variantId}]  
       })
     }else{
-      cart.items.push({productId,quantity:1,variantId})
+      
+      const itemIndex = cart.items.findIndex(val=>{
+       return val.productId.toString() === productId && val.variantId.toString() === variantId
+      })
+
+      if(itemIndex>-1){
+
+        if(cart.items[itemIndex].quantity+1 > variant.stock){
+          return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"Stock Limit exceeded"})
+        }
+        cart.items[itemIndex].quantity+=1
+      }else{
+        cart.items.push({productId,quantity:1,variantId})
+      }
+      
     }
     await cart.save()  
 
@@ -54,6 +77,7 @@ const addToCart = async (req,res)=>{
     return res.status(500).json({success:false})
   }
 }
+
 
 const cartRemove = async (req,res)=>{
   try {

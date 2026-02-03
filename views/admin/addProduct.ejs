@@ -407,6 +407,7 @@ textarea{
 
       <input id="variantSize" placeholder="Size (S, M, L, XL)">
       <input id="price" name="price" type="number" placeholder="Type price here...">
+      <input id="stock" name="stock" type="number" placeholder="Stocks">
         <small class="error" id="priceError"></small>
 
       <button class="add-variant-btn" type="button" onclick="addVariant()">+ Add Variant</button>
@@ -458,14 +459,15 @@ textarea{
     }
 
     let variants = []
-    console.log(variants)
 
     function addVariant() {
 
       const size = document.getElementById("variantSize").value
       const price = document.getElementById("price").value
+      const stock = document.getElementById("stock").value
 
-      if (!size || !price) return alert("Fill all fields")
+
+      if (!size || !price ||!stock) return alert("Fill all fields")
       
 
       // prevent duplicate size
@@ -473,7 +475,7 @@ textarea{
         return alert("Size already added")
       }
 
-      variants.push({ size, price })
+      variants.push({ size, price, stock})
       renderVariants()
     }
 
@@ -488,6 +490,7 @@ textarea{
         <div class="variant-row">
           <span class = "variant-size">${v.size}</span>
           <span class = "variant-price">₹${v.price}</span>
+          <span class = "variant-stock">${v.stock}</span>
           <button onclick="removeVariant(${index})">✖</button>
         </div>
       `
@@ -592,8 +595,6 @@ function validateForm() {
       const name = document.getElementById("pName").value.trim();
       const title = document.getElementById("pTitle").value.trim()
       const description = document.getElementById("description").value.trim();
-      // const price = document.getElementById("price").value;
-      // const discount = document.getElementById("discount").value;
       const category = document.getElementById("category").value;
 
       // IMAGE VALIDATION
@@ -636,14 +637,6 @@ function validateForm() {
       isValid = false;
     }
 
-
-    //   if (discount !== "") {
-    //   if (isNaN(discount) || discount < 0 || discount > 90) {
-    //     discountError.innerText = "Discount must be between 0 and 90";
-    //     isValid = false;
-    //   }
-    // }
-
     if (!category) {
       document.getElementById("categoryError").innerText = "Please select a category";
       isValid = false;
@@ -671,6 +664,16 @@ function validateForm() {
       showToast(`Invalid price for size ${v.size}`, "error");
       return false;
     }
+    if (
+    v.stock === undefined ||
+    v.stock === null ||
+    v.stock === "" ||
+    isNaN(v.stock) ||
+    Number(v.stock) < 0
+  ) {
+    showToast(`Invalid stock for size ${v.size}`, "error");
+    return false;
+  }
   }
 
   return true;

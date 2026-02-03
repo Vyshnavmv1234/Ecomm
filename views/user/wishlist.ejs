@@ -1,0 +1,242 @@
+  <%-include("../../views/partials/user/header")%>
+
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #333;
+    }
+
+    /* ===== LAYOUT ===== */
+    .container {
+      display: flex;
+      gap: 30px;
+      padding: 40px 60px;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 260px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .sidebar li.active {
+      background: #c9b6b2;
+      color: #fff;
+    }
+
+    .sidebar li:hover {
+      background: #eee;
+    }
+
+    /* ===== CONTENT ===== */
+    .content {
+      flex: 1;
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .content h2 {
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    /* ===== TABLE ===== */
+    .wishlist-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .wishlist-table th {
+      text-align: left;
+      font-size: 13px;
+      color: #777;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .wishlist-table td {
+      padding: 18px 0;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+
+    .product {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .product img {
+      width: 70px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .price del {
+      color: #aaa;
+      margin-right: 6px;
+      font-size: 13px;
+    }
+
+    .price strong {
+      font-size: 15px;
+    }
+
+    /* ===== ACTIONS ===== */
+    .add-btn {
+      background: #c9b6b2;
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .remove {
+      font-size: 14px;
+      color: #282626;
+      cursor: pointer;
+      font-weight: 500;
+      margin-left: 12px;
+    }
+
+    .remove:hover {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+
+    <!-- CONTENT -->
+    <div class="content">
+      <h2>Wishlist</h2>
+
+      <table class="wishlist-table">
+  <thead>
+    <tr>
+      <th>Products</th>
+      <th>Price</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% if (wishlist.length === 0) { %>
+      <tr>
+        <td colspan="3" style="text-align:center; padding:20px;">
+          Wishlist is empty
+        </td>
+      </tr>
+    <% } else { %>
+
+      <% wishlist.forEach(item => { %>
+        <tr>
+          <td>
+            <div class="product">
+              <img src="<%= item.productId.images[0].url %>" alt="">
+              <span><%= item.productId.name %></span>
+              <small>
+                (Size:
+                <%= item.productId.variants.id(item.variantId).size %>)
+              </small>
+            </div>
+          </td>
+
+          <td class="price">
+            ₹<%= item.productId.variants.id(item.variantId).price %>
+          </td>
+
+          <td>
+            <button
+              class="add-btn"
+              onclick="moveToCart('<%= item.productId._id %>', '<%= item.variantId %>')">
+              Add to Cart
+            </button>
+
+            <span
+              class="remove"
+              onclick="toggleWishlist('<%= item.productId._id %>', '<%= item.variantId %>')">
+              ×
+            </span>
+          </td>
+        </tr>
+      <% }) %>
+
+    <% } %>
+  </tbody>
+</table>
+
+    </div>
+
+  </div>
+
+  <script>
+
+     function showToast(message, type = "success") {
+        Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",       
+        position: "center",    
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background:
+            type === "success"
+              ? "linear-gradient(to right, #16a34a, #22c55e)"
+              : "linear-gradient(to right, #dc2626, #ef4444)",
+        }
+      }).showToast();
+    }
+
+    async function moveToCart(productId,variantId) {
+      const res = await fetch("/user/cart",{
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({productId,variantId})
+      })
+
+      const data = await res.json()
+
+      if(data.success && res.ok){
+
+        showToast("Item added to cart","success")
+      }
+    }
+
+  </script>
+  <%-include("../../views/partials/user/footer")%>
+

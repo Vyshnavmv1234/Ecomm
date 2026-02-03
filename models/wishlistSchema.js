@@ -2,16 +2,21 @@ import mongoose from "mongoose";
 const {Schema} = mongoose
 
 const wishlistSchema = new Schema({
-  user_id: {
+  userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true
   },
-  products: {
+  items: [{
+    productId:{
     type: Schema.Types.ObjectId,
     ref: "Product",
-    required: true
-  },
+    },
+    variantId:{
+      type: Schema.Types.ObjectId,
+      required: true
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now

@@ -20,6 +20,10 @@ const loadProducts = async(req,res)=>{
       .limit(limit)
       .populate("category")
 
+      products.forEach(p=>{
+        p.totalStock = p.variants.reduce((sum,v)=>sum+v.stock,0)
+      })
+
       let totalProducts = await Product.countDocuments({name:{$regex:search,$options:"i"}})
       let totalPages = Math.ceil(totalProducts/limit)
       return res.render("admin/productManagement",{

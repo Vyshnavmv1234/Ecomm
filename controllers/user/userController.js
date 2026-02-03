@@ -341,6 +341,16 @@ const loadProductList = async(req,res)=>{
           minVariantPrice:{$min:"$variants.price"}
         }
       })
+      pipeline.push({
+        $addFields:{
+          totalStock:{$sum:"$variants.stock"}
+        }
+      })
+      pipeline.push({
+        $match:{
+          totalStock:{$gt:0}
+        }
+      })
 
       if(price && price!=="all"){
         const [min,max] = price.split("-").map(val=>{
@@ -375,7 +385,6 @@ const loadProductList = async(req,res)=>{
       const userData = await User.findById(req.session.user)
       const categoryData = await Category.find({isBlocked:false})
       const productData = await Product.aggregate(pipeline) 
-
 
       return res.render("user/productList",{
         user:userData,
