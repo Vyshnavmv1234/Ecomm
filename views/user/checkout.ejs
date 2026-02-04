@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Checkout</title>
+<%- include("../../views/partials/user/header") %>
 
 <style>
-* {
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
+
 
 body {
   margin: 0;
@@ -16,32 +9,6 @@ body {
   color: #222;
 }
 
-/* ---------- HEADER ---------- */
-.header {
-  background: #fff;
-  padding: 15px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #ddd;
-}
-
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.search {
-  flex: 1;
-  margin: 0 40px;
-}
-
-.search input {
-  width: 100%;
-  padding: 10px 15px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
 
 /* ---------- MAIN ---------- */
 .container {
@@ -160,32 +127,12 @@ label {
   cursor: pointer;
 }
 
-/* ---------- FOOTER ---------- */
-.footer {
-  background: #fff;
-  padding: 40px;
-  display: flex;
-  justify-content: space-between;
-  margin-top: 40px;
-  border-top: 1px solid #ddd;
-}
 
-.footer h4 {
-  margin-bottom: 10px;
-}
 </style>
 
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="logo">WestLane</div>
-  <div class="search">
-    <input type="text" placeholder="What are you looking for?">
-  </div>
-  <div>❤️ 🛒 ☰ 👤 Vyshnav</div>
-</div>
 
 <!-- MAIN CONTENT -->
 <div class="container">
@@ -317,21 +264,7 @@ label {
 
 </div>
 
-<!-- FOOTER -->
-<div class="footer">
-  <div>
-    <h4>WestLane</h4>
-    Facebook · Instagram · YouTube · Twitter
-  </div>
-  <div>
-    <h4>Shop</h4>
-    Woman<br>Man<br>Kids<br>Home
-  </div>
-  <div>
-    <h4>Sites & Stores</h4>
-    About Us<br>Contact Us<br>Terms & Conditions
-  </div>
-</div>
+<%- include("../../views/partials/user/footer") %>
 
 </body>
 </html>

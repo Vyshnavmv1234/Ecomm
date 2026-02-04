@@ -162,16 +162,37 @@
             </div>
 
             <div class="qty">
-              <button>-</button>
-              <span><%= item.quantity %></span>
-              <button>+</button>
-            </div>
+
+      <button
+        type="button"
+        onclick="updateQty(
+          '<%= item.productId.id%>',
+          '<%= item.variantId %>',
+          -1
+        )">-</button>
+
+      <span id="qty-<%= item.productId.id %>-<%= item.variantId %>">
+        <%= item.quantity %>
+      </span>
+
+      <button
+        type="button"
+        onclick="updateQty(
+          '<%= item.productId.id%>',
+          '<%= item.variantId%>',
+          1
+        )">+</button>
+
+
+      </div>
+
 
             <% const selectedVariant = item.productId.variants.find(val=>val._id.toString()===item.variantId.toString()) %>
 
-            <div class="price">
-              ₹<%= selectedVariant.price%>
-            </div>
+            <span class="price" id="price-<%= item.productId.id %>-<%= item.variantId %>">
+            ₹<%= selectedVariant.price*item.quantity%>
+          </span>
+
 
             <div><button onclick="return cFun('<%=item.productId._id%>','<%=item.variantId%>')" style="font-weight: 500;">REMOVE</button></div>
 
@@ -198,7 +219,7 @@
           <span>₹163,999 INR</span>
         </div>
 
-        <button class="buy-btn">👜 BUY NOW</button>
+        <a href="/user/checkout"><button  class="buy-btn">👜 BUY NOW</button></a>
       </div>
 
     </div>
@@ -264,6 +285,47 @@
       }
       
     }
+
+    async function updateQty(productId, variantId, num) {
+
+      const res = await fetch("/user/cart/update-qty", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, variantId, num })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        showToast(data.message, "error")
+        return
+      }
+
+      document.getElementById(`qty-${productId}-${variantId}`).innerText =
+        data.quantity
+      document.getElementById(`price-${productId}-${variantId}`).innerText =
+        data.price
+    }
+
+    // async function checkout() {
+
+    //   const res = await fetch("/user/checkout", {
+    //     method: "GET",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ productId, variantId, num })
+    //   })
+
+    //   const data = await res.json()
+
+    //   if (!res.ok) {
+    //     showToast(data.message, "error")
+    //     return
+    //   }
+
+    //   document.getElementById(`qty-${productId}-${variantId}`).innerText =
+    //     data.quantity
+    // }
+
 
   </script>
 

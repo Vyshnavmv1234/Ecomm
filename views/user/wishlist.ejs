@@ -186,8 +186,8 @@
 
             <span
               class="remove"
-              onclick="toggleWishlist('<%= item.productId._id %>', '<%= item.variantId %>')">
-              ×
+              onclick="removeFromWishlist('<%= item.productId._id %>', '<%= item.variantId %>')">
+              REMOVE
             </span>
           </td>
         </tr>
@@ -234,6 +234,37 @@
       if(data.success && res.ok){
 
         showToast("Item added to cart","success")
+      }
+      if(res.status ==403){
+        showToast("This item is blocked by admin","error")
+        
+      }
+      if(res.status ==401){
+        showToast("This item is out of stock","error")
+        return 
+      }
+      if(res.status ==400){
+        showToast("Limit Exceeded","error")
+        return 
+      }
+    }
+
+    async function removeFromWishlist(productId,variantId) {
+      const res = await fetch("/user/remove/wishlist",{
+        method: "DELETE",
+        headers: {
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({productId,variantId})
+      })
+
+      const data = await res.json()
+
+      if(data.success && res.ok){
+
+        window.location.reload()
+        showToast("Item removed from wishlist","success")
+        return 
       }
     }
 

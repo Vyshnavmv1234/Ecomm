@@ -9,6 +9,7 @@ import product from "../models/productSchema.js";
 import productController from "../controllers/user/productController.js";
 import cartControlller from "../controllers/user/cartController.js"
 import wishlistController from "../controllers/user/wishlistController.js"
+import checkoutController from "../controllers/user/checkoutController.js"
 
 const router = express.Router()
 
@@ -73,16 +74,18 @@ router.get("/productDetail",productController.productDetail)
 
 router.get("/cart",userAuth,cartControlller.loadAddToCart)
 router.post("/cart",userAuth,cartControlller.addToCart)
+router.patch("/cart/update-qty",cartControlller.updateQuantity)
 router.delete("/cart/remove",userAuth,cartControlller.cartRemove)
 
 //WISHLIST
 
 router.get("/wishlist",userAuth,wishlistController.loadWishlist)
 router.post("/wishlist",userAuth,wishlistController.postWishlist)
+router.delete("/remove/wishlist",userAuth,wishlistController.deleteWishlist)
 
 //CHECKOUT
 
-
+router.get("/checkout",userAuth,checkoutController.loadCheckout)
 
 
 export default router 

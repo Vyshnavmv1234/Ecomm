@@ -1,6 +1,7 @@
 import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import Product from "../../models/productSchema.js"
+import Wishlist from "../../models/wishlistSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 
 const loadAddToCart = async(req,res)=>{
@@ -25,7 +26,7 @@ const addToCart = async (req,res)=>{
   try {
 
     if(!req.session.user){
-      return res.status(401).json({success:false})
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({success:false})
     }
     const productId = req.body.productId
     const variantId = req.body.variantId
@@ -41,7 +42,7 @@ const addToCart = async (req,res)=>{
       return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Invaild Variant"})
     }
     if(variant.stock<=0){
-      return res.status(STATUS_CODES.NOT_FOUND).json({status:false,message:"This Size is Out of stock"})
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({status:false,message:"This Size is Out of stock"})
     }
 
     let cart = await Cart.findOne({userId})
@@ -69,6 +70,8 @@ const addToCart = async (req,res)=>{
       
     }
     await cart.save()  
+    console.log(productId,variantId)
+    await Wishlist.updateOne({userId},{$pull:{items:{productId,variantId}}})
 
     return res.status(200).json({success:true})  
 
@@ -106,5 +109,43 @@ const cartRemove = async (req,res)=>{
     return res.status(500).json({success:false})
   }
 }
+const updateQuantity = async(req,res)=>{
+  try {
+    const userId = req.session.user
+    const {productId,variantId,num} = req.body
 
-export default {addToCart,loadAddToCart,cartRemove}
+    console.log(productId,variantId,num)
+
+    const cart = await Cart.findOne({userId})
+    if(!cart){
+      return res.status(400).json({success:false})
+    }
+    const items = cart.items.find(val=>{
+      return (val.productId.toString()===productId && val.variantId.toString()===variantId)
+    })
+    if(!items){
+      return res.status(404).json({ message: "Item not found" })
+    }
+
+    const product = await Product.findOne({_id:productId})
+    const variant = product.variants.id(variantId)
+    const newQty = items.quantity+num
+    const price = variant.price*newQty
+
+    if (newQty < 1) {
+      return res.status(400).json({ message: "Minimum quantity is 1" })
+    }
+    if (newQty>variant.stock) {
+      return res.status(400).json({ message: "Stock limit exceeded" })
+    }
+    items.quantity = newQty
+
+    await cart.save()
+    return res.status(STATUS_CODES.OK).json({success:true,quantity:items.quantity,price})
+
+  } catch (error) {
+    
+  } 
+}
+
+export default {addToCart,loadAddToCart,cartRemove,updateQuantity}

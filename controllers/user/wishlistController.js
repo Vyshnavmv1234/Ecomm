@@ -1,6 +1,7 @@
 import cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import Wishlist from "../../models/wishlistSchema.js"
+import STATUS_CODES from "../../utitls/statusCodes.js"
 
 
 const loadWishlist = async (req,res)=>{
@@ -55,5 +56,28 @@ const postWishlist = async (req,res)=>{
     res.status(500).json({ success: false })
   }
 }
+const deleteWishlist = async (req,res)=>{
+  try {
+    const userId = req.session.user
+    const {productId,variantId} = req.body
+    const wishlistData = await Wishlist.findOne({userId})
 
-export default{loadWishlist,postWishlist}
+    console.log(wishlistData)
+    
+    if(!wishlistData){
+      return res.status(STATUS_CODES.BAD_REQUEST).json({success:false})
+    }
+    wishlistData.items = wishlistData.items.filter(val=>{
+      return !(val.productId.toString() === productId && val.variantId.toString() === variantId)
+    })
+    wishlistData.save()
+
+    return res.status(STATUS_CODES.OK).json({success:true})
+    
+  } catch (error) {
+    console.error("Error while removing product",error)
+    return res.redirect("/user/pageNotFou")
+  }
+}
+
+export default{loadWishlist,postWishlist,deleteWishlist}

@@ -772,6 +772,10 @@ function selectSize(el, id) {
       showToast(data.message, "error")
       return
     }
+    if (res.status === 400) {
+      showToast(data.message, "error")
+      return
+    }
 
     if(res.ok && data.success){
       showToast("Product added to cart successfully","success")
@@ -779,8 +783,6 @@ function selectSize(el, id) {
       setTimeout(()=>{
         window.location.href = "/user/cart"
       },1100)
-    }else{
-      showToast("An error occured","error")
     }
     
   }
