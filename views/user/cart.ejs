@@ -86,6 +86,14 @@
       width: 70px;
       text-align: right;
     }
+    .pricee {
+      font-size: 14px;
+      color: #e86b4f;
+      margin-right:20px;
+      width: 70px;
+      text-align: right;
+      text-decoration: line-through;
+    }
 
     /* ---------- SUMMARY ---------- */
     .summary {
@@ -185,41 +193,53 @@
 
 
       </div>
-
-
-            <% const selectedVariant = item.productId.variants.find(val=>val._id.toString()===item.variantId.toString()) %>
+            
 
             <span class="price" id="price-<%= item.productId.id %>-<%= item.variantId %>">
-            ₹<%= selectedVariant.price*item.quantity%>
+            ₹<%= item.unitPrice*item.quantity%>
           </span>
 
 
-            <div><button onclick="return cFun('<%=item.productId._id%>','<%=item.variantId%>')" style="font-weight: 500;">REMOVE</button></div>
+            <div><button onclick="return cFun('<%=item.productId._id%>','<%=item.variantId%>')" style="font-weight: 500;">REMOVE</button></div> 
 
           </div>
 
-        <% }) %>
+  
 
-      <% } %>
-
+          <% }) %>
+      
+        <% } %>
     </div>
       
 
       <!-- RIGHT -->
       <div class="summary">
-        <h3>CARD TOTAL</h3>
 
-        <div class="row"><span>Sub-total</span><span>₹121,999</span></div>
-        <div class="row"><span>Shipping</span><span>Free</span></div>
-        <div class="row"><span>Discount</span><span>₹999</span></div>
-        <div class="row"><span>Tax</span><span>₹2,999</span></div>
+        <h3>CART TOTAL</h3>
+
+        <div class="row">
+          <span>Sub-total</span>
+          <span id="subTotal">₹<%= subTotal %></span>
+        </div>
+
+        <div class="row">
+          <span>Shipping</span>
+          <span>Free</span>
+        </div>
+
+        <div class="row">
+          <span>Discount</span>
+          <span id="discount">₹<%= discount %></span>
+        </div>
 
         <div class="row total">
           <span>Total</span>
-          <span>₹163,999 INR</span>
+          <span id="total">₹<%= total %></span>
         </div>
 
-        <a href="/user/checkout"><button  class="buy-btn">👜 BUY NOW</button></a>
+        <a href="/user/checkout">
+          <button class="buy-btn">👜 BUY NOW</button>
+        </a>
       </div>
 
     </div>
@@ -302,12 +322,23 @@
       }
 
       document.getElementById(`qty-${productId}-${variantId}`).innerText =
-        data.quantity
-      document.getElementById(`price-${productId}-${variantId}`).innerText =
-        data.price
+      data.quantity
+
+    document.getElementById(`price-${productId}-${variantId}`).innerText =
+      data.price
+
+    document.getElementById("subTotal").innerText =
+      `₹${data.subTotal}`
+
+    document.getElementById("discount").innerText =
+      `₹${data.totalDiscount}`
+
+    document.getElementById("total").innerText =
+      `₹${data.grandTotal}`
+
     }
 
-    // async function checkout() {
+    // async function checkout() {  
 
     //   const res = await fetch("/user/checkout", {
     //     method: "GET",

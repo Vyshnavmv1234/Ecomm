@@ -14,11 +14,42 @@ const loadAddToCart = async(req,res)=>{
     const cart = await Cart.findOne({userId})
     .populate("items.productId")
     
-    return res.render("user/cart",{user:userData,cartItems: cart?cart.items:[]})
+    const cartTotal = calculateCartTotal(cart)
+    console.log(cartTotal)
+    
+    return res.render("user/cart",{user:userData,
+      subTotal:cartTotal.subTotal,
+      discount:cartTotal.totalDiscount,
+      total:cartTotal.grandTotal,
+      cartItems: cart?cart.items:[]})
     
   } catch (error) {
     console.error("Error in loading cart",error)
     return res.redirect("/user/pageNotFound")
+  }
+}
+const calculateCartTotal = (cart)=>{
+  try {
+
+    let subTotal = 0
+    let totalDiscount = 0 
+
+    cart.items.forEach(item => {
+      subTotal += item.unitPrice * item.quantity
+      totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
+    })
+
+    const shipping = 0
+    const grandTotal = subTotal + shipping
+
+    return {
+      subTotal,
+      totalDiscount,
+      grandTotal
+    }
+
+  } catch (error) {
+    
   }
 }
 
@@ -45,12 +76,24 @@ const addToCart = async (req,res)=>{
       return res.status(STATUS_CODES.UNAUTHORIZED).json({status:false,message:"This Size is Out of stock"})
     }
 
-    let cart = await Cart.findOne({userId})
+    const discount = productData.discount || 0
+    const discountedUnitPrice = Math.round(
+      variant.price - (variant.price * discount / 100)
+    )
 
-    if(!cart){  
+    let cart = await Cart.findOne({ userId })
+
+    if (!cart) {
       cart = new Cart({
         userId,
-        items:[{productId,quantity:1,variantId}]  
+        items: [{
+          productId,
+          variantId,
+          quantity: 1,
+          unitPrice: discountedUnitPrice,
+          originalPrice: variant.price,
+          discount
+        }]
       })
     }else{
       
@@ -64,10 +107,16 @@ const addToCart = async (req,res)=>{
           return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"Stock Limit exceeded"})
         }
         cart.items[itemIndex].quantity+=1
-      }else{
-        cart.items.push({productId,quantity:1,variantId})
+      }else {
+        cart.items.push({
+          productId,
+          variantId,
+          quantity: 1,
+          unitPrice: discountedUnitPrice,
+          originalPrice: variant.price,
+          discount
+        })
       }
-      
     }
     await cart.save()  
     console.log(productId,variantId)
@@ -109,6 +158,7 @@ const cartRemove = async (req,res)=>{
     return res.status(500).json({success:false})
   }
 }
+
 const updateQuantity = async(req,res)=>{
   try {
     const userId = req.session.user
@@ -128,9 +178,10 @@ const updateQuantity = async(req,res)=>{
     }
 
     const product = await Product.findOne({_id:productId})
+    const discount = product.discount||0
     const variant = product.variants.id(variantId)
     const newQty = items.quantity+num
-    const price = variant.price*newQty
+
 
     if (newQty < 1) {
       return res.status(400).json({ message: "Minimum quantity is 1" })
@@ -138,12 +189,29 @@ const updateQuantity = async(req,res)=>{
     if (newQty>variant.stock) {
       return res.status(400).json({ message: "Stock limit exceeded" })
     }
+    const discountedUnitPrice = Math.round(
+    variant.price - (variant.price * discount / 100)
+  )
+    const price = discountedUnitPrice * newQty
+    console.log(discountedUnitPrice,discount,price)
+    
     items.quantity = newQty
 
     await cart.save()
-    return res.status(STATUS_CODES.OK).json({success:true,quantity:items.quantity,price})
+    const totals = calculateCartTotal(cart)
+
+    return res.status(STATUS_CODES.OK).json({success:true,
+      quantity:items.quantity,
+      price,
+      unitPrice:discountedUnitPrice,
+      discount,
+      subTotal: totals.subTotal,
+      totalDiscount: totals.totalDiscount,
+      grandTotal: totals.grandTotal
+    })
 
   } catch (error) {
+    console.error("qty update error",error)
     
   } 
 }

@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-const {Schema}= mongoose
+const { Schema } = mongoose
 
 const cartSchema = new Schema({
   userId: {
@@ -7,21 +7,37 @@ const cartSchema = new Schema({
     ref: "User",
     required: true
   },
-  items:[{
-    productId: {
-    type: Schema.Types.ObjectId,
-    ref: "Product",
-    required: true
-  },
-  quantity: {
-    type: Number,
-    default: 1
-  },
-  variantId: {
-    type: Schema.Types.ObjectId,
-    required: false
-  }
-}]
+  items: [
+    {
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true
+      },
+      variantId: {
+        type: Schema.Types.ObjectId,
+        required: true
+      },
+      quantity: {
+        type: Number,
+        default: 1
+      },
+
+      unitPrice: {
+        type: Number,
+        required: true
+      },
+      originalPrice: {
+        type: Number,
+        required: true
+      },
+      discount: {
+        type: Number,
+        default: 0
+      }
+    }
+  ]
 })
-const cart = mongoose.model("Cart",cartSchema)
-export default cart
+
+const Cart = mongoose.model("Cart", cartSchema)
+export default Cart
