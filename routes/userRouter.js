@@ -10,6 +10,7 @@ import productController from "../controllers/user/productController.js";
 import cartControlller from "../controllers/user/cartController.js"
 import wishlistController from "../controllers/user/wishlistController.js"
 import checkoutController from "../controllers/user/checkoutController.js"
+import orderController from "../controllers/user/orderController.js"
 
 const router = express.Router()
 
@@ -86,6 +87,13 @@ router.delete("/remove/wishlist",userAuth,wishlistController.deleteWishlist)
 //CHECKOUT
 
 router.get("/checkout",userAuth,checkoutController.loadCheckout)
+router.post("/checkout",userAuth,checkoutController.postCheckout)
+
+//ORDERS
+
+router.post("/place-order",userAuth,orderController.placeOrder)
+
+
 
 
 export default router 

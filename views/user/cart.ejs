@@ -14,8 +14,6 @@
       color: #222;
     }
 
-
-
     /* ---------- MAIN ---------- */
     main {
       padding: 60px;
@@ -196,7 +194,7 @@
             
 
             <span class="price" id="price-<%= item.productId.id %>-<%= item.variantId %>">
-            ₹<%= item.unitPrice*item.quantity%>
+            ₹<%= item.originalPrice*item.quantity%>
           </span>
 
 
@@ -237,9 +235,8 @@
           <span id="total">₹<%= total %></span>
         </div>
 
-        <a href="/user/checkout">
-          <button class="buy-btn">👜 BUY NOW</button>
-        </a>
+          <button onclick="moveToCheckout()" class="buy-btn">👜 BUY NOW</button>
+        
       </div>
 
     </div>
@@ -252,6 +249,13 @@
 
     <!-- Toastify JS -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+      const defaultAddress = <%- JSON.stringify(defaultAddress || null) %>;
+      const subTotal = <%- JSON.stringify(subTotal || 0) %>;
+      const discount = <%- JSON.stringify(discount || 0) %>;
+      const total = <%- JSON.stringify(total || 0) %>;
+    </script>
 
   <script>
 
@@ -338,24 +342,25 @@
 
     }
 
-    // async function checkout() {  
+    async function moveToCheckout() {  
 
-    //   const res = await fetch("/user/checkout", {
-    //     method: "GET",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ productId, variantId, num })
-    //   })
+      const res = await fetch("/user/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({defaultAddress,subTotal,discount,total})
+      })
 
-    //   const data = await res.json()
+      const data = await res.json()
 
-    //   if (!res.ok) {
-    //     showToast(data.message, "error")
-    //     return
-    //   }
+      if (!res.ok) {
+        showToast(data.message, "error")
+        return
+      }
+      if(res.ok && data.success){
+        window.location.href = "/user/checkout"
+      }
 
-    //   document.getElementById(`qty-${productId}-${variantId}`).innerText =
-    //     data.quantity
-    // }
+    }
 
 
   </script>

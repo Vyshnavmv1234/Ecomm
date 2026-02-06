@@ -1,0 +1,122 @@
+<%- include("../../views/partials/user/header") %>
+
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-card {
+    background: #fff;
+    width: 520px;
+    padding: 40px 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    position: relative;
+  }
+
+  /* Icon */
+  .icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ff8a3d, #ff6a2b);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .icon-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: -20px;
+    background:
+      radial-gradient(circle at 20% 30%, #ff8a3d 3px, transparent 4px),
+      radial-gradient(circle at 80% 40%, #ff8a3d 4px, transparent 5px),
+      radial-gradient(circle at 60% 80%, #ff8a3d 3px, transparent 4px),
+      radial-gradient(circle at 30% 70%, #ff8a3d 2px, transparent 3px);
+  }
+
+  .checkmark {
+    color: #fff;
+    font-size: 36px;
+    font-weight: bold;
+  }
+
+  h2 {
+    margin: 20px 0 10px;
+    font-size: 22px;
+    color: #111827;
+  }
+
+  p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 30px;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .btn {
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-outline {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+  }
+
+  .btn-primary {
+    background: #ff6a2b;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #e55a20;
+  }
+</style>
+
+</head>
+<body>
+
+  <div class="success-card">
+    <div class="icon-wrapper">
+      <div class="checkmark">✓</div>
+    </div>
+
+    <h2>Thank you for ordering!</h2>
+    <p>
+      Your order has been placed successfully.  
+      You can view your order details or continue shopping.
+    </p>
+
+    <div class="actions">
+      <button class="btn btn-outline">View Order</button>
+      <button class="btn btn-primary">Continue Shopping</button>
+    </div>
+  </div>
+
+<%- include("../../views/partials/user/footer") %>
+

@@ -91,6 +91,11 @@
     </div>
 
     <div class="form-group">
+      <input type="text" id="houseAddress" placeholder="Address" name="house">
+      <div class="error">House address is required</div>
+    </div>
+
+    <div class="form-group">
       <input type="text" id="street" placeholder="Street name" name="streetName">
       <div class="error">Street name is required</div>
     </div>
@@ -127,6 +132,7 @@
       const fields = [
         { id: "name", condition: v => v.trim() !== "" },
         { id: "city", condition: v => v.trim() !== "" },
+        { id: "houseAddress", condition: v => v.trim() !== "" },
         { id: "street", condition: v => v.trim() !== "" },
         { id: "state", condition: v => v.trim() !== "" },
         { id: "phone", condition: v => /^[0-9]{10}$/.test(v) },
@@ -146,7 +152,7 @@
       });
 
       if (isValid) {
-        form.submit(); // proceed to backend
+        form.submit(); 
       }
     });
   </script>

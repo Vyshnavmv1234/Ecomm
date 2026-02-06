@@ -12,6 +12,10 @@ const addressSchema = new Schema({
       type: String,
       required: true
     },
+    house: {
+      type: String,
+      required: true
+    },
     streetName: {
       type: String,
       required: true
@@ -31,7 +35,11 @@ const addressSchema = new Schema({
     phone: {
       type: String,
       required: true
-    }
+    },
+    isDefault: {
+        type: Boolean,
+        default: false
+      }
   }]
     
 },{timestamps: true})

@@ -3,6 +3,7 @@ import User from "../../models/userSchema.js"
 import Product from "../../models/productSchema.js"
 import Wishlist from "../../models/wishlistSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
+import Address from "../../models/addressSchema.js"
 
 const loadAddToCart = async(req,res)=>{
   try {
@@ -13,18 +14,23 @@ const loadAddToCart = async(req,res)=>{
 
     const cart = await Cart.findOne({userId})
     .populate("items.productId")
+
+    const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
     
     const cartTotal = calculateCartTotal(cart)
     console.log(cartTotal)
     
-    return res.render("user/cart",{user:userData,
-      subTotal:cartTotal.subTotal,
-      discount:cartTotal.totalDiscount,
-      total:cartTotal.grandTotal,
-      cartItems: cart?cart.items:[]})
+    return res.render("user/cart",{
+      user: userData,
+      subTotal: cartTotal.subTotal,
+      discount: cartTotal.totalDiscount,
+      total: cartTotal.grandTotal,
+      cartItems: cart?cart.items:[],
+      defaultAddress: userAddress
+    })
     
   } catch (error) {
-    console.error("Error in loading cart",error)
+    console.error("Error in loading cart",error) 
     return res.redirect("/user/pageNotFound")
   }
 }
@@ -35,12 +41,12 @@ const calculateCartTotal = (cart)=>{
     let totalDiscount = 0 
 
     cart.items.forEach(item => {
-      subTotal += item.unitPrice * item.quantity
+      subTotal += item.originalPrice * item.quantity
       totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
 
     const shipping = 0
-    const grandTotal = subTotal + shipping
+    const grandTotal = subTotal - totalDiscount
 
     return {
       subTotal,
@@ -49,7 +55,8 @@ const calculateCartTotal = (cart)=>{
     }
 
   } catch (error) {
-    
+    console.error("Error in cart calculation",error)
+    return res.redirect("/user/pageNotFound")
   }
 }
 
