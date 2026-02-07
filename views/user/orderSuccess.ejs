@@ -1,122 +1,127 @@
 <%- include("../../views/partials/user/header") %>
 
-
 <style>
-  * {
-    box-sizing: border-box;
-    font-family: "Segoe UI", Tahoma, sans-serif;
-  }
-
   body {
-    margin: 0;
-    height: 100vh;
-    background: #f3f4f6;
+    background: #f6f6f6;
+  }
+
+  .order-success-section {
+    width: 100%;
+    padding: 80px 20px 120px;
     display: flex;
-    align-items: center;
     justify-content: center;
   }
 
-  .success-card {
+  .order-success-card {
     background: #fff;
-    width: 520px;
-    padding: 40px 30px;
-    border-radius: 12px;
+    width: 100%;
+    max-width: 900px;
+    padding: 70px 60px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-    position: relative;
   }
 
-  /* Icon */
-  .icon-wrapper {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #ff8a3d, #ff6a2b);
+  .success-icon {
+    width: 140px;
+    height: 140px;
+    background: #418758;
     border-radius: 50%;
-    margin: 0 auto 20px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    position: relative;
+    align-items: center;
+    margin: 0 auto 30px;
   }
 
-  .icon-wrapper::before {
-    content: "";
-    position: absolute;
-    inset: -20px;
-    background:
-      radial-gradient(circle at 20% 30%, #ff8a3d 3px, transparent 4px),
-      radial-gradient(circle at 80% 40%, #ff8a3d 4px, transparent 5px),
-      radial-gradient(circle at 60% 80%, #ff8a3d 3px, transparent 4px),
-      radial-gradient(circle at 30% 70%, #ff8a3d 2px, transparent 3px);
-  }
-
-  .checkmark {
+  .success-icon span {
     color: #fff;
-    font-size: 36px;
+    font-size: 56px;
     font-weight: bold;
   }
 
-  h2 {
-    margin: 20px 0 10px;
-    font-size: 22px;
-    color: #111827;
+  .order-success-card h1 {
+    font-size: 34px;
+    color: #222;
+    margin-bottom: 14px;
   }
 
-  p {
-    font-size: 14px;
-    color: #6b7280;
-    margin-bottom: 30px;
+  .order-success-card p {
+    font-size: 17px;
+    color: #666;
+    max-width: 520px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
   }
 
-  .actions {
+  .order-actions {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
   }
 
-  .btn {
-    padding: 12px 22px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
+  .order-actions a {
+    text-decoration: none;
+    padding: 16px 34px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: 0.3s ease;
   }
 
-  .btn-outline {
+  .btn-view {
+    border: 1px solid #ccc;
+    color: #333;
     background: #fff;
-    border: 1px solid #d1d5db;
-    color: #374151;
   }
 
-  .btn-primary {
-    background: #ff6a2b;
+  .btn-view:hover {
+    background: #f1f1f1;
+  }
+
+  .btn-shop {
+    background: #c5b2b2;
     color: #fff;
   }
 
-  .btn-primary:hover {
-    background: #e55a20;
+  .btn-shop:hover {
+    background: #418758;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .order-success-card {
+      padding: 50px 30px;
+    }
+
+    .order-actions {
+      flex-direction: column;
+    }
+
+    .order-actions a {
+      width: 100%;
+      text-align: center;
+    }
   }
 </style>
 
-</head>
-<body>
-
-  <div class="success-card">
-    <div class="icon-wrapper">
-      <div class="checkmark">✓</div>
+<section class="order-success-section">
+  <div class="order-success-card">
+    <div class="success-icon">
+      <span>✓</span>
     </div>
 
-    <h2>Thank you for ordering!</h2>
+    <h1>Thank you for your order!</h1>
     <p>
       Your order has been placed successfully.  
-      You can view your order details or continue shopping.
+      We’ll send you a notification once your items are shipped.
     </p>
 
-    <div class="actions">
-      <button class="btn btn-outline">View Order</button>
-      <button class="btn btn-primary">Continue Shopping</button>
+    <div class="order-actions">
+      <a href="/user/orderDetail/<%=orderId%>" class="btn-view">View Order</a>
+      <a href="/user/productList" class="btn-shop">Continue Shopping</a>
     </div>
   </div>
+</section>
+
 
 <%- include("../../views/partials/user/footer") %>
-

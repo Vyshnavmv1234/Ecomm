@@ -152,7 +152,10 @@
     <div>
 
       <% if (cartItems.length === 0) { %>
-        <p>Your cart is empty</p>
+        <div style="margin-left: 550px; display: inline-block;">
+          <p>Your cart is empty</p>
+          <a href="/user/productList"><button>Shop now</button></a>
+        </div>
       <% } else { %>
 
         <% cartItems.forEach(item => { %>
@@ -211,7 +214,8 @@
       
 
       <!-- RIGHT -->
-      <div class="summary">
+     <% if(cartItems.length>0){%>
+        <div class="summary">
 
         <h3>CART TOTAL</h3>
 
@@ -238,6 +242,7 @@
           <button onclick="moveToCheckout()" class="buy-btn">👜 BUY NOW</button>
         
       </div>
+     <%}%>
 
     </div>
   </main>

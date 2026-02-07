@@ -13,7 +13,8 @@ const loadCheckout = async (req,res)=>{
 
     const orderSummary = calculateTotal(cart)
 
-    return res.render("user/checkout",{
+    if(orderSummary.grandTotal>0){
+      return res.render("user/checkout",{
       user:userData,
       cartItems: cart?cart.items:[],
       defaultAddress:userAddress,
@@ -22,6 +23,9 @@ const loadCheckout = async (req,res)=>{
       discount:orderSummary.totalDiscount,
       total:orderSummary.grandTotal
     })
+    }else{
+      return res.redirect("/user/pageNotFound")
+    }
     
   } catch (error) {
     console.error("Error in loading checkout",error)

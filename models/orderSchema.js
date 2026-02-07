@@ -1,18 +1,21 @@
 import mongoose from "mongoose";
 const {Schema} = mongoose
-import { v4 as uuidv4 } from "uuid";
 
 const orderSchema = new Schema({
-  order_id: {
-    type: String,
-    default: ()=>uuidv4(),
-    unique: true
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
   },
   orderItems: [{
     
     product: {
       type: Schema.Types.ObjectId,
       ref:"Product",
+      required: true
+    },
+    variant: {
+      type: Schema.Types.ObjectId,
       required: true
     },
     quantity: {
@@ -30,9 +33,13 @@ const orderSchema = new Schema({
     required: true
   },
   shipping_address: {
-    type: Schema.Types.ObjectId,
-    ref: "Address",
-    required: true
+    name: String,
+    phone: String,
+    house: String,
+    streetName: String,
+    city: String,
+    state: String,
+    pincode: String
   },
   invoice_date: {
     type: Date
@@ -40,7 +47,7 @@ const orderSchema = new Schema({
   status: {
     type: String,
     required: true,
-    enum: ["pending","processing","shipped","delivered","cancelled","return request","returned"]
+    enum: ["COD","pending","processing","shipped","delivered","cancelled","return request","returned"]
   },
   createdAt: {
     type: Date,

@@ -427,7 +427,7 @@ input[type="checkbox"] {
       ₹<%=total%>
     </div>
 
-    <button class="place-order" onclick="handlePlaceOrder('<%=total%>')">
+    <button class="place-order" onclick="handlePlaceOrder()">
       Place Order
     </button>
 
@@ -609,7 +609,7 @@ input[type="checkbox"] {
     return true;
   }
 
-  function handlePlaceOrder(totalPrice) {
+  async function handlePlaceOrder() {
     if (!validateCheckout()) return;
 
       const res = await fetch("/user/place-order", {
@@ -625,6 +625,11 @@ input[type="checkbox"] {
     if (!res.ok) {
       showToast(data.message, "error");
       return;
+    }
+    if(res.ok && data.success){
+      const orderId = data.orderId
+      console.log(orderId)
+      window.location.href = `/user/order/${orderId}`
     }
     
   }
