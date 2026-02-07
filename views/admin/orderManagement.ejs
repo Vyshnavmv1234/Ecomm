@@ -1,0 +1,211 @@
+  <!-- HEADER -->
+  <%- include("../../views/partials/admin/header") %>
+
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/admin/sidebar") %>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f6f7fb;
+      display: flex;
+    }
+
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1;
+      padding: 30px 40px;
+    }
+
+    /* ===== FILTERS ===== */
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-left: 150px;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: #eef2ff;
+      color: #4f46e5;
+      border-color: #c7d2fe;
+      font-weight: 600;
+    }
+
+    /* ===== TABLE ===== */
+    .table-wrapper {
+      margin-left: 210px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #fafafa;
+      color: #777;
+      font-weight: 600;
+    }
+
+    tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:last-child {
+      border-bottom: none;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .payment-online {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .payment-cod {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-processing {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .status-delivered {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-shipped {
+      background: #ede9fe;
+      color: #5b21b6;
+    }
+
+    /* ===== ACTIONS ===== */
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .action-view { color: #2563eb; }
+    .action-edit { color: #16a34a; }
+    .action-delete { color: #dc2626; }
+
+  </style>
+</head>
+
+<body>
+
+
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="header">
+      <h2>Orders</h2>
+      <button class="add-btn">+ Add Order</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Processing</button>
+      <button class="filter-btn">Shipped</button>
+      <button class="filter-btn">Delivered</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Product</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>#302012</td>
+            <td>Black Ultron <br><small>+3 Products</small></td>
+            <td>29 Dec 2025</td>
+            <td>Josh Wisley</td>
+            <td>₹59,000</td>
+            <td><span class="badge payment-online">Online</span></td>
+            <td><span class="badge status-processing">Processing</span></td>
+            <td class="actions">
+              <button class="action-btn action-view">👁</button>
+              <button class="action-btn action-edit">✏</button>
+              <button class="action-btn action-delete">🗑</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>#302013</td>
+            <td>Black Ultron</td>
+            <td>29 Dec 2025</td>
+            <td>Josh Wisley</td>
+            <td>₹59,000</td>
+            <td><span class="badge payment-cod">COD</span></td>
+            <td><span class="badge status-delivered">Delivered</span></td>
+            <td class="actions">
+              <button class="action-btn action-view">👁</button>
+              <button class="action-btn action-edit">✏</button>
+              <button class="action-btn action-delete">🗑</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+</body>
+</html>
