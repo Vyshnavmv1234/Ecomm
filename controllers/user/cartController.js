@@ -16,9 +16,19 @@ const loadAddToCart = async(req,res)=>{
     .populate("items.productId")
 
     const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
-    
     const cartTotal = calculateCartTotal(cart)
-    console.log(cartTotal)
+
+      if (!cart || cart.items.length === 0) {
+      return res.render("user/cart", {
+        user: userData,
+        subTotal: 0,
+        discount: 0,
+        total: 0,
+        cartItems: [],
+        defaultAddress: userAddress,
+        emptyMessage: "Your cart is empty "
+      })
+    }
     
     return res.render("user/cart",{
       user: userData,
@@ -56,7 +66,6 @@ const calculateCartTotal = (cart)=>{
 
   } catch (error) {
     console.error("Error in cart calculation",error)
-    return res.redirect("/user/pageNotFound")
   }
 }
 

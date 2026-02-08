@@ -1,7 +1,7 @@
 import Cart from "../../models/cartSchema.js"
 import Address from "../../models/addressSchema.js"
 import Order from "../../models/orderSchema.js"
-import product from "../../models/productSchema.js"
+import Product from "../../models/productSchema.js"
 import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 
@@ -9,8 +9,16 @@ const orderSuccess = async (req,res)=>{
   try {
     const userId = req.session.user
     const orderId = req.params.id
+    const cart = await Cart.findOne({userId}).populate("items.productId")
     const userData = await User.findById(userId)
-    return res.render("user/orderSuccess",{user:userData,orderId})
+    const order = await Order.find({_id:orderId})
+    
+      for(const item of order[0].orderItems){
+        await Product.updateOne({_id : item.product,"variants._id" : item.variant},{$inc:{"variants.$.stock" : -item.quantity}})
+      }
+      await cart.deleteOne({userId})
+      return res.render("user/orderSuccess",{user:userData,orderId})
+    
     
   } catch (error) {
     console.error("Error loading orderPage",error)
@@ -26,7 +34,6 @@ const placeOrder = async (req,res)=>{
 
     const cart = await Cart.findOne({userId}).populate("items.productId")
     const defaultAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
-    console.log(defaultAddress)
 
     const orderSummary = calculateTotal(cart)
 
@@ -36,9 +43,14 @@ const placeOrder = async (req,res)=>{
         product: item.productId._id,
         variant: item.variantId,
         quantity: item.quantity,
-        price: item.unitPrice
+        unitPrice: item.unitPrice,
+        originalPrice: item.originalPrice
       })),
-      order_total: orderSummary.grandTotal,
+      orderSummary:{
+        subTotal:orderSummary.subTotal,
+        discount:orderSummary.totalDiscount,
+        total:orderSummary.grandTotal
+      },
       shipping_address:{
         name: defaultAddress.address[0].name,
         city: defaultAddress.address[0].city,
@@ -71,7 +83,6 @@ const calculateTotal = (cart)=>{
       totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
 
-    const shipping = 0
     const grandTotal = subTotal -totalDiscount
 
     return {
@@ -89,24 +100,66 @@ const calculateTotal = (cart)=>{
 const orderDetail = async (req,res)=>{
   try {
     
-    const cart = await Cart.findOne({userId:req.session.user}).populate("items.productId")
     const userData = await User.findById(req.session.user)
     const orderId = req.params.id
     const orderDetails = await Order.findOne({_id:orderId}).populate("orderItems.product")
-    const orderSummary = calculateTotal(cart)
-    console.log(orderId)
 
     return res.render("user/orderDetail",{
       user:userData,
       orderId,
       order: orderDetails,
-      orderSummary
-    })
+    }) 
     
     
   } catch (error) {
-    
+    console.error("Error loading orderDetails",error)
+    return res.redirect("/user/pageNotFound")
   }
 }
 
-export default {placeOrder,orderSuccess,orderDetail}
+const cancelProduct = async(req,res)=>{
+  try {
+
+    const {itemId,orderId}= req.body
+    const order = await Order.findOne({_id:orderId})
+    const item = order.orderItems.id(itemId)
+    
+    if(!item){
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false})
+    }
+    item.status = "cancelled"
+
+    const itemSubTotal = item.originalPrice * item.quantity
+    const itemDiscount = (item.originalPrice - item.unitPrice) * item.quantity
+    const total = itemSubTotal - itemDiscount
+
+    order.orderSummary.subTotal -= itemSubTotal 
+    order.orderSummary.discount -= itemDiscount
+    order.orderSummary.total -= total
+    
+    await Product.updateOne({_id: item.product,"variants._id": item.variant},{$inc:{"variants.$.stock":item.quantity}})
+    await order.save()
+    return res.status(STATUS_CODES.OK).json({success:true})
+
+  } catch (error) {
+    console.error("error cancelling product order",error)
+  }
+}
+
+const cancelOrder = async(req,res)=>{
+  try {
+    const orderId = req.body.orderId
+    const order = await Order.findOne({_id:orderId})
+    
+    order.orderItems.forEach(item=>{
+      item.status ="cancelled"
+    })
+    await order.save()
+    return res.status(STATUS_CODES.OK).json({success:true})
+    
+  } catch (error) {
+    console.error("error cancelling order",error)
+  }
+} 
+
+export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder}

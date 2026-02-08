@@ -149,6 +149,11 @@
     text-align: center;
     font-size: 14px;
   }
+  .stat{
+    width: 120px;
+    text-align: center;
+    font-size: 14px;
+  }
 
   /* ===== RIGHT PANEL ===== */
   .right-panel {
@@ -222,7 +227,7 @@
   <!-- Header -->
   <div class="order-header">
     <h3>← ORDER DETAILS</h3>
-    <a href="#">Cancel Order</a>
+    <a > <button onclick="cancelOrder('<%=orderId%>')">Cancel Order</button></a>
   </div>
 
   <!-- Summary -->
@@ -255,12 +260,16 @@
         <div class="product-row">
           <img src="<%= item.product.images[0].url %>" alt="">
           <div class="product-info">
-            <small><%= item.product.category %></small>
+            <small><%= item.product.title %></small>
             <p><%= item.product.name %></p>
           </div>
           <div class="product-qty">x<%= item.quantity %></div>
-          <div class="product-price">₹<%= item.price * item.quantity %></div>
-          <div class="product-price">Cancel</div>
+          <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
+          <%if(item.status ==="placed"){%>
+            <div class="product-price"><button onclick="cancelProduct('<%=item._id%>','<%=orderId%>')" >Cancel</button></div>
+          <%}else{%>
+            <div class="stat"><button style="color: red;">Cancelled</button></div>
+          <%}%>
         </div>
       <% }) %>
     </div>
@@ -286,12 +295,12 @@
 
         <div class="price-row">
           <span>Sub-Total</span>
-          <span>₹<%=orderSummary.subTotal %></span>
+          <span>₹<%=order.orderSummary.subTotal %></span>
         </div>
 
         <div class="price-row">
           <span>Discount</span>
-          <span class="discount">-₹<%= orderSummary.totalDiscount || 0 %></span>
+          <span class="discount">-₹<%=order.orderSummary.discount || 0 %></span>
         </div>
 
         <div class="price-row">
@@ -303,7 +312,7 @@
 
         <div class="price-row total">
           <span>Total amount</span>
-          <span>₹<%= order.order_total %></span>
+          <span>₹<%= order.orderSummary.total %></span>
         </div>
 
         <button class="invoice-btn">⬇ Download Invoice</button>
@@ -313,5 +322,45 @@
   </div>
 
 </div>
+<script>
+
+  async function cancelProduct(itemId,orderId) {
+
+    const isConfirm = confirm("Do you want to cancel the order?")
+    if(!isConfirm){
+      return 
+    }
+
+    const res = await fetch("/user/cancelProduct",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId, orderId})
+    })
+    const data = await res.json()
+
+    if(data.success && res.ok){
+      window.location.reload()
+    }
+  }
+  async function cancelOrder(orderId) {
+
+    const isConfirm = confirm("Do you want to cancel the order?")
+    if(!isConfirm){
+      return 
+    }
+
+    const res = await fetch("/user/cancelOrder",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({orderId})
+    })
+    const data = await res.json()
+
+    if(data.success && res.ok){
+      window.location.reload()
+    }
+  }
+
+</script>
 
 <%- include("../../views/partials/user/footer") %>

@@ -22,15 +22,34 @@ const orderSchema = new Schema({
       type: Number,
       required: true
     },
-    price: {
+    unitPrice: {
       type: Number,
       default: 0,
       required: true
+    },
+    originalPrice: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    status: {
+      type: String,
+      default: "placed", 
     }
   }],
-  order_total: {
-    type: Number,
-    required: true
+  orderSummary: {
+    subTotal:{
+      type: Number,
+      required: true
+    },
+    discount:{
+      type: Number,
+      required: true
+    },
+    total:{
+      type: Number,
+      required: true
+    }
   },
   shipping_address: {
     name: String,

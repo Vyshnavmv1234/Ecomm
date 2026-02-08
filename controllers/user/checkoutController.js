@@ -36,10 +36,9 @@ const postCheckout = async (req,res)=>{
   try {
     const userId = req.session.user
     const cart = await Cart.findOne({userId})
-    console.log(cart)
 
     return res.status(STATUS_CODES.OK).json({
-      success:true,
+      success:true
     })
     
   } catch (error) {
@@ -58,7 +57,6 @@ const calculateTotal = (cart)=>{
       totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
 
-    const shipping = 0
     const grandTotal = subTotal -totalDiscount
 
     return {

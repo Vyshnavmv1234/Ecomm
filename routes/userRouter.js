@@ -94,6 +94,11 @@ router.post("/checkout",userAuth,checkoutController.postCheckout)
 router.get("/order/:id",userAuth,orderController.orderSuccess)
 router.post("/place-order",userAuth,orderController.placeOrder)
 router.get("/orderDetail/:id",userAuth,orderController.orderDetail)
+router.post("/cancelProduct",userAuth,orderController.cancelProduct)
+router.post("/cancelOrder",userAuth,orderController.cancelOrder)
+
+
+
 
 
 export default router 

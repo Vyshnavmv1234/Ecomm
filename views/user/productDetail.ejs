@@ -523,7 +523,11 @@ body {
 
 
     <div class="action">
-      <a><button onclick="return eFun('<%=productData.id%>')" class="add-btn">+ ADD TO BASKET</button></a>
+      <%if(user){%>
+        <a><button onclick="return eFun('<%=productData.id%>')" class="add-btn">+ ADD TO BASKET</button></a>
+      <%}else{%>
+        <a href="/user/login"><button type="button"  class="add-btn">+ ADD TO BASKET</button></a>
+      <%}%>
     </div>
     <strong style="color: red; margin-bottom: 9px;" id="addError"></strong>
 
