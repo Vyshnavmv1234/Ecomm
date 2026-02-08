@@ -1,0 +1,244 @@
+  <%- include("../../views/partials/admin/header") %>
+
+  <%- include("../../views/partials/admin/sidebar") %>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f6fa;
+      color: #333;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 900px;
+      margin-top: 50px;
+      margin-left: 380px;
+      
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .card h4 {
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .pending { background: #ffeaa7; }
+    .shipped { background: #74b9ff; color: #fff; }
+    .out { background: #fdcb6e; }
+    .delivered { background: #55efc4; }
+    .cancelled { background: #ff7675; color: #fff; }
+
+    .status-select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    .btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #0984e3;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      background: #0866c6;
+    }
+
+    /* Order Items */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    table th {
+      background: #fafafa;
+      font-weight: 600;
+    }
+
+    .total-box {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .total-box p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .total-box h3 {
+      margin-top: 10px;
+    }
+
+    @media(max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Order Details</h2>
+
+  <!-- Top Cards -->
+  <div class="grid">
+    <!-- Order Info -->
+    <div class="card">
+      <h4>Order Info</h4>
+      <div class="row">
+        <span>Order ID</span>
+        <span>#<%= order._id.toString() %></span>
+      </div>
+      <div class="row">
+        <span>Date</span>
+        <span><%= order.createdAt.toDateString() %></span>
+      </div>
+      <div class="row">
+        <span>Payment</span>
+        <span><%= order.paymentMethod || "COD" %></span>
+      </div>
+      <div class="row">
+        <span>Status</span>
+        <span class="badge <%= order.status %>"><%= order.status %></span>
+      </div>
+    </div>
+
+    <!-- Customer -->
+    <div class="card">
+      <h4>Customer</h4>
+      <div class="row">
+        <span>Name</span>
+        <span><%= order.shipping_address.name %></span>
+      </div>
+      <div class="row">
+        <span>Phone</span>
+        <span><%= order.shipping_address.phone %></span>
+      </div>
+      <div class="row">
+        <span>City</span>
+        <span><%= order.shipping_address.city %></span>
+      </div>
+    </div>
+
+    <!-- Update Status -->
+    <div class="card">
+      <h4>Update Order Status</h4>
+
+      <form action="/admin/update-status" method="POST">
+        <input type="hidden" name="orderId" value="<%= order._id %>">
+ 
+        <select name="status" class="status-select">
+          <option value="pending" <%= order.status==="pending"?"selected":"" %>>Pending</option>
+          <option value="shipped" <%= order.status==="shipped"?"selected":"" %>>Shipped</option>
+          <option value="out for delivery" <%= order.status==="out for delivery"?"selected":"" %>>Out for Delivery</option>
+          <option value="delivered" <%= order.status==="delivered"?"selected":"" %>>Delivered</option>
+          <option value="cancelled" <%= order.status==="cancelled"?"selected":"" %>>Cancelled</option>
+        </select>
+
+        <button class="btn">Update Status</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Address -->
+  <div class="card" style="margin-top:20px;">
+    <h4>Shipping Address</h4>
+    <p>
+      <%= order.shipping_address.house %>, <br>
+      <%= order.shipping_address.streetName %>, <br>
+      <%= order.shipping_address.city %>, <%= order.shipping_address.state %> <br>
+      <%= order.shipping_address.pincode %>
+    </p>
+  </div>
+
+  <!-- Order Items -->
+  <div class="card" style="margin-top:20px;">
+    <h4>Order Items</h4>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.orderItems.forEach(item => { %>
+          <tr>
+            <td><%= item.product?.name || "Product deleted" %></td>
+            <td><%= item.quantity %></td>
+            <td>₹<%= item.unitPrice %></td>
+            <td><%= item.status %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="total-box">
+      <p>Subtotal: ₹<%= order.orderSummary.subTotal %></p>
+      <p>Discount: ₹<%= order.orderSummary.discount %></p>
+      <h3>Total: ₹<%= order.orderSummary.total %></h3>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

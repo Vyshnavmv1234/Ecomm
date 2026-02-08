@@ -51,6 +51,9 @@ router.post("/add-category",uploadCategory.single("image"),categoryController.po
 //ORDER MANAGEMENT
 
 router.get("/order",adminAuth,orderController.order)
+router.get("/editOrder/:id",adminAuth,orderController.editOrder)
+router.post("/update-status",adminAuth,orderController.updateStatus)
+
 
 
 export default router     

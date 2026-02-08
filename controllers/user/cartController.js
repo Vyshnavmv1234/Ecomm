@@ -28,7 +28,7 @@ const loadAddToCart = async(req,res)=>{
         defaultAddress: userAddress,
         emptyMessage: "Your cart is empty "
       })
-    }
+    }  
     
     return res.render("user/cart",{
       user: userData,

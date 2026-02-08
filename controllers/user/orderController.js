@@ -161,5 +161,33 @@ const cancelOrder = async(req,res)=>{
     console.error("error cancelling order",error)
   }
 } 
+const orderHistory = async (req,res)=>{
+  try {
 
-export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder}
+    const userData = await User.findById(req.session.user)
+    const limit = 3              
+    const page = parseInt(req.query.page) || 1
+    const skip = (page - 1) * limit
+
+    const totalOrders = await Order.countDocuments()
+
+    const orderDetails = await Order.find().populate("orderItems.product")
+    .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+
+    const totalPages = Math.ceil(totalOrders / limit)
+
+    return res.render("user/orderHistory",{
+      user:userData,
+      orders:orderDetails,
+      currentPage: page,
+      totalPages
+    })
+    
+  } catch (error) {
+    console.error("orderHistory error",error)
+  }
+}
+
+export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder,orderHistory}

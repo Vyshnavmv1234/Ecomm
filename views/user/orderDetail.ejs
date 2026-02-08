@@ -235,8 +235,9 @@
     <div>
       <p><strong><%= orderId %></strong></p>
       <p>Order Placed on <%= order.createdAt %></p>
+      <p>Order Status: <%= order.status %></p>
     </div>
-    <h2>₹<%= order.order_total %></h2>
+    <h2>₹<%= order.orderSummary.total %></h2>
   </div>
 
   <!-- Timeline -->
@@ -315,7 +316,9 @@
           <span>₹<%= order.orderSummary.total %></span>
         </div>
 
+        <a href="/user/order/<%= order._id %>/invoice" class="btn">
         <button class="invoice-btn">⬇ Download Invoice</button>
+        </a>
       </div>
 
     </div>

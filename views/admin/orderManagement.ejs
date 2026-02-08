@@ -3,6 +3,7 @@
 
   <!-- SIDEBAR -->
   <%- include("../../views/partials/admin/sidebar") %>
+  <title>WestLane/Orders</title>
   <style>
     * {
       margin: 0;
@@ -10,6 +11,77 @@
       box-sizing: border-box;
       font-family: "Segoe UI", sans-serif;
     }
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 0;
+}
+/* ===== ORDER SEARCH ===== */
+.order-search {
+  margin-left: 210px;
+  margin-bottom: 15px;
+  width: 350px;
+  position: relative;
+}
+
+.order-search input {
+  width: 100%;
+  padding: 10px 40px 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+  outline: none;
+}
+
+.order-search input:focus {
+  border-color: #4f46e5;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #888;
+}
+
+
+.page-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 14px;
+  color: #374151;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background: #eef2ff;
+  border-color: #b9a4a4;
+  color: #b9a4a4;
+}
+
+.page-btn.active {
+  background: #b9a4a4;
+  border-color: #b9a4a4;
+  color: #fff;
+  font-weight: 600;
+}
+
+.page-btn.arrow {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
 
     body {
       background: #f6f7fb;
@@ -27,7 +99,7 @@
     .filters {
       display: flex;
       gap: 12px;
-      margin-left: 150px;
+      margin-left: 210px;
       margin-bottom: 20px;
     }
 
@@ -142,18 +214,56 @@
   <!-- MAIN -->
   <main class="main">
 
-    <div class="header">
-      <h2>Orders</h2>
-      <button class="add-btn">+ Add Order</button>
+    <div style="margin-bottom: 10px; margin-top: 50px; margin-left: 210px;" class="header">
+      <h2>ORDERS</h2>
     </div>
 
-    <!-- FILTERS -->
-    <div class="filters">
-      <button class="filter-btn active">All</button>
-      <button class="filter-btn">Processing</button>
-      <button class="filter-btn">Shipped</button>
-      <button class="filter-btn">Delivered</button>
-    </div>
+    <!-- SEARCH BAR -->
+<form method="get" action="/admin/order">
+  <div class="order-search">
+  <input
+    type="text"
+    name="search"
+    id="orderSearch"
+    value="<%=search||''%>"
+    placeholder="Search..."
+  />
+  <span class="search-icon">🔍</span>
+</div>
+</form>
+
+
+   <div class="filters">
+  <a href="/admin/order"
+     class="filter-btn <%= !selectedStatus ? 'active' : '' %>">
+     All
+  </a>
+
+  <a href="/admin/order?status=processing"
+     class="filter-btn <%= selectedStatus === 'processing' ? 'active' : '' %>">
+     Processing
+  </a>
+
+  <a href="/admin/order?status=shipped"
+     class="filter-btn <%= selectedStatus === 'shipped' ? 'active' : '' %>">
+     Shipped
+  </a>
+
+  <a href="/admin/order?status=delivered"
+     class="filter-btn <%= selectedStatus === 'delivered' ? 'active' : '' %>">
+     Delivered
+  </a>
+
+  <a href="/admin/order?status=cancelled"
+     class="filter-btn <%= selectedStatus === 'cancelled' ? 'active' : '' %>">
+     Cancelled
+  </a>
+  <a href="/admin/order?status=pending"
+     class="filter-btn <%= selectedStatus === 'pending' ? 'active' : '' %>">
+     Pending
+  </a>
+</div>
+
 
     <!-- TABLE -->
     <div class="table-wrapper">
@@ -171,38 +281,89 @@
           </tr>
         </thead>
 
-        <tbody>
-          <tr>
-            <td>#302012</td>
-            <td>Black Ultron <br><small>+3 Products</small></td>
-            <td>29 Dec 2025</td>
-            <td>Josh Wisley</td>
-            <td>₹59,000</td>
-            <td><span class="badge payment-online">Online</span></td>
-            <td><span class="badge status-processing">Processing</span></td>
-            <td class="actions">
-              <button class="action-btn action-view">👁</button>
-              <button class="action-btn action-edit">✏</button>
-              <button class="action-btn action-delete">🗑</button>
-            </td>
-          </tr>
+    <tbody>
+  <% orders.forEach(order => { %>
+    <tr>
+      <!-- Order ID -->
+      <td><%= order._id.toString() %></td>
 
-          <tr>
-            <td>#302013</td>
-            <td>Black Ultron</td>
-            <td>29 Dec 2025</td>
-            <td>Josh Wisley</td>
-            <td>₹59,000</td>
-            <td><span class="badge payment-cod">COD</span></td>
-            <td><span class="badge status-delivered">Delivered</span></td>
-            <td class="actions">
-              <button class="action-btn action-view">👁</button>
-              <button class="action-btn action-edit">✏</button>
-              <button class="action-btn action-delete">🗑</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Products (ALL products in the order) -->
+      <td>
+        <% order.orderItems.forEach(item => { %>
+          <div>
+            <%= item.product ? item.product.name : "Product deleted" %>
+            × <%= item.quantity %>
+
+            <% if (item.status === "cancelled") { %>
+              <span style="color:red;">(Cancelled)</span>
+            <% } %>
+          </div>
+        <% }) %>
+      </td>
+
+      <!-- Order Date -->
+      <td><%= order.createdAt.toDateString() %></td>
+
+      <!-- Customer Name -->
+      <td><%= order.shipping_address.name %></td>
+
+      <!-- Total Amount -->
+      <td>₹<%= order.orderSummary.total %></td>
+
+      <!-- Payment Method -->
+      <td>
+        <span class="badge payment-<%= (order.paymentMethod || "cod").toLowerCase() %>">
+          <%= order.paymentMethod || "COD" %>
+        </span>
+      </td>
+
+      <!-- Order Status -->
+      <td>
+        <span class="badge status-<%= order.status.toLowerCase() %>">
+          <%= order.status %>
+        </span>
+      </td>
+
+      <!-- Actions -->
+      <td class="actions">
+        <a href="/admin/editOrder/<%= order._id %>" class="action-btn action-edit">✏</a>
+       
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+  </table>
+<div class="pagination">
+
+  <!-- PREV -->
+  <% if (currentPage > 1) { %>
+    <a class="page-btn"
+       href="?page=<%= currentPage - 1 %>&status=<%= selectedStatus %>&search=<%= search %>">
+       ←
+    </a>
+  <% } %>
+
+  <!-- PAGE NUMBERS -->
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a
+      class="page-btn <%= currentPage === i ? 'active' : '' %>"
+      href="?page=<%= i %>&status=<%= selectedStatus %>&search=<%= search %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <!-- NEXT -->
+  <% if (currentPage < totalPages) { %>
+    <a class="page-btn"
+       href="?page=<%= currentPage + 1 %>&status=<%= selectedStatus %>&search=<%= search %>">
+       →
+    </a>
+  <% } %>
+
+</div>
+
+
+
     </div>
 
   </main>
