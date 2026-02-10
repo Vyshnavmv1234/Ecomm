@@ -2,6 +2,7 @@ import Address from "../../models/addressSchema.js"
 import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
+import Category from "../../models/categorySchema.js"
 
 const loadCheckout = async (req,res)=>{
   try {
@@ -12,6 +13,10 @@ const loadCheckout = async (req,res)=>{
     const cart = await Cart.findOne({userId}).populate("items.productId")
 
     const orderSummary = calculateTotal(cart)
+
+    if (!cart || cart.items.length === 0) {
+      return res.redirect("/user/cart");
+    }
 
     if(orderSummary.grandTotal>0){
       return res.render("user/checkout",{
@@ -36,6 +41,36 @@ const postCheckout = async (req,res)=>{
   try {
     const userId = req.session.user
     const cart = await Cart.findOne({userId})
+    .populate({
+      path: "items.productId",
+     populate: {
+      path: "category"
+  }
+})
+
+
+    const blockedItem = cart.items.find(item => item.productId.isBlocked);
+
+    if (blockedItem) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"One or more items in your cart are unavailable"})
+    }
+    const blockedCategoryItem = cart.items.find(item=> item.productId.category?.isBlocked)
+
+    if(blockedCategoryItem){
+      return res.status(STATUS_CODES.FORBIDDEN).json({success:false,message:"One or more items category is unavailable"})
+    }
+
+    const outOfStockItem = cart.items.find(item => {
+      const variant = item.productId.variants.find(
+        v => v._id.toString() === item.variantId.toString()
+      );
+
+      return !variant || variant.stock < item.quantity;
+    });
+
+    if (outOfStockItem) {
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"One or more item is out of stock"})
+    }
 
     return res.status(STATUS_CODES.OK).json({
       success:true

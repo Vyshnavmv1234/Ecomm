@@ -35,6 +35,15 @@ const orderSchema = new Schema({
     status: {
       type: String,
       default: "placed", 
+    },
+    returnRequested: {
+      type: Boolean,
+      default: false
+    },
+    returnReason: String,
+    returnStatus: {
+      type: String,
+      enum: ["requested", "approved", "rejected"],
     }
   }],
   orderSummary: {
@@ -68,6 +77,15 @@ const orderSchema = new Schema({
     required: true,
     enum: ["COD","pending","processing","shipped","delivered","cancelled","return request","returned"]
   },
+  returnRequested: {
+      type: Boolean,
+      default: false
+    },
+    returnReason: String,
+    returnStatus: {
+      type: String,
+      enum: ["requested", "approved", "rejected"],
+    },
   createdAt: {
     type: Date,
     default: Date.now,

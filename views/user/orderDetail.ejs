@@ -12,6 +12,65 @@
     background: #f6f6f6;
   }
 
+  .return-btn {
+  padding: 8px 16px;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background: #fff;
+  width: 400px;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+}
+
+.modal-content textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  resize: none;
+  margin-bottom: 15px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+
   .order-container {
     max-width: 1200px;
     margin: 40px auto 80px;
@@ -320,6 +379,37 @@
         <button class="invoice-btn">⬇ Download Invoice</button>
         </a>
       </div>
+      <% if (order.status === "delivered" && !order.returnRequested) { %>
+
+  <!-- Return Button -->
+  <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
+    Return
+  </button>
+
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReturnModal()">&times;</span>
+
+      <h3>Request Return</h3>
+
+      <form action="/user/request-return" method="POST">
+        <input type="hidden" name="orderId" id="modalOrderId">
+
+        <textarea
+          name="reason"
+          required
+          placeholder="Please tell us the reason for return..."
+        ></textarea>
+
+        <button type="submit" class="submit-btn">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+<% } %>
+
+
 
     </div>
   </div>
@@ -363,6 +453,22 @@
       window.location.reload()
     }
   }
+  
+  function openReturnModal(orderId) {
+    document.getElementById("modalOrderId").value = orderId;
+    document.getElementById("returnModal").style.display = "block";
+  }
+
+  function closeReturnModal() {
+    document.getElementById("returnModal").style.display = "none";
+  }
+
+  window.onclick = function (event) {
+    const modal = document.getElementById("returnModal");
+    if (event.target === modal) {
+      closeReturnModal();
+    }
+  };
 
 </script>
 

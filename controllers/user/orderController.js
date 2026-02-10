@@ -36,7 +36,7 @@ const placeOrder = async (req,res)=>{
     const defaultAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
 
     const orderSummary = calculateTotal(cart)
-
+    
     const order = await Order.create({
       userId,
       orderItems: cart.items.map(item=>({ 
@@ -190,4 +190,23 @@ const orderHistory = async (req,res)=>{
   }
 }
 
-export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder,orderHistory}
+const requestReturn = async (req, res) => {
+  try {
+    const { orderId, reason } = req.body
+
+    const order = await Order.findById(orderId)
+
+    order.returnRequested = true
+    order.returnReason = reason
+    order.returnStatus = "requested"
+
+    await order.save()
+    res.redirect(`/user/orderDetail/${orderId}`)
+
+  } catch (error) {
+    console.error("Return request error", error)
+    res.redirect("/user/pageNotFound")
+  }
+}
+
+export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder,orderHistory,requestReturn}

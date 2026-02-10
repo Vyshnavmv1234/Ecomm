@@ -357,14 +357,18 @@
 
       const data = await res.json()
 
-      if (!res.ok) {
+      if(data.status === 403){
+        showToast(data.message, "error")
+        return 
+      }
+
+      if (!res.ok && !data.success) {
         showToast(data.message, "error")
         return
       }
       if(res.ok && data.success){
         window.location.href = "/user/checkout"
       }
-
     }
 
 

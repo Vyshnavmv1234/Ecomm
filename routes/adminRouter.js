@@ -53,7 +53,7 @@ router.post("/add-category",uploadCategory.single("image"),categoryController.po
 router.get("/order",adminAuth,orderController.order)
 router.get("/editOrder/:id",adminAuth,orderController.editOrder)
 router.post("/update-status",adminAuth,orderController.updateStatus)
-
+router.post("/handle-return", orderController.handleReturn);
 
 
 export default router     

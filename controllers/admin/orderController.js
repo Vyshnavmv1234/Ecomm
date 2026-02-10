@@ -23,6 +23,11 @@ const order = async (req,res)=>{
     }
     
     const totalOrders = await Order.countDocuments(query)
+
+     const returnOrders = await Order.find({
+      returnRequested: true,
+      returnStatus: "requested"
+    });
     
     const ordersData = await Order.find(query)
       .populate("orderItems.product")
@@ -38,6 +43,7 @@ const order = async (req,res)=>{
       currentPage: page,
       totalPages,
       search,
+      returnOrders,
       selectedStatus: status
     })
     
@@ -87,4 +93,29 @@ const updateStatus = async(req,res)=>{
   }
 }
 
-export default {order,editOrder,updateStatus}
+const handleReturn = async (req, res) => {
+  try {
+    const { orderId, action } = req.body;
+
+    if (action === "approve") {
+      await Order.findByIdAndUpdate(orderId, {
+        returnStatus: "approved",
+        status: "returned"
+      });
+    }
+
+    if (action === "reject") {
+      await Order.findByIdAndUpdate(orderId, {
+        returnStatus: "rejected",
+        returnRequested: false
+      });
+    }
+
+    res.redirect("/admin/order");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+export default {order,editOrder,updateStatus,handleReturn}

@@ -199,6 +199,78 @@
       cursor: pointer;
       font-size: 16px;
     }
+    .return-requests-btn {
+  padding: 8px 14px;
+  background: #af8888;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 5% auto;
+  width: 70%;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.return-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.return-table th,
+.return-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.approve-btn {
+  background: #28a745;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+}
+
+.reject-btn {
+  background: #dc3545;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.pending { background: #ffc107; }
+.success { background: #28a745; color: white; }
+.danger { background: #dc3545; color: white; }
+
 
     .action-view { color: #2563eb; }
     .action-edit { color: #16a34a; }
@@ -215,8 +287,28 @@
   <main class="main">
 
     <div style="margin-bottom: 10px; margin-top: 50px; margin-left: 210px;" class="header">
-      <h2>ORDERS</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+  <h2>ORDERS</h2>
+
+  <button class="return-requests-btn" onclick="openReturnModal()">
+    Return Requests
+  </button>
+</div>
+
     </div>
+
+    <td>
+  <% if (orders.returnStatus === "requested") { %>
+    <span class="badge pending">Return Requested</span>
+  <% } else if (orders.returnStatus === "approved") { %>
+    <span class="badge success">Returned</span>
+  <% } else if (orders.returnStatus === "rejected") { %>
+    <span class="badge danger">Return Rejected</span>
+  <% } else { %>
+    <%= orders.status %>
+  <% } %>
+</td>
+
 
     <!-- SEARCH BAR -->
 <form method="get" action="/admin/order">
@@ -362,6 +454,50 @@
 
 </div>
 
+<div id="returnModal" class="modal">
+  <div class="modal-content large">
+    <span class="close" onclick="closeReturnModal()">&times;</span>
+
+    <h3>Return Requests</h3>
+
+    <% if (returnOrders.length === 0) { %>
+      <p>No return requests found.</p>
+    <% } else { %>
+      <table class="return-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Reason</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% returnOrders.forEach(order => { %>
+            <tr>
+              <td><%= order._id %></td>
+              <td><%= order.userId.name %></td>
+              <td><%= order.returnReason %></td>
+              <td>
+                <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
+                  <input type="hidden" name="orderId" value="<%= order._id %>">
+
+                  <button class="approve-btn" name="action" value="approve">
+                    Approve
+                  </button>
+
+                  <button class="reject-btn" name="action" value="reject">
+                    Reject
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
 
 
     </div>
@@ -370,3 +506,17 @@
 
 </body>
 </html>
+<script>
+  function openReturnModal() {
+    document.getElementById("returnModal").style.display = "block";
+  }
+
+  function closeReturnModal() {
+    document.getElementById("returnModal").style.display = "none";
+  }
+
+  window.onclick = function (e) {
+    const modal = document.getElementById("returnModal");
+    if (e.target === modal) closeReturnModal();
+  };
+</script>
