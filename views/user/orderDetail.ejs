@@ -1,0 +1,481 @@
+<%- include("../../views/partials/user/header") %>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  body {
+    background: #f6f6f6;
+  }
+
+  .return-btn {
+  padding: 8px 16px;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background: #fff;
+  width: 400px;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+}
+
+.modal-content textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  resize: none;
+  margin-bottom: 15px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+
+  .order-container {
+    max-width: 1200px;
+    margin: 40px auto 80px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 30px;
+  }
+
+  /* Header */
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+  }
+
+  .order-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .order-header a {
+    font-size: 14px;
+    color: #ff4d4f;
+    text-decoration: none;
+  }
+
+  /* Summary */
+  .order-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 25px;
+  }
+
+  .order-summary p {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .order-summary h2 {
+    font-size: 22px;
+  }
+
+  /* Timeline */
+  .timeline {
+    margin: 30px 0 40px;
+  }
+
+  .progress {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .progress::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #e0e0e0;
+  }
+
+  .step {
+    text-align: center;
+    width: 25%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step span {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: #ff8a3d;
+    border-radius: 50%;
+    margin-bottom: 6px;
+  }
+
+  .step p {
+    font-size: 13px;
+    color: #555;
+  }
+
+  /* ===== MAIN GRID ===== */
+  .order-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  /* ===== PRODUCTS (LEFT) ===== */
+  .product-section h4 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .product-row {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding: 20px 0;
+  }
+
+  .product-row img {
+    width: 80px;
+    margin-right: 20px;
+  }
+
+  .product-info {
+    flex: 1;
+  }
+
+  .product-info small {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .product-info p {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .product-qty,
+  .product-price {
+    width: 120px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .stat{
+    width: 120px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  /* ===== RIGHT PANEL ===== */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .address-section,
+  .price-details {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
+  .address-section h4,
+  .price-details h4 {
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+
+  .address-box {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  /* Price */
+  .price-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .price-row.total {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .discount {
+    color: #16a34a;
+  }
+
+  .price-details hr {
+    border: none;
+    border-top: 1px dashed #ddd;
+    margin: 12px 0;
+  }
+
+  .invoice-btn {
+    margin-top: 10px;
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+  }
+
+</style>
+
+<div class="order-container">
+
+  <!-- Header -->
+  <div class="order-header">
+    <h3>← ORDER DETAILS</h3>
+    <a > <button onclick="cancelOrder('<%=orderId%>')">Cancel Order</button></a>
+  </div>
+
+  <!-- Summary -->
+  <div class="order-summary">
+    <div>
+      <p><strong><%= orderId %></strong></p>
+      <p>Order Placed on:<b> <%= order.formattedDate%></b></p>
+      <p>Order Status: <b><%= order.status %></b> </p>
+    </div>
+    <h2>₹<%= order.orderSummary.total %></h2>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+    <div class="progress">
+      <div class="step"><span></span><p>Order Placed</p></div>
+      <div class="step"><span></span><p>Packaging</p></div>
+      <div class="step"><span></span><p>On The Road</p></div>
+      <div class="step"><span></span><p>Delivered</p></div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="order-main-grid">
+
+    <!-- LEFT: PRODUCTS -->
+    <div class="product-section">
+      <h4>Product</h4>
+
+      <% order.orderItems.forEach(item => { %>
+        <div class="product-row">
+          <img src="<%= item.product.images[0].url %>" alt="">
+          <div class="product-info">
+            <small><%= item.product.title %></small>
+            <p><%= item.product.name %></p>
+          </div>
+          <div class="product-qty">x<%= item.quantity %></div>
+          <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
+          <%if(item.status ==="placed"&&order.status !=="delivered"){%>
+            <div class="product-price"><button onclick="cancelProduct('<%=item._id%>','<%=orderId%>')" >Cancel</button></div>
+          <%}else{%>
+            <%if(order.status !== "delivered"){%>
+              <div class="stat"><button style="color: red;">Cancelled</button></div>
+           <% }%>
+          <%}%>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- RIGHT: ADDRESS + PRICE -->
+    <div class="right-panel">
+
+      <div class="address-section">
+        <h4>Address</h4>
+        <div class="address-box">
+          <strong><%= order.shipping_address.name %></strong><br>
+          <%= order.shipping_address.house %>,<br>
+          <%= order.shipping_address.streetName %><br>
+          <%= order.shipping_address.city %>,<br>
+          <%= order.shipping_address.state %> – <%= order.shipping_address.pincode %><br><br>
+          Phone: <%= order.shipping_address.phone %><br>
+          Email: <%= order.shipping_address.email || "N/A" %>
+        </div>
+      </div>
+
+      <div class="price-details">
+        <h4>Price Details</h4>
+
+        <div class="price-row">
+          <span>Sub-Total</span>
+          <span>₹<%=order.orderSummary.subTotal %></span>
+        </div>
+
+        <div class="price-row">
+          <span>Discount</span>
+          <span class="discount">-₹<%=order.orderSummary.discount || 0 %></span>
+        </div>
+        <div class="price-row">
+          <span>GST</span>
+          <span >+₹<%=order.orderSummary.GST || 0 %></span>
+        </div>
+
+        <div class="price-row">
+          <span>Shipping</span>
+          <span>Free</span>
+        </div>
+
+        <hr>
+
+        <div class="price-row total">
+          <span>Total amount</span>
+          <span>₹<%= order.orderSummary.total %></span>
+        </div>
+
+        <a href="/user/order/<%= order._id %>/invoice" class="btn">
+        <button class="invoice-btn">⬇ Download Invoice</button>
+        </a>
+      </div>
+      <% if (order.status === "delivered" && !order.returnRequested) { %>
+
+  <!-- Return Button -->
+  <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
+    Return
+  </button>
+
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReturnModal()">&times;</span>
+
+      <h3>Request Return</h3>
+
+      <form action="/user/request-return" method="POST">
+        <input type="hidden" name="orderId" id="modalOrderId">
+
+        <textarea
+          name="reason"
+          required
+          placeholder="Please tell us the reason for return..."
+        ></textarea>
+
+        <button type="submit" class="submit-btn">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+<% } %>
+
+
+
+    </div>
+  </div>
+
+</div>
+<script>
+
+  async function cancelProduct(itemId,orderId) {
+
+    const isConfirm = confirm("Do you want to cancel the order?")
+    if(!isConfirm){
+      return 
+    }
+
+    const res = await fetch("/user/cancelProduct",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId, orderId})
+    })
+    const data = await res.json()
+
+    if(data.success && res.ok){
+      window.location.reload()
+    }
+  }
+  async function cancelOrder(orderId) {
+
+    const isConfirm = confirm("Do you want to cancel the order?")
+    if(!isConfirm){
+      return 
+    }
+
+    const res = await fetch("/user/cancelOrder",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({orderId})
+    })
+    const data = await res.json()
+
+    if(data.success && res.ok){
+      window.location.reload()
+    }
+  }
+
+  function openReturnModal(orderId) {
+    document.getElementById("modalOrderId").value = orderId;
+    document.getElementById("returnModal").style.display = "block";
+  }
+
+  function closeReturnModal() {
+    document.getElementById("returnModal").style.display = "none";
+  }
+
+  window.onclick = function (event) {
+    const modal = document.getElementById("returnModal");
+    if (event.target === modal) {
+      closeReturnModal();
+    }
+  };
+
+</script>
+
+<%- include("../../views/partials/user/footer") %>

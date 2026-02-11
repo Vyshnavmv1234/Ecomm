@@ -10,6 +10,9 @@ import productController from "../controllers/user/productController.js";
 import cartControlller from "../controllers/user/cartController.js"
 import wishlistController from "../controllers/user/wishlistController.js"
 import checkoutController from "../controllers/user/checkoutController.js"
+import orderController from "../controllers/user/orderController.js"
+import invoiceController from "../controllers/user/invoiceController.js"
+import order from "../models/orderSchema.js";
 
 const router = express.Router()
 
@@ -86,6 +89,21 @@ router.delete("/remove/wishlist",userAuth,wishlistController.deleteWishlist)
 //CHECKOUT
 
 router.get("/checkout",userAuth,checkoutController.loadCheckout)
+router.post("/checkout",userAuth,checkoutController.postCheckout)
+
+//ORDERS
+
+router.get("/order/:id",userAuth,orderController.orderSuccess)
+router.post("/place-order",userAuth,orderController.placeOrder)
+router.get("/orderDetail/:id",userAuth,orderController.orderDetail)
+router.post("/cancelProduct",userAuth,orderController.cancelProduct)
+router.post("/cancelOrder",userAuth,orderController.cancelOrder)
+router.get("/order/:orderId/invoice",userAuth,invoiceController.generateInvoice)
+router.get("/ordersHistory",userAuth,orderController.orderHistory)
+router.post("/request-return",userAuth,orderController.requestReturn)
+
+
+
 
 
 export default router 

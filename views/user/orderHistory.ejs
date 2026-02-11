@@ -1,0 +1,256 @@
+<%- include("../../views/partials/user/header") %>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f7f7f7;
+      color: #333;
+    }
+
+    /* ===== HEADER ===== */
+    .topbar {
+      background: #f1efee;
+      padding: 18px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .top-icons {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    /* ===== SEARCH ===== */
+    .search-bar {
+      margin: 30px auto;
+      max-width: 800px;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 14px 45px 14px 18px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .search-bar span {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #777;
+    }
+
+    /* ===== LAYOUT ===== */
+    .wrapper {
+      display: flex;
+      max-width: 1200px;
+      margin: auto;
+      gap: 40px;
+      padding-bottom: 50px;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 260px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      height: fit-content;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar li {
+      padding: 14px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .sidebar li.active {
+      background: #cfc0bc;
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* ===== ORDER HISTORY ===== */
+    .content {
+      flex: 1;
+    }
+
+    .order-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .order-header {
+      padding: 16px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #f6f6f6;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1fr;
+      color: #666;
+    }
+
+    .order-row {
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr 1.5fr 1fr;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    .order-row:last-child {
+      border-bottom: none;
+    }
+
+    .status {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .status.progress {
+      color: #ff7a00;
+    }
+
+    .status.delivered {
+      color: #00a651;
+    }
+
+    .action a {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 500;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 25px 0;
+    }
+
+    .page-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid #c8bcbc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #555;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .page-btn.active {
+      background: #cfc0bc;
+      color: #fff;
+      border-color: #cfc0bc;
+      font-weight: 600;
+    }
+
+    .page-btn:hover {
+      background: #eee;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <!-- MAIN -->
+  <div style="margin-top: 50px;" class="wrapper">
+
+<%- include("../../views/partials/user/sidebar") %>
+
+    
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="order-card">
+
+        <div class="order-header">
+          <div>PRODUCT NAME</div>
+          <div>STATUS</div>
+          <div>DATE</div>
+          <div>TOTAL</div>
+          <div>ACTION</div>
+        </div>
+
+        <% orders.forEach(order => { %>
+        <div class="order-row">
+          <div>
+            <%= order.orderItems[0]?.product?.name || "Product" %>
+          </div>
+
+          <div class="status <%= order.status === 'delivered' ? 'delivered' : 'progress' %>">
+            <%= order.status%>
+          </div>
+
+          <div>
+            <%= order.createdAt.toLocaleDateString() %>
+          </div>
+
+          <div>
+            ₹<%= order.orderSummary.total %> (<%= order.orderItems.length %> Items)
+          </div>
+
+          <div class="action">
+            <a href="/user/orderDetail/<%= order._id %>">View Details →</a>
+          </div>
+        </div>
+        <% }) %>
+
+        <!-- PAGINATION -->
+        <div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a href="?page=<%= currentPage - 1 %>" class="page-btn arrow">←</a>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a 
+      href="?page=<%= i %>" 
+      class="page-btn <%= currentPage === i ? 'active' : '' %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <% if (currentPage < totalPages) { %>
+    <a href="?page=<%= currentPage + 1 %>" class="page-btn arrow">→</a>
+  <% } %>
+</div>
+
+      </div>
+    </div>
+
+  </div>
+<%- include("../../views/partials/user/footer") %>

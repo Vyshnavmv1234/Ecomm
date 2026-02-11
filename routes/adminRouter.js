@@ -6,6 +6,7 @@ import productController from "../controllers/admin/productController.js"
 import categoryController from "../controllers/admin/categoryController.js"
 import { uploadProduct } from "../middlewares/multer.js"
 import { uploadCategory } from "../middlewares/multer.js"
+import orderController from "../controllers/admin/orderController.js"
 
 
 const router = express.Router()
@@ -46,5 +47,13 @@ router.patch("/category/block/:id",adminAuth,categoryController.blockCategory)
 router.patch("/category/unblock/:id",adminAuth,categoryController.unblockCategory)
 router.patch("/category/update/:id",adminAuth,uploadCategory.single("image"),categoryController.updateCategory)
 router.post("/add-category",uploadCategory.single("image"),categoryController.postAddCategory)
+
+//ORDER MANAGEMENT
+
+router.get("/order",adminAuth,orderController.order)
+router.get("/editOrder/:id",adminAuth,orderController.editOrder)
+router.post("/update-status",adminAuth,orderController.updateStatus)
+router.post("/handle-return", orderController.handleReturn);
+
 
 export default router     

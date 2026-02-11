@@ -14,8 +14,6 @@
       color: #222;
     }
 
-
-
     /* ---------- MAIN ---------- */
     main {
       padding: 60px;
@@ -154,7 +152,10 @@
     <div>
 
       <% if (cartItems.length === 0) { %>
-        <p>Your cart is empty</p>
+        <div style="margin-left: 550px; display: inline-block;">
+          <p>Your cart is empty</p>
+          <a href="/user/productList"><button>Shop now</button></a>
+        </div>
       <% } else { %>
 
         <% cartItems.forEach(item => { %>
@@ -196,7 +197,7 @@
             
 
             <span class="price" id="price-<%= item.productId.id %>-<%= item.variantId %>">
-            ₹<%= item.unitPrice*item.quantity%>
+            ₹<%= item.originalPrice*item.quantity%>
           </span>
 
 
@@ -213,7 +214,8 @@
       
 
       <!-- RIGHT -->
-      <div class="summary">
+     <% if(cartItems.length>0){%>
+        <div class="summary">
 
         <h3>CART TOTAL</h3>
 
@@ -237,10 +239,10 @@
           <span id="total">₹<%= total %></span>
         </div>
 
-        <a href="/user/checkout">
-          <button class="buy-btn">👜 BUY NOW</button>
-        </a>
+          <button onclick="moveToCheckout()" class="buy-btn">👜 BUY NOW</button>
+        
       </div>
+     <%}%>
 
     </div>
   </main>
@@ -252,6 +254,13 @@
 
     <!-- Toastify JS -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+      const defaultAddress = <%- JSON.stringify(defaultAddress || null) %>;
+      const subTotal = <%- JSON.stringify(subTotal || 0) %>;
+      const discount = <%- JSON.stringify(discount || 0) %>;
+      const total = <%- JSON.stringify(total || 0) %>;
+    </script>
 
   <script>
 
@@ -338,24 +347,29 @@
 
     }
 
-    // async function checkout() {  
+    async function moveToCheckout() {  
 
-    //   const res = await fetch("/user/checkout", {
-    //     method: "GET",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ productId, variantId, num })
-    //   })
+      const res = await fetch("/user/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({defaultAddress,subTotal,discount,total})
+      })
 
-    //   const data = await res.json()
+      const data = await res.json()
 
-    //   if (!res.ok) {
-    //     showToast(data.message, "error")
-    //     return
-    //   }
+      if(data.status === 403){
+        showToast(data.message, "error")
+        return 
+      }
 
-    //   document.getElementById(`qty-${productId}-${variantId}`).innerText =
-    //     data.quantity
-    // }
+      if (!res.ok && !data.success) {
+        showToast(data.message, "error")
+        return
+      }
+      if(res.ok && data.success){
+        window.location.href = "/user/checkout"
+      }
+    }
 
 
   </script>

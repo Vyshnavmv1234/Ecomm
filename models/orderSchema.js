@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
 const {Schema} = mongoose
-import { v4 as uuidv4 } from "uuid";
 
 const orderSchema = new Schema({
-  order_id: {
-    type: String,
-    default: ()=>uuidv4(),
-    unique: true
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
   },
   orderItems: [{
     
@@ -15,24 +14,64 @@ const orderSchema = new Schema({
       ref:"Product",
       required: true
     },
+    variant: {
+      type: Schema.Types.ObjectId,
+      required: true
+    },
     quantity: {
       type: Number,
       required: true
     },
-    price: {
+    unitPrice: {
       type: Number,
       default: 0,
       required: true
+    },
+    originalPrice: {
+      type: Number,
+      default: 0,
+      required: true
+    },
+    status: {
+      type: String,
+      default: "placed", 
+    },
+    returnRequested: {
+      type: Boolean,
+      default: false
+    },
+    returnReason: String,
+    returnStatus: {
+      type: String,
+      enum: ["requested", "approved", "rejected"],
     }
   }],
-  order_total: {
-    type: Number,
-    required: true
+  orderSummary: {
+    subTotal:{
+      type: Number,
+      required: true
+    },
+    discount:{
+      type: Number,
+      required: true
+    },
+    GST:{
+      type: Number,
+      required: true
+    },
+    total:{
+      type: Number,
+      required: true
+    }
   },
   shipping_address: {
-    type: Schema.Types.ObjectId,
-    ref: "Address",
-    required: true
+    name: String,
+    phone: String,
+    house: String,
+    streetName: String,
+    city: String,
+    state: String,
+    pincode: String
   },
   invoice_date: {
     type: Date
@@ -40,8 +79,17 @@ const orderSchema = new Schema({
   status: {
     type: String,
     required: true,
-    enum: ["pending","processing","shipped","delivered","cancelled","return request","returned"]
+    enum: ["COD","pending","processing","shipped","delivered","cancelled","return request","returned"]
   },
+  returnRequested: {
+      type: Boolean,
+      default: false
+    },
+    returnReason: String,
+    returnStatus: {
+      type: String,
+      enum: ["requested", "approved", "rejected"],
+    },
   createdAt: {
     type: Date,
     default: Date.now,

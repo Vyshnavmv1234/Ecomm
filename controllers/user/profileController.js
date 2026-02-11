@@ -552,20 +552,31 @@ const postAddAddress = async (req,res)=>{
     const user = req.session.user
     const userData = await User.findById(user)
 
-    const {name,phone,pincode,state,city,streetName} = req.body
+    const {name,phone,pincode,state,city,streetName,house} = req.body
     const userAddress = await Address.findOne({user_id:userData._id})
+
+    const addressData = {
+      name,
+      phone,
+      pincode,
+      state,
+      city,
+      streetName,
+      house,
+      isDefault: !userAddress || userAddress.address.length === 0
+    }
 
     if(!userAddress){
 
       const newAddress = new Address({
         
         user_id : userData._id,
-        address : [{name,phone,pincode,state,city,streetName}]
+        address : [addressData]
       })
       await newAddress.save()
  
     }else{
-      userAddress.address.push({name,phone,city,state,pincode,streetName})
+      userAddress.address.push(addressData)
       await userAddress.save()
     }
     res.redirect("/user/userAddress");

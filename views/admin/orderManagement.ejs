@@ -1,0 +1,522 @@
+  <!-- HEADER -->
+  <%- include("../../views/partials/admin/header") %>
+
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/admin/sidebar") %>
+  <title>WestLane/Orders</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 0;
+}
+/* ===== ORDER SEARCH ===== */
+.order-search {
+  margin-left: 210px;
+  margin-bottom: 15px;
+  width: 350px;
+  position: relative;
+}
+
+.order-search input {
+  width: 100%;
+  padding: 10px 40px 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+  outline: none;
+}
+
+.order-search input:focus {
+  border-color: #4f46e5;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #888;
+}
+
+
+.page-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 14px;
+  color: #374151;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background: #eef2ff;
+  border-color: #b9a4a4;
+  color: #b9a4a4;
+}
+
+.page-btn.active {
+  background: #b9a4a4;
+  border-color: #b9a4a4;
+  color: #fff;
+  font-weight: 600;
+}
+
+.page-btn.arrow {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+
+    body {
+      background: #f6f7fb;
+      display: flex;
+    }
+
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1;
+      padding: 30px 40px;
+    }
+
+    /* ===== FILTERS ===== */
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-left: 210px;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: #eef2ff;
+      color: #4f46e5;
+      border-color: #c7d2fe;
+      font-weight: 600;
+    }
+
+    /* ===== TABLE ===== */
+    .table-wrapper {
+      margin-left: 210px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #fafafa;
+      color: #777;
+      font-weight: 600;
+    }
+
+    tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:last-child {
+      border-bottom: none;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .payment-online {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .payment-cod {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-processing {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .status-delivered {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-shipped {
+      background: #ede9fe;
+      color: #5b21b6;
+    }
+
+    /* ===== ACTIONS ===== */
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .return-requests-btn {
+  padding: 8px 14px;
+  background: #af8888;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 5% auto;
+  width: 70%;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.return-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.return-table th,
+.return-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.approve-btn {
+  background: #28a745;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+}
+
+.reject-btn {
+  background: #dc3545;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.pending { background: #ffc107; }
+.success { background: #28a745; color: white; }
+.danger { background: #dc3545; color: white; }
+
+
+    .action-view { color: #2563eb; }
+    .action-edit { color: #16a34a; }
+    .action-delete { color: #dc2626; }
+
+  </style>
+</head>
+
+<body>
+
+
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div style="margin-bottom: 10px; margin-top: 50px; margin-left: 210px;" class="header">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+  <h2>ORDERS</h2>
+
+  <button class="return-requests-btn" onclick="openReturnModal()">
+    Return Requests
+  </button>
+</div>
+
+    </div>
+
+    <td>
+  <% if (orders.returnStatus === "requested") { %>
+    <span class="badge pending">Return Requested</span>
+  <% } else if (orders.returnStatus === "approved") { %>
+    <span class="badge success">Returned</span>
+  <% } else if (orders.returnStatus === "rejected") { %>
+    <span class="badge danger">Return Rejected</span>
+  <% } else { %>
+    <%= orders.status %>
+  <% } %>
+</td>
+
+
+    <!-- SEARCH BAR -->
+<form method="get" action="/admin/order">
+  <div class="order-search">
+  <input
+    type="text"
+    name="search"
+    id="orderSearch"
+    value="<%=search||''%>"
+    placeholder="Search..."
+  />
+  <span class="search-icon">🔍</span>
+</div>
+</form>
+
+
+   <div class="filters">
+  <a href="/admin/order"
+     class="filter-btn <%= !selectedStatus ? 'active' : '' %>">
+     All
+  </a>
+
+  <a href="/admin/order?status=processing"
+     class="filter-btn <%= selectedStatus === 'processing' ? 'active' : '' %>">
+     Processing
+  </a>
+
+  <a href="/admin/order?status=shipped"
+     class="filter-btn <%= selectedStatus === 'shipped' ? 'active' : '' %>">
+     Shipped
+  </a>
+
+  <a href="/admin/order?status=delivered"
+     class="filter-btn <%= selectedStatus === 'delivered' ? 'active' : '' %>">
+     Delivered
+  </a>
+
+  <a href="/admin/order?status=cancelled"
+     class="filter-btn <%= selectedStatus === 'cancelled' ? 'active' : '' %>">
+     Cancelled
+  </a>
+  <a href="/admin/order?status=pending"
+     class="filter-btn <%= selectedStatus === 'pending' ? 'active' : '' %>">
+     Pending
+  </a>
+</div>
+
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Product</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+    <tbody>
+  <% orders.forEach(order => { %>
+    <tr>
+      <!-- Order ID -->
+      <td><%= order._id.toString() %></td>
+
+      <!-- Products (ALL products in the order) -->
+      <td>
+        <% order.orderItems.forEach(item => { %>
+          <div>
+            <%= item.product ? item.product.name : "Product deleted" %>
+            × <%= item.quantity %>
+
+            <% if (item.status === "cancelled") { %>
+              <span style="color:red;">(Cancelled)</span>
+            <% } %>
+          </div>
+        <% }) %>
+      </td>
+
+      <!-- Order Date -->
+      <td><%= order.createdAt.toDateString() %></td>
+
+      <!-- Customer Name -->
+      <td><%= order.shipping_address.name %></td>
+
+      <!-- Total Amount -->
+      <td>₹<%= order.orderSummary.total %></td>
+
+      <!-- Payment Method -->
+      <td>
+        <span class="badge payment-<%= (order.paymentMethod || "cod").toLowerCase() %>">
+          <%= order.paymentMethod || "COD" %>
+        </span>
+      </td>
+
+      <!-- Order Status -->
+      <td>
+        <span class="badge status-<%= order.status.toLowerCase() %>">
+          <%= order.status %>
+        </span>
+      </td>
+
+      <!-- Actions -->
+      <td class="actions">
+        <a href="/admin/editOrder/<%= order._id %>" class="action-btn action-edit">✏</a>
+       
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+  </table>
+<div class="pagination">
+
+  <!-- PREV -->
+  <% if (currentPage > 1) { %>
+    <a class="page-btn"
+       href="?page=<%= currentPage - 1 %>&status=<%= selectedStatus %>&search=<%= search %>">
+       ←
+    </a>
+  <% } %>
+
+  <!-- PAGE NUMBERS -->
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a
+      class="page-btn <%= currentPage === i ? 'active' : '' %>"
+      href="?page=<%= i %>&status=<%= selectedStatus %>&search=<%= search %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <!-- NEXT -->
+  <% if (currentPage < totalPages) { %>
+    <a class="page-btn"
+       href="?page=<%= currentPage + 1 %>&status=<%= selectedStatus %>&search=<%= search %>">
+       →
+    </a>
+  <% } %>
+
+</div>
+
+<div id="returnModal" class="modal">
+  <div class="modal-content large">
+    <span class="close" onclick="closeReturnModal()">&times;</span>
+
+    <h3>Return Requests</h3>
+
+    <% if (returnOrders.length === 0) { %>
+      <p>No return requests found.</p>
+    <% } else { %>
+      <table class="return-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Reason</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% returnOrders.forEach(order => { %>
+            <tr>
+              <td><%= order._id %></td>
+              <td><%= order.userId.name %></td>
+              <td><%= order.returnReason %></td>
+              <td>
+                <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
+                  <input type="hidden" name="orderId" value="<%= order._id %>">
+
+                  <button class="approve-btn" name="action" value="approve">
+                    Approve
+                  </button>
+
+                  <button class="reject-btn" name="action" value="reject">
+                    Reject
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+
+
+    </div>
+
+  </main>
+
+</body>
+</html>
+<script>
+  function openReturnModal() {
+    document.getElementById("returnModal").style.display = "block";
+  }
+
+  function closeReturnModal() {
+    document.getElementById("returnModal").style.display = "none";
+  }
+
+  window.onclick = function (e) {
+    const modal = document.getElementById("returnModal");
+    if (e.target === modal) closeReturnModal();
+  };
+</script>

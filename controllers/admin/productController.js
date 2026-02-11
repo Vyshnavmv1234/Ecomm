@@ -139,6 +139,8 @@ const postEditProduct = async (req, res) => {
     const { name, description, discount, title } = req.body;
     const variants = JSON.parse(req.body.variants || "[]");
 
+    console.log("hhhhhhhhhhhhhhh",variants)
+
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -157,7 +159,26 @@ const postEditProduct = async (req, res) => {
     if (description) product.description = description;
     if (discount) product.discount = discount;
     if (title) product.title = title;
-    if (variants.length) product.variants = variants;
+
+    if (variants.length) {
+
+    variants.forEach(updatedVariant => {
+    if (updatedVariant._id) {
+      
+      const existingVariant = product.variants.id(updatedVariant._id);
+
+      if (existingVariant) {
+        existingVariant.price = updatedVariant.price;
+        existingVariant.stock = updatedVariant.stock;
+        existingVariant.size = updatedVariant.size;
+      }
+    } else {
+      
+      product.variants.push(updatedVariant);
+    }
+
+  });
+}
 
     if (product.images.length < 3) {
       return res.status(400).json({
@@ -165,7 +186,6 @@ const postEditProduct = async (req, res) => {
         message: "Minimum 3 images are required"
       });
     }
-
     await product.save();
     return res.json({ success: true });
 
