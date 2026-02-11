@@ -12,7 +12,7 @@ const order = async (req,res)=>{
     const search = req.query.search || ""
     const status = req.query.status || ""
 
-    let query = {}
+    let query = {} 
 
     if (status) {
       query.status = status

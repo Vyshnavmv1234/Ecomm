@@ -119,6 +119,16 @@ const generateInvoice = async (req, res) => {
 
     y += rowGap
 
+        doc.text("GST", labelX, y)
+    doc.text(
+      `Rs. ${order.orderSummary.GST}`,
+      valueX,
+      y,
+      { width: valueWidth, align: "right" }
+    )
+
+    y += rowGap
+
     // Discount
     doc.text("Discount", labelX, y)
     doc.text(

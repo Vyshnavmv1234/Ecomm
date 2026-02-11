@@ -420,6 +420,9 @@ input[type="checkbox"] {
       <span>Shipping</span><span>Free</span>
     </div>
     <div class="summary-row">
+      <span>GST</span><span>+₹<%=gst%></span>
+    </div>
+    <div class="summary-row">
       <span>Discount</span><span>-₹<%=discount%></span>
     </div>
 
@@ -427,15 +430,13 @@ input[type="checkbox"] {
       ₹<%=total%>
     </div>
 
-    <button class="place-order" onclick="handlePlaceOrder()">
+    <button class="place-order" onclick="handlePlaceOrder('<%=gst%>','<%=total%>')">
       Place Order
     </button>
 
   </div>
 
 </div>
-
-
 <script>
 
   function showError(message) {
@@ -609,14 +610,32 @@ input[type="checkbox"] {
     return true;
   }
 
-  async function handlePlaceOrder() {
-    if (!validateCheckout()) return;
+async function handlePlaceOrder(gst,total) {
+  if (!validateCheckout()) return;
 
-      const res = await fetch("/user/place-order", {
+  const paymentSelected = document.querySelector('input[name="pay"]:checked');
+
+  const addressData = {
+    name: fields.name.value.trim(),
+    state: fields.state.value,
+    city: fields.city.value,
+    streetName: fields.streetName.value.trim(),
+    house: fields.address.value.trim(),
+    email: fields.email.value.trim(),
+    phone: fields.phone.value.trim(),
+    pincode: fields.pincode.value.trim()
+  };
+
+  try {
+    const res = await fetch("/user/place-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        paymentMethod: "COD"
+        paymentMethod: paymentSelected.value,
+        address: addressData,
+        gst,
+        total,
+        isDefaultUsed: checkbox.checked
       })
     });
 
@@ -626,12 +645,16 @@ input[type="checkbox"] {
       showToast(data.message, "error");
       return;
     }
-    if(res.ok && data.success){
-      const orderId = data.orderId
-      window.location.href = `/user/order/${orderId}`
+
+    if (res.ok && data.success) {
+      const orderId = data.orderId;
+      window.location.href = `/user/order/${orderId}`;
     }
-    
+
+  } catch (err) {
+    showToast("Something went wrong", "error");
   }
+}
 
 
 </script>

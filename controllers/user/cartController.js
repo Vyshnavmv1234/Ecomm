@@ -16,7 +16,6 @@ const loadAddToCart = async(req,res)=>{
     .populate("items.productId")
 
     const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
-    const cartTotal = calculateCartTotal(cart)
 
       if (!cart || cart.items.length === 0) {
       return res.render("user/cart", {
@@ -29,7 +28,7 @@ const loadAddToCart = async(req,res)=>{
         emptyMessage: "Your cart is empty "
       })
     }  
-    
+    const cartTotal = calculateCartTotal(cart)
     return res.render("user/cart",{
       user: userData,
       subTotal: cartTotal.subTotal,

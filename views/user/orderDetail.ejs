@@ -293,8 +293,8 @@
   <div class="order-summary">
     <div>
       <p><strong><%= orderId %></strong></p>
-      <p>Order Placed on <%= order.createdAt %></p>
-      <p>Order Status: <%= order.status %></p>
+      <p>Order Placed on:<b> <%= order.formattedDate%></b></p>
+      <p>Order Status: <b><%= order.status %></b> </p>
     </div>
     <h2>₹<%= order.orderSummary.total %></h2>
   </div>
@@ -325,10 +325,12 @@
           </div>
           <div class="product-qty">x<%= item.quantity %></div>
           <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
-          <%if(item.status ==="placed"){%>
+          <%if(item.status ==="placed"&&order.status !=="delivered"){%>
             <div class="product-price"><button onclick="cancelProduct('<%=item._id%>','<%=orderId%>')" >Cancel</button></div>
           <%}else{%>
-            <div class="stat"><button style="color: red;">Cancelled</button></div>
+            <%if(order.status !== "delivered"){%>
+              <div class="stat"><button style="color: red;">Cancelled</button></div>
+           <% }%>
           <%}%>
         </div>
       <% }) %>
@@ -361,6 +363,10 @@
         <div class="price-row">
           <span>Discount</span>
           <span class="discount">-₹<%=order.orderSummary.discount || 0 %></span>
+        </div>
+        <div class="price-row">
+          <span>GST</span>
+          <span >+₹<%=order.orderSummary.GST || 0 %></span>
         </div>
 
         <div class="price-row">
@@ -453,7 +459,7 @@
       window.location.reload()
     }
   }
-  
+
   function openReturnModal(orderId) {
     document.getElementById("modalOrderId").value = orderId;
     document.getElementById("returnModal").style.display = "block";

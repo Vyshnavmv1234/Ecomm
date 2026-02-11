@@ -13,6 +13,7 @@ const loadCheckout = async (req,res)=>{
     const cart = await Cart.findOne({userId}).populate("items.productId")
 
     const orderSummary = calculateTotal(cart)
+    console.log(orderSummary)
 
     if (!cart || cart.items.length === 0) {
       return res.redirect("/user/cart");
@@ -26,6 +27,7 @@ const loadCheckout = async (req,res)=>{
       allAddress:addresses?.address||[],
       subTotal:orderSummary.subTotal,
       discount:orderSummary.totalDiscount,
+      gst:orderSummary.gstAmount,
       total:orderSummary.grandTotal
     })
     }else{
@@ -47,8 +49,6 @@ const postCheckout = async (req,res)=>{
       path: "category"
   }
 })
-
-
     const blockedItem = cart.items.find(item => item.productId.isBlocked);
 
     if (blockedItem) {
@@ -91,12 +91,16 @@ const calculateTotal = (cart)=>{
       subTotal += item.originalPrice * item.quantity
       totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
+    const taxableAmount = subTotal - totalDiscount
+    const gstAmount = Math.round(taxableAmount * (5 / 100))
 
-    const grandTotal = subTotal -totalDiscount
+    const grandTotal = taxableAmount + gstAmount
+    
 
     return {
       subTotal,
       totalDiscount,
+      gstAmount,
       grandTotal
     }
 

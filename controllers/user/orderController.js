@@ -4,6 +4,8 @@ import Order from "../../models/orderSchema.js"
 import Product from "../../models/productSchema.js"
 import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
+import moment from "moment"
+
 
 const orderSuccess = async (req,res)=>{
   try {
@@ -30,13 +32,13 @@ const placeOrder = async (req,res)=>{
   try {
 
     const userId = req.session.user
-    const paymentMethod = req.body.paymentMethod
+    const { paymentMethod, address, isDefaultUsed ,gst,total} = req.body;
+
+    console.log(paymentMethod, address, isDefaultUsed,gst)
 
     const cart = await Cart.findOne({userId}).populate("items.productId")
-    const defaultAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
-
     const orderSummary = calculateTotal(cart)
-    
+
     const order = await Order.create({
       userId,
       orderItems: cart.items.map(item=>({ 
@@ -49,16 +51,17 @@ const placeOrder = async (req,res)=>{
       orderSummary:{
         subTotal:orderSummary.subTotal,
         discount:orderSummary.totalDiscount,
-        total:orderSummary.grandTotal
+        GST:gst,
+        total
       },
       shipping_address:{
-        name: defaultAddress.address[0].name,
-        city: defaultAddress.address[0].city,
-        state: defaultAddress.address[0].state,
-        pincode: defaultAddress.address[0].pincode,
-        house: defaultAddress.address[0].house,
-        streetName: defaultAddress.address[0].streetName,
-        phone: defaultAddress.address[0].phone
+        name: address.name,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+        house: address.house,
+        streetName: address.streetName,
+        phone: address.phone
       },
       status: paymentMethod === "COD" ? "pending" : "processing",
     })
@@ -88,7 +91,6 @@ const calculateTotal = (cart)=>{
     return {
       subTotal,
       totalDiscount,
-      grandTotal
     }
 
   } catch (error) {
@@ -103,6 +105,7 @@ const orderDetail = async (req,res)=>{
     const userData = await User.findById(req.session.user)
     const orderId = req.params.id
     const orderDetails = await Order.findOne({_id:orderId}).populate("orderItems.product")
+    orderDetails.formattedDate = moment(orderDetails.createdAt).format("DD MMM YYYY");
 
     return res.render("user/orderDetail",{
       user:userData,
