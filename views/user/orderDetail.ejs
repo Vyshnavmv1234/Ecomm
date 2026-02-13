@@ -286,7 +286,37 @@
   <!-- Header -->
   <div class="order-header">
     <h3>← ORDER DETAILS</h3>
+    <% if (order.status === "delivered" && !order.returnRequested) { %>
+
+  <!-- Return Button -->
+  <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
+    Return
+  </button>
+
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReturnModal()">&times;</span>
+
+      <h3>Request Return</h3>
+
+      <form action="/user/request-return" method="POST">
+        <input type="hidden" name="orderId" id="modalOrderId">
+
+        <textarea
+          name="reason"
+          required
+          placeholder="Please tell us the reason for return..."
+        ></textarea>
+
+        <button type="submit" class="submit-btn">Submit Request</button>
+      </form>
+    </div>
+  </div>
+
+<% } else { %>
     <a > <button onclick="cancelOrder('<%=orderId%>')">Cancel Order</button></a>
+    <%}%>
   </div>
 
   <!-- Summary -->
@@ -327,10 +357,35 @@
           <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
           <%if(item.status ==="placed"&&order.status !=="delivered"){%>
             <div class="product-price"><button onclick="cancelProduct('<%=item._id%>','<%=orderId%>')" >Cancel</button></div>
-          <%}else{%>
-            <%if(order.status !== "delivered"){%>
+          <%}else if(order.status !== "delivered"){%>
               <div class="stat"><button style="color: red;">Cancelled</button></div>
-           <% }%>
+           <% }else if(order.status === "delivered"){%>
+            
+            <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
+    Return
+  </button>
+
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReturnModal()">&times;</span>
+
+      <h3>Request Return</h3>
+
+      <form action="/user/request-return" method="POST">
+        <input type="hidden" name="orderId" id="modalOrderId">
+
+        <textarea
+          name="reason"
+          required
+          placeholder="Please tell us the reason for return..."
+        ></textarea>
+
+        <button type="submit" class="submit-btn">Submit Request</button>
+      </form>
+    </div>
+  </div>
+            
           <%}%>
         </div>
       <% }) %>
@@ -385,37 +440,7 @@
         <button class="invoice-btn">⬇ Download Invoice</button>
         </a>
       </div>
-      <% if (order.status === "delivered" && !order.returnRequested) { %>
-
-  <!-- Return Button -->
-  <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
-    Return
-  </button>
-
-  <!-- Return Modal -->
-  <div id="returnModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeReturnModal()">&times;</span>
-
-      <h3>Request Return</h3>
-
-      <form action="/user/request-return" method="POST">
-        <input type="hidden" name="orderId" id="modalOrderId">
-
-        <textarea
-          name="reason"
-          required
-          placeholder="Please tell us the reason for return..."
-        ></textarea>
-
-        <button type="submit" class="submit-btn">Submit Request</button>
-      </form>
-    </div>
-  </div>
-
-<% } %>
-
-
+      
 
     </div>
   </div>

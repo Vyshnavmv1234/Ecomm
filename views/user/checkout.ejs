@@ -55,6 +55,76 @@ body {
   font-size: 14px;
   color: #555;
 }
+/* Coupon Section */
+.coupon-section {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.coupon-input-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.coupon-section input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.coupon-section input:focus {
+  border-color: #000;
+}
+
+.coupon-section button {
+  padding: 10px 16px;
+  border: none;
+  background-color: #000;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.coupon-section button:hover {
+  background-color: #333;
+}
+
+#couponMessage {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+#couponMessage.success {
+  color: green;
+}
+
+#couponMessage.error {
+  color: red;
+}
+
+/* Smooth total update */
+.summary-total {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 15px;
+}
+
+/* Optional subtle card feel */
+.summary {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
 
 /* Button row */
 .modal-actions {
@@ -384,15 +454,18 @@ input[type="checkbox"] {
       <div class="payment-options">
         <div class="payment-box">
           💵<br>Cash on Delivery<br>
-          <input type="radio" name="pay">
+          <input type="radio" name="pay" value="COD">
+
         </div>
         <div class="payment-box">
           ⚡<br>Razorpay<br>
-          <input type="radio" name="pay">
+          <input type="radio" name="pay" value="RAZORPAY">
+
         </div>
         <div class="payment-box">
           💳<br>My Wallet<br>
-          <input type="radio" name="pay">
+         <input type="radio" name="pay" value="WALLET">
+
         </div>
       </div>
     </div>
@@ -422,6 +495,16 @@ input[type="checkbox"] {
     <div class="summary-row">
       <span>GST</span><span>+₹<%=gst%></span>
     </div>
+
+    <div class="coupon-section">
+    <div class="coupon-input-wrapper">
+      <input type="text" id="couponCode" placeholder="Enter coupon code">
+      <button onclick="applyCoupon()">Apply</button>
+    </div>
+    <p id="couponMessage"></p>
+  </div>
+
+
     <div class="summary-row">
       <span>Discount</span><span>-₹<%=discount%></span>
     </div>
@@ -437,6 +520,10 @@ input[type="checkbox"] {
   </div>
 
 </div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
 <script>
 
   function showError(message) {
@@ -610,10 +697,11 @@ input[type="checkbox"] {
     return true;
   }
 
-async function handlePlaceOrder(gst,total) {
+async function handlePlaceOrder(gst, total) {
   if (!validateCheckout()) return;
 
   const paymentSelected = document.querySelector('input[name="pay"]:checked');
+  const paymentMethod = paymentSelected.value;
 
   const addressData = {
     name: fields.name.value.trim(),
@@ -627,39 +715,107 @@ async function handlePlaceOrder(gst,total) {
   };
 
   try {
-    const res = await fetch("/user/place-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        paymentMethod: paymentSelected.value,
-        address: addressData,
-        gst,
-        total,
-        isDefaultUsed: checkbox.checked
-      })
-    });
 
-    const data = await res.json();
+    // ==============================
+    // 🟢 CASH ON DELIVERY FLOW
+    // ==============================
+    if (paymentMethod === "COD") {
 
-    if (!res.ok) {
-      showToast(data.message, "error");
+      const res = await fetch("/user/place-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentMethod: "COD",
+          address: addressData,
+          gst,
+          total,
+          isDefaultUsed: checkbox.checked
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.location.href = `/user/order/${data.orderId}`;
+      }
+
       return;
     }
 
-    if (res.ok && data.success) {
-      const orderId = data.orderId;
-      window.location.href = `/user/order/${orderId}`;
+    // ==============================
+    // 🔵 RAZORPAY FLOW
+    // ==============================
+    if (paymentMethod === "RAZORPAY") {
+
+      // 1️⃣ Create Razorpay order
+      const orderRes = await fetch("/user/create-razorpay-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total })
+      });
+
+      const orderData = await orderRes.json();
+
+      const options = {
+        key: "<%= process.env.RAZORPAY_KEY_ID %>",
+        amount: orderData.amount,
+        currency: "INR",
+        name: "Your Store",
+        description: "Order Payment",
+        order_id: orderData.id,
+
+        handler: async function (response) {
+
+          // 2️⃣ Verify payment
+          const verifyRes = await fetch("/user/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response)
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+
+            // 3️⃣ Now create actual order in DB
+            const finalOrder = await fetch("/user/place-order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                paymentMethod: "RAZORPAY",
+                paymentStatus: "Paid",
+                razorpayPaymentId: response.razorpay_payment_id,
+                address: addressData,
+                gst,
+                total,
+                isDefaultUsed: checkbox.checked
+              })
+            });
+
+            const finalData = await finalOrder.json();
+
+            if (finalData.success) {
+              window.location.href = `/user/order/${finalData.orderId}`;
+            }
+
+          } else {
+            showError("Payment verification failed");
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
     }
 
   } catch (err) {
-    showToast("Something went wrong", "error");
+    showError("Something went wrong");
   }
 }
 
 
+
 </script>
-
-
 
 <%- include("../../views/partials/user/footer") %>
 

@@ -102,6 +102,11 @@ router.get("/order/:orderId/invoice",userAuth,invoiceController.generateInvoice)
 router.get("/ordersHistory",userAuth,orderController.orderHistory)
 router.post("/request-return",userAuth,orderController.requestReturn)
 
+//PAYMENT
+
+router.post("/create-razorpay-order",userAuth,checkoutController.createRazorpayOrder);
+router.post("/verify-payment",userAuth,checkoutController.verifyPayment);
+
 
 
 

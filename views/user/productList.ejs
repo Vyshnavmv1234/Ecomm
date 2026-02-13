@@ -1,6 +1,32 @@
 <%- include("../../views/partials/user/header") %>
 <style>
 
+  .price-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.current-price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.original-price {
+  font-size: 14px;
+  color: #878787;
+  text-decoration: line-through;
+}
+
+.discount-percent {
+  font-size: 14px;
+  font-weight: 500;
+  color: #388e3c;
+}
+
+
   .filter-overlay {
   position: fixed;
   inset: 0;
@@ -257,19 +283,43 @@
        <span class="wishlist">♡</span>
 
        <a href="/user/productDetail?id=<%=product._id%>">
-        <div class="product-image"><img src="<%=product.images[0].url%>"></div>
-        
+        <div class="product-image"><img src="<%=product.images[0].url%>"></div>      
        </a>
 
        <div class="brand"><%=product.name%></div>
        <p class="title"><%=product.title%></p>
-       <div class="price">₹ <%=product.variants[0].price%></div>
+
+       <%
+  const originalPrice = product.variants[0].price; 
+  const discountPercent = product.discount || 0;
+
+  const sellingPrice = discountPercent > 0
+    ? Math.round(originalPrice - (originalPrice * discountPercent / 100))
+    : originalPrice;
+%>
+
+<div class="price-section">
+  <span class="current-price">
+    ₹ <%= sellingPrice.toLocaleString() %>
+  </span>
+
+  <% if(discountPercent > 0){ %>
+    <span class="original-price">
+      ₹ <%= originalPrice.toLocaleString() %>
+    </span>
+
+    <span class="discount-percent">
+      <%= discountPercent %>% off
+    </span>
+  <% } %>
+</div>
+
+       
        <div class="rating">★ 4.8 Ratings</div>
 
       </div>
       <%})%>
-   
-
+  
 </div>
      
     

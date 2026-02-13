@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 const {Schema}= mongoose
 
 const couponSchema = new Schema({
-  name: {
+  code: {
     type: String,
     required: true,
     unique: true
@@ -16,15 +16,22 @@ const couponSchema = new Schema({
     type: Date,
     required: true
   },
-  offerPrice: {
+  maxDiscount: {
     type: Number,
     required: true
   },
-  minimumPrice: {
+  minOrderAmount: {
     type: Number,
     required: true
   },
-  user_id: [{
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  usageLimit: {
+    type: Number
+  },
+  userId: [{
     type: Schema.Types.ObjectId,
     ref: "User"
   }]
