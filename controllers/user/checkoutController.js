@@ -3,6 +3,7 @@ import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import Category from "../../models/categorySchema.js"
+import Order from "../../models/orderSchema.js"
 
 import Razorpay from "razorpay"
 import crypto from "crypto"
@@ -114,20 +115,23 @@ const calculateTotal = (cart)=>{
 
   } catch (error) {
     console.error("Error in cart calculation",error)
-    return res.redirect("/user/pageNotFound")
+
   }
 }
 const createRazorpayOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount ,dbOrderId} = req.body;
 
     const options = {
-      amount: amount * 100, // convert to paise
+      amount: amount * 100,
       currency: "INR",
       receipt: "receipt_" + Date.now()
     };
 
     const order = await razorpay.orders.create(options);
+    await Order.findByIdAndUpdate(dbOrderId, {
+    razorpayOrderId: order.id
+  });
 
     res.json(order);
 
@@ -162,5 +166,43 @@ const verifyPayment = async (req, res) => {
   }
 };
 
+const paymentFailed = async (req,res) =>{
+  try {
 
-export default{loadCheckout,postCheckout,verifyPayment,createRazorpayOrder}
+    const { amount, paymentId, orderId } = req.query;
+    const user = await User.findById(req.session.user)
+
+    return res.render("user/paymentFailed",{user,total:amount,paymentId,orderId})
+    
+  } catch (error) {
+    console.error('error occured while loading payment failure page',error)
+  }
+}
+
+const updatePaymentStatus = async (req, res) => {
+  try {
+
+    const { dbOrderId, razorpayPaymentId } = req.body;
+
+    const order = await Order.findById(dbOrderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false });
+    }
+
+    order.paymentStatus = "Paid";
+    order.orderStatus = "Processing";
+    order.razorpayPaymentId = razorpayPaymentId;
+
+    await order.save();
+
+    return res.json({ success: true });
+
+  } catch (error) {
+    console.error("Error updating payment:", error);
+    return res.status(500).json({ success: false });
+  }
+};
+
+
+export default{loadCheckout,postCheckout,verifyPayment,createRazorpayOrder,paymentFailed,updatePaymentStatus}

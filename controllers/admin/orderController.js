@@ -66,10 +66,10 @@ const editOrder = async (req,res)=>{
       return res.render("admin/editOrder",{admin:admin.name,order})
     
     
-  } catch (error) {
+  } catch (error) { 
     
   }
-}
+} 
 const updateStatus = async(req,res)=>{
   try {
     const status = req.body.status
@@ -84,7 +84,17 @@ const updateStatus = async(req,res)=>{
       { status },
       { new: true }
     )
+    if (status === "delivered") {
 
+  const order = await Order.findById(orderId);
+
+  if (order.paymentMethod === "COD") {
+    await Order.updateOne(
+      { _id: orderId },
+      { $set: { paymentStatus: "Paid" } }
+    );
+  }
+}
     return res.redirect(`/admin/editOrder/${orderId}`)
     
   } catch (error) { 

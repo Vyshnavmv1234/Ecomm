@@ -106,6 +106,9 @@ router.post("/request-return",userAuth,orderController.requestReturn)
 
 router.post("/create-razorpay-order",userAuth,checkoutController.createRazorpayOrder);
 router.post("/verify-payment",userAuth,checkoutController.verifyPayment);
+router.get("/paymentFailed",userAuth,checkoutController.paymentFailed)
+router.post("/update-payment-status", checkoutController.updatePaymentStatus);
+
 
 
 

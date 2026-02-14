@@ -76,11 +76,31 @@ const orderSchema = new Schema({
   invoice_date: {
     type: Date
   },
-  status: {
+  status: {     //order status
     type: String,
     required: true,
-    enum: ["COD","pending","processing","shipped","delivered","cancelled","return request","returned"]
+    enum: ["pending","processing","shipped","delivered","cancelled","return request","returned","Cancelled"]
   },
+
+  paymentMethod: {
+  type: String,
+  enum: ["COD", "RAZORPAY", "WALLET"],
+  required: true
+  },
+
+  paymentStatus: {
+  type: String,
+  enum: ["Pending", "Paid", "Failed", "Refunded"],
+  default: "Pending"
+  },
+  razorpayOrderId: {
+  type: String
+  },
+
+  razorpayPaymentId: {
+  type: String
+  },
+
   returnRequested: {
       type: Boolean,
       default: false

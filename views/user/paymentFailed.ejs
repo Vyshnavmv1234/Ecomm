@@ -1,0 +1,238 @@
+
+<%- include("../../views/partials/user/header") %>
+
+<style>
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f3f4f6;
+}
+
+/* Center wrapper */
+.page-wrapper {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+.details {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 25px;
+  }
+
+/* Bigger Card */
+.failure-card {
+  background: #fff;
+  width: 600px;
+  padding: 70px 50px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.1);
+}
+
+/* Bigger Icon */
+.icon-wrapper {
+  width: 150px;
+  height: 150px;
+  background: #ffe5e5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+}
+
+.icon-wrapper span {
+  font-size: 65px;
+  color: #dc2626;
+}
+
+/* Larger Amount */
+.amount {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #111;
+}
+
+/* Title */
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #dc2626;
+  margin-bottom: 12px;
+}
+
+/* Subtitle */
+.subtitle {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 35px;
+  line-height: 1.7;
+}
+
+/* Buttons */
+.btn-group {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 15px 28px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s ease;
+  min-width: 160px;
+}
+
+.retry-btn {
+  background: #166534;
+  color: #fff;
+}
+
+.retry-btn:hover {
+  background: #14532d;
+}
+
+.home-btn {
+  background: #e5e7eb;
+  color: #111;
+}
+
+.home-btn:hover {
+  background: #d1d5db;
+}
+
+</style>
+
+
+</head>
+
+<body>
+
+<div class="page-wrapper">
+  <div class="failure-card">
+
+    <div class="icon-wrapper">
+      <span>✖</span>
+    </div>
+
+    <div class="amount">
+      ₹<%= total || "" %>
+    </div>
+
+    <div class="title">
+      Payment Failed!
+    </div>
+    <div class="details">
+    <% if(paymentId){ %>
+      Payment ID: <%= paymentId %><br>
+    <% } %>
+    <%= new Date().toLocaleString() %>
+  </div>
+
+    <div class="subtitle">
+      Oops! Something went wrong while processing your payment.
+      Please try again or choose another payment method.
+    </div>
+
+    <div class="btn-group">
+      <button class="btn retry-btn" onclick="retryPayment()">
+        TRY AGAIN
+      </button>
+
+      <button class="btn home-btn" onclick="goHome()">
+        GO TO HOME
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+<script>
+  async function retryPayment() {
+
+  const amount = <%= total || 0 %>;
+  const dbOrderId = "<%= orderId %>";
+
+
+  try {
+
+    // 1️⃣ Create Razorpay order again using same DB order
+    const razorRes = await fetch("/user/create-razorpay-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount,
+        dbOrderId
+      })
+    });
+
+    const razorData = await razorRes.json();
+
+    const options = {
+      key: "<%= process.env.RAZORPAY_KEY_ID %>",
+      amount: razorData.amount,
+      currency: "INR",
+      description: "Retry Payment",
+      order_id: razorData.id,
+
+      handler: async function (response) {
+
+        // 2️⃣ Verify payment
+        const verifyRes = await fetch("/user/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(response)
+        });
+
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.success) {
+          alert("Payment verification failed again.");
+          return;
+        }
+
+        // 3️⃣ Update existing order
+        await fetch("/user/update-payment-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dbOrderId,
+            razorpayPaymentId: response.razorpay_payment_id
+          })
+        });
+
+        window.location.href = `/user/order/${dbOrderId}`;
+      }
+    };
+
+    const rzp = new Razorpay(options);
+
+    rzp.on('payment.failed', function () {
+      alert("Payment failed again.");
+    });
+
+    rzp.open();
+
+  } catch (err) {
+    alert("Something went wrong while retrying payment.");
+  }
+}
+
+
+  function goHome() {
+    window.location.href = "/user/homepage";
+  }
+</script>
+
+<%- include("../../views/partials/user/footer") %>

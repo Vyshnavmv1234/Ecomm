@@ -32,12 +32,19 @@ const placeOrder = async (req,res)=>{
   try {
 
     const userId = req.session.user
-    const { paymentMethod, address, isDefaultUsed ,gst,total} = req.body;
+    const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,total} = req.body;
 
-    console.log(paymentMethod, address, isDefaultUsed,gst)
+    console.log(paymentMethod, paymentStatus, address, isDefaultUsed,gst)
 
     const cart = await Cart.findOne({userId}).populate("items.productId")
     const orderSummary = calculateTotal(cart)
+
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        message: "Address required"
+      });
+    }
 
     const order = await Order.create({
       userId,
@@ -64,6 +71,8 @@ const placeOrder = async (req,res)=>{
         phone: address.phone
       },
       status: paymentMethod === "COD" ? "pending" : "processing",
+      paymentMethod,
+      paymentStatus: paymentMethod === "COD"? "Pending": "Pending"
     })
 
     return res.status(STATUS_CODES.OK).json({success:true,orderId:order._id})
@@ -120,34 +129,57 @@ const orderDetail = async (req,res)=>{
   }
 }
 
-const cancelProduct = async(req,res)=>{
+const cancelProduct = async (req, res) => {
   try {
 
-    const {itemId,orderId}= req.body
-    const order = await Order.findOne({_id:orderId})
-    const item = order.orderItems.id(itemId)
-    
-    if(!item){
-      return res.status(STATUS_CODES.NOT_FOUND).json({success:false})
-    }
-    item.status = "cancelled"
+    const { itemId, orderId } = req.body;
 
-    const itemSubTotal = item.originalPrice * item.quantity
-    const itemDiscount = (item.originalPrice - item.unitPrice) * item.quantity
-    const total = itemSubTotal - itemDiscount
+    const order = await Order.findById(orderId);
+    const item = order.orderItems.id(itemId);
 
-    order.orderSummary.subTotal -= itemSubTotal 
-    order.orderSummary.discount -= itemDiscount
-    order.orderSummary.total -= total
-    
-    await Product.updateOne({_id: item.product,"variants._id": item.variant},{$inc:{"variants.$.stock":item.quantity}})
-    await order.save()
-    return res.status(STATUS_CODES.OK).json({success:true})
+    if (item.status === "cancelled") {
+    return res.status(400).json({ success: false });
+  }
+
+    item.status = "cancelled";
+
+    await Product.updateOne(
+      { _id: item.product, "variants._id": item.variant },
+      { $inc: { "variants.$.stock": item.quantity } }
+    );
+
+    let newSubTotal = 0;
+    let newDiscount = 0;
+
+    order.orderItems.forEach(i => {
+      if (i.status !== "cancelled") {
+        const itemSubTotal = i.originalPrice * i.quantity;
+        const itemDiscount =
+          (i.originalPrice - i.unitPrice) * i.quantity;
+
+        newSubTotal += itemSubTotal;
+        newDiscount += itemDiscount;
+      }
+    });
+
+    const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
+    const newTotal = newSubTotal - newDiscount + newGST;
+
+    order.orderSummary.subTotal = newSubTotal;
+    order.orderSummary.discount = newDiscount;
+    order.orderSummary.GST = newGST;
+    order.orderSummary.total = newTotal;
+
+    await order.save();
+
+    return res.status(200).json({ success: true });
 
   } catch (error) {
-    console.error("error cancelling product order",error)
+    console.error("Cancel product error:", error);
+    return res.status(500).json({ success: false });
   }
-}
+};
+
 
 const cancelOrder = async(req,res)=>{
   try {

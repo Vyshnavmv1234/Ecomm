@@ -742,77 +742,105 @@ async function handlePlaceOrder(gst, total) {
       return;
     }
 
-    // ==============================
-    // 🔵 RAZORPAY FLOW
-    // ==============================
     if (paymentMethod === "RAZORPAY") {
 
-      // 1️⃣ Create Razorpay order
-      const orderRes = await fetch("/user/create-razorpay-order", {
+  // 1️⃣ FIRST create DB order as Pending
+  const createOrderRes = await fetch("/user/place-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      paymentMethod: "RAZORPAY",
+      paymentStatus: "Pending",
+      address: addressData,
+      gst,
+      total,
+      isDefaultUsed: checkbox.checked
+    })
+  });
+
+  const createOrderData = await createOrderRes.json();
+
+  if (!createOrderData.success) {
+    showError("Unable to create order");
+    return;
+  }
+
+  const dbOrderId = createOrderData.orderId;
+
+  // 2️⃣ Create Razorpay Order
+  const razorRes = await fetch("/user/create-razorpay-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      amount: total,
+      dbOrderId
+    })
+  });
+
+  const razorData = await razorRes.json();
+
+  const options = {
+    key: "<%= process.env.RAZORPAY_KEY_ID %>",
+    amount: razorData.amount,
+    currency: "INR",
+    name: "Your Store",
+    description: "Order Payment",
+    order_id: razorData.id,
+
+    handler: async function (response) {
+
+      // 3️⃣ Verify payment
+      const verifyRes = await fetch("/user/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total })
+        body: JSON.stringify(response)
       });
 
-      const orderData = await orderRes.json();
+      const verifyData = await verifyRes.json();
 
-      const options = {
-        key: "<%= process.env.RAZORPAY_KEY_ID %>",
-        amount: orderData.amount,
-        currency: "INR",
-        name: "Your Store",
-        description: "Order Payment",
-        order_id: orderData.id,
+      if (!verifyData.success) {
+        window.location.href =
+          `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+        return;
+      }
 
-        handler: async function (response) {
+      // 4️⃣ Update existing order
+      await fetch("/user/update-payment-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dbOrderId,
+          razorpayPaymentId: response.razorpay_payment_id,
+         
+        })
+      });
 
-          // 2️⃣ Verify payment
-          const verifyRes = await fetch("/user/verify-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response)
-          });
+      window.location.href = `/user/order/${dbOrderId}`;
+    },
 
-          const verifyData = await verifyRes.json();
-
-          if (verifyData.success) {
-
-            // 3️⃣ Now create actual order in DB
-            const finalOrder = await fetch("/user/place-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                paymentMethod: "RAZORPAY",
-                paymentStatus: "Paid",
-                razorpayPaymentId: response.razorpay_payment_id,
-                address: addressData,
-                gst,
-                total,
-                isDefaultUsed: checkbox.checked
-              })
-            });
-
-            const finalData = await finalOrder.json();
-
-            if (finalData.success) {
-              window.location.href = `/user/order/${finalData.orderId}`;
-            }
-
-          } else {
-            showError("Payment verification failed");
-          }
-        }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
+    modal: {
+      ondismiss: function () {
+        window.location.href =
+          `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+      }
     }
+  };
+
+  const rzp = new Razorpay(options);
+
+  rzp.on('payment.failed', function (response) {
+    window.location.href =
+      `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+  });
+
+  rzp.open();
+}
+
 
   } catch (err) {
     showError("Something went wrong");
   }
 }
-
 
 
 </script>
