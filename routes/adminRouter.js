@@ -7,6 +7,7 @@ import categoryController from "../controllers/admin/categoryController.js"
 import { uploadProduct } from "../middlewares/multer.js"
 import { uploadCategory } from "../middlewares/multer.js"
 import orderController from "../controllers/admin/orderController.js"
+import couponController from "../controllers/admin/couponController.js"
 
 
 const router = express.Router()
@@ -53,7 +54,16 @@ router.post("/add-category",uploadCategory.single("image"),categoryController.po
 router.get("/order",adminAuth,orderController.order)
 router.get("/editOrder/:id",adminAuth,orderController.editOrder)
 router.post("/update-status",adminAuth,orderController.updateStatus)
-router.post("/handle-return", orderController.handleReturn);
+router.post("/handle-return",adminAuth, orderController.handleReturn);
+
+//COUPON MANAGEMENT
+
+router.get("/coupon/couponManagement",adminAuth,couponController.loadCoupons)
+router.post("/coupon/createCoupon",adminAuth,couponController.createCoupon)
+router.patch("/coupon/disableCoupon/:id",adminAuth,couponController.disableCoupon)
+router.patch("/coupon/enableCoupon/:id",adminAuth,couponController.enableCoupon)
+router.patch("/coupon/updateCoupon/:id",adminAuth,couponController.updateCoupon)
+
 
 
 export default router     

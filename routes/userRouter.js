@@ -90,6 +90,8 @@ router.delete("/remove/wishlist",userAuth,wishlistController.deleteWishlist)
 
 router.get("/checkout",userAuth,checkoutController.loadCheckout)
 router.post("/checkout",userAuth,checkoutController.postCheckout)
+router.post("/checkout",userAuth,checkoutController.loadCheckout)
+
 
 //ORDERS
 

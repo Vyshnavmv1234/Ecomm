@@ -149,7 +149,6 @@ const updateCategory = async (req, res) => {
     if (req.file) {
       updateData.image = req.file.path
     }
-    console.log(updateData)
 
     if (!Object.keys(updateData).length) {
       return res.status(400).json({ success: false, message: "Nothing to update" })

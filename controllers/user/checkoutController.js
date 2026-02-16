@@ -4,6 +4,7 @@ import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import Category from "../../models/categorySchema.js"
 import Order from "../../models/orderSchema.js"
+import Coupons from "../../models/couponSchema.js"
 
 import Razorpay from "razorpay"
 import crypto from "crypto"
@@ -15,14 +16,17 @@ const razorpay = new Razorpay({
 
 const loadCheckout = async (req,res)=>{
   try {
+    const couponCode = req.body?.cCode||0
+    console.log(couponCode)
     const userId = req.session.user
     const userData = await User.findById(userId)
     const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
     const addresses = await Address.findOne({user_id:userId})
     const cart = await Cart.findOne({userId}).populate("items.productId")
-
+    
     const orderSummary = calculateTotal(cart)
-    console.log(orderSummary)
+    const total = orderSummary.grandTotal
+    const coupons = await Coupons.find({minOrderAmount:{$lte:total},isActive:true})
 
     if (!cart || cart.items.length === 0) {
       return res.redirect("/user/cart");
@@ -37,7 +41,8 @@ const loadCheckout = async (req,res)=>{
       subTotal:orderSummary.subTotal,
       discount:orderSummary.totalDiscount,
       gst:orderSummary.gstAmount,
-      total:orderSummary.grandTotal
+      total:orderSummary.grandTotal,
+      availableCoupons:coupons
     })
     }else{
       return res.redirect("/user/pageNotFound")

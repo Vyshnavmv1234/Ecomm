@@ -63,7 +63,6 @@ const postAddProducts = async(req,res)=>{
 
       const {pName,description,discount,category,pTitle} = req.body
       const variants = JSON.parse(req.body.variants)
-      console.log(variants)
 
       if(!variants || variants.length==0){
         return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,error: "At least one variant is required"})
@@ -116,7 +115,6 @@ const loadEditProduct = async (req,res)=>{
 
       const productId = req.params.id
       const findProduct = await Product.findById(productId)
-      console.log(findProduct)
       
       if(findProduct){
         return res.render("admin/editProduct",{admin:req.session.adminData.name,product:findProduct})
@@ -138,8 +136,6 @@ const postEditProduct = async (req, res) => {
     const productId = req.params.id;
     const { name, description, discount, title } = req.body;
     const variants = JSON.parse(req.body.variants || "[]");
-
-    console.log("hhhhhhhhhhhhhhh",variants)
 
     const product = await Product.findById(productId);
     if (!product) {

@@ -1,0 +1,597 @@
+<%- include("../../views/partials/admin/header") %>
+<title>Coupon</title>
+<style>
+
+  /* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* Modal Box */
+.modal-box {
+  width: 420px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.close-btn {
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Form */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 13px;
+  margin-bottom: 5px;
+  color: #555;
+}.btn-block {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Unblock */
+.btn-unblock {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #d6c1b2;
+}
+
+/* Save Button */
+.save-btn {
+  background: #d6c1b2;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.save-btn:hover {
+  opacity: 0.9;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+  /* Layout */
+.admin-layout {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+  margin-top: 70px;   /* Push below fixed header */
+  background: #f4f6f9;
+  min-height: 100vh;
+}
+
+  /* Page Header */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  .page-header h2 {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .breadcrumb {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .add-btn {
+    background: #d6c1b2;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    padding: 15px;
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 18px 15px;
+    font-size: 14px;
+    border-top: 1px solid #f1f1f1;
+  }
+
+  tr:hover {
+    background-color: #f9fafb;
+  }
+
+  /* Status */
+  .status-active {
+    color: #16a34a;
+    font-weight: 500;
+  }
+
+  .status-inactive {
+    color: #dc2626;
+    font-weight: 500;
+  }
+
+  /* Buttons */
+  .action-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+
+  .edit-btn {
+    background: #e0e7ff;
+    color: #4f46e5;
+  }
+
+  .toggle-btn {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px;
+    color: #9ca3af;
+  }
+</style>
+  
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <%- include("../../views/partials/admin/sidebar") %>
+
+  <!-- Main Content -->
+  <div style="margin-left: 270px;" class="main-content">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h2>Coupons</h2>
+        <div class="breadcrumb">Dashboard › Coupons</div>
+      </div>
+
+      <a>
+        <button onclick="openCouponModal()" class="add-btn">+ Add Coupon</button>
+      </a>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+
+      <% if (coupons) { %>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Value (%)</th>
+              <th>Min Order</th>
+              <th>Max Discount</th>
+              <th>Expire Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% coupons.forEach(function(coupon){ %>
+              <tr>
+                <td><%= coupon.code %></td>
+                
+
+                <td>
+                  <% if (coupon.discountType === "percentage") { %>
+                    <%= coupon.discountValue %>%
+                  <% } else { %>
+                    <%= coupon.discountValue %>
+                  <% } %>
+                </td>
+
+                <td>₹<%= coupon.minOrderAmount %></td>
+                <td>₹<%= coupon.maxDiscount %></td>
+
+                <td>
+                  <%= coupon.expireDate 
+                      ? new Date(coupon.expireDate).toDateString() 
+                      : "N/A" %>
+                </td>
+
+                <td>
+                  <% if (coupon.isActive) { %>
+                    <span class="status-active">Active</span>
+                  <% } else { %>
+                    <span class="status-inactive">Inactive</span>
+                  <% } %>
+                </td>
+
+                <td>
+                <button 
+                  class="action-btn edit-btn"
+                  onclick='openEditModal(<%- JSON.stringify({
+                    id: coupon._id,
+                    code: coupon.code,
+                    discount: coupon.discountValue,
+                    min: coupon.minOrderAmount,
+                    max: coupon.maxDiscount,
+                    expire: coupon.expireDate,
+                    limit: coupon.usageLimit || ""
+                  }) %>)'>
+                  Edit
+                </button>
+
+
+                   <% if (!coupon.isActive) { %>
+            <button
+              onclick="enableCoupon('<%= coupon._id %>')"
+              class="action-btn btn-unblock"
+            >
+              Enable
+            </button>
+          <% } else { %>
+            <button
+              onclick="disableCoupon('<%= coupon._id %>')"
+              class="action-btn btn-block"
+            >
+              Disable
+            </button>
+          <% } %>
+               
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+      <% } else { %>
+
+        <div class="empty-state">
+          <h4>No Coupons Found</h4>
+          <p>Create your first coupon to start offering discounts.</p>
+        </div>
+
+      <% } %>
+
+    </div>
+
+    <!-- Add Coupon Button -->
+
+<!-- Modal Overlay -->
+<div id="couponModal" class="modal-overlay">
+
+  <div class="modal-box">
+
+    <!-- Close -->
+    <div class="modal-header">
+      <h3>Add New Coupon</h3>
+      <span class="close-btn" onclick="closeCouponModal()">×</span>
+    </div>
+
+    <!-- Form -->
+    <form method="post" action="/admin/coupon/createCoupon" id="addCouponForm">
+
+      <div class="form-group">
+        <label>Coupon Code</label>
+        <input type="text" name="code" placeholder="Enter coupon code" required>
+      </div>
+
+      <div class="form-group">
+        <label>Discount Value</label>
+        <input type="number" name="discountValue" placeholder="Enter discount value" required>
+      </div>
+
+      <div class="form-group">
+        <label>Minimum Order Amount</label>
+        <input type="number" name="minOrderAmount" placeholder="Enter minimum amount" required>
+      </div>
+
+      <div class="form-group">
+        <label>Maximum Discount</label>
+        <input type="number" name="maxDiscount" placeholder="Enter max discount" required>
+      </div>
+
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" name="expireDate" required>
+      </div>
+
+      <div class="form-group">
+        <label>Usage Limit</label>
+        <input type="number" name="usageLimit" placeholder="Limit number">
+      </div>
+
+      <button type="submit" class="save-btn">Save</button>
+
+    </form>
+
+  </div>
+</div>
+
+<!-- EDIT COUPON MODAL -->
+<div id="editCouponModal" class="modal-overlay">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <h3>Edit Coupon</h3>
+      <span class="close-btn" onclick="closeEditModal()">×</span>
+    </div>
+
+    <form id="editCouponForm">
+
+      <div class="form-group">
+        <label>Coupon Code</label>
+        <input type="text" name="code" id="editCode" required>
+      </div>
+
+      <div class="form-group">
+        <label>Discount (%)</label>
+        <input type="number" name="discountValue" id="editDiscount" required>
+      </div>
+
+      <div class="form-group">
+        <label>Minimum Order Amount</label>
+        <input type="number" name="minOrderAmount" id="editMinOrder" required>
+      </div>
+
+      <div class="form-group">
+        <label>Maximum Discount</label>
+        <input type="number" name="maxDiscount" id="editMaxDiscount" required>
+      </div>
+
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" name="expireDate" id="editExpireDate" required>
+      </div>
+
+      <div class="form-group">
+        <label>Usage Limit</label>
+        <input type="number" name="usageLimit" id="editUsageLimit">
+      </div>
+
+      <button type="submit" class="save-btn">Update</button>
+
+    </form>
+
+  </div>
+</div>
+
+
+
+  </div>
+
+</div>
+
+<script>
+  function openCouponModal() {
+    document.getElementById("couponModal").style.display = "flex";
+  }
+
+  function closeCouponModal() {
+    document.getElementById("couponModal").style.display = "none";
+  }
+
+  window.addEventListener("click", function(event) {
+  const addModal = document.getElementById("couponModal");
+  const editModal = document.getElementById("editCouponModal");
+
+  if (event.target === addModal) {
+    addModal.style.display = "none";
+  }
+
+  if (event.target === editModal) {
+    editModal.style.display = "none";
+  }
+});
+
+
+  async function disableCoupon(couponId){
+    console.log(couponId)
+    
+    const ok = confirm("Do you want to disable the coupon")
+    if(!ok){
+      return
+    }
+    try {
+
+      const res = await fetch(`/admin/coupon/disableCoupon/${couponId}`,{
+        method: "PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+      })
+      const data = await res.json()
+
+      if(data.success){
+        location.reload()
+      }else{
+        alert("Failed to block")
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+  async function enableCoupon(couponId){
+    
+    const ok = confirm("Do you want to enable the coupon")
+    if(!ok){
+      return
+    }
+    try {
+
+      const res = await fetch(`/admin/coupon/enableCoupon/${couponId}`,{
+        method: "PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+      })
+      const data = await res.json()
+
+      if(data.success){
+        location.reload()
+      }else{
+        alert("Failed to unblock")
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  }
+
+function openEditModal(coupon) {
+
+  document.getElementById("editCouponModal").style.display = "flex";
+
+  document.getElementById("editCode").value = coupon.code;
+  document.getElementById("editDiscount").value = coupon.discount;
+  document.getElementById("editMinOrder").value = coupon.min;
+  document.getElementById("editMaxDiscount").value = coupon.max;
+
+  document.getElementById("editExpireDate").value =
+    new Date(coupon.expire).toISOString().split("T")[0];
+
+  document.getElementById("editUsageLimit").value = coupon.limit;
+
+  document.getElementById("editCouponForm").dataset.id = coupon.id;
+}
+
+  function closeEditModal() {
+    document.getElementById("editCouponModal").style.display = "none";
+  }
+
+  const editForm = document.getElementById("editCouponForm");
+
+  editForm.addEventListener("submit", async function (e) {
+    e.preventDefault(); 
+
+    const id = editForm.dataset.id; 
+
+    const formData = {
+      code: document.getElementById("editCode").value,
+      discountValue: document.getElementById("editDiscount").value,
+      minOrderAmount: document.getElementById("editMinOrder").value,
+      maxDiscount: document.getElementById("editMaxDiscount").value,
+      expireDate: document.getElementById("editExpireDate").value,
+      usageLimit: document.getElementById("editUsageLimit").value
+    };
+
+    try {
+      const response = await fetch(`/admin/coupon/updateCoupon/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        location.reload(); 
+      } else {
+        alert(result.message);
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  });
+
+</script>
+
+

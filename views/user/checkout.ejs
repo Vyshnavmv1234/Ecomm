@@ -1,6 +1,52 @@
 <%- include("../../views/partials/user/header") %>
 
 <style>
+.available-coupons-wrapper {
+  margin-top: 15px;
+}
+
+.view-coupons-text {
+  color: #6b4f4f;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-bottom: 10px;
+}
+
+.available-coupons {
+  display: none;
+  margin-top: 10px;
+}
+
+.coupon-card {
+  background: #f9f6f4;
+  border: 1px dashed #c8b6a6;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coupon-card button {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.coupon-card button:hover {
+  opacity: 0.8;
+}
+
+.no-coupon {
+  font-size: 13px;
+  color: #888;
+}
 
 
 body {
@@ -496,15 +542,6 @@ input[type="checkbox"] {
       <span>GST</span><span>+₹<%=gst%></span>
     </div>
 
-    <div class="coupon-section">
-    <div class="coupon-input-wrapper">
-      <input type="text" id="couponCode" placeholder="Enter coupon code">
-      <button onclick="applyCoupon()">Apply</button>
-    </div>
-    <p id="couponMessage"></p>
-  </div>
-
-
     <div class="summary-row">
       <span>Discount</span><span>-₹<%=discount%></span>
     </div>
@@ -516,6 +553,42 @@ input[type="checkbox"] {
     <button class="place-order" onclick="handlePlaceOrder('<%=gst%>','<%=total%>')">
       Place Order
     </button>
+
+    <div class="coupon-section">
+    <div class="coupon-input-wrapper">
+      <input type="text" id="couponCode" placeholder="Enter coupon code">
+      <button onclick="applyCoupon()">Apply</button>
+    </div>
+    <p id="couponMessage"></p>
+  </div>
+  <div class="available-coupons-wrapper">
+  <p class="view-coupons-text" onclick="toggleCoupons()">
+    View Available Coupons
+  </p>
+
+  <div id="availableCoupons" class="available-coupons">
+
+    <% if (availableCoupons && availableCoupons.length > 0) { %>
+      <% availableCoupons.forEach(coupon => { %>
+        <div class="coupon-card">
+          <div>
+            <strong><%= coupon.code %></strong><br>
+            <small>
+              <%= coupon.discountValue %>% OFF • Min ₹<%= coupon.minOrderAmount %>
+            </small>
+          </div>
+          <button onclick="autoApplyCoupon('<%= coupon.code %>')">
+            Apply
+          </button>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p class="no-coupon">No coupons available</p>
+    <% } %>
+
+  </div>
+</div>
+
 
   </div>
 
@@ -840,6 +913,31 @@ async function handlePlaceOrder(gst, total) {
   } catch (err) {
     showError("Something went wrong");
   }
+}
+
+function toggleCoupons() {
+  const section = document.getElementById("availableCoupons");
+  section.style.display =
+    section.style.display === "block" ? "none" : "block";
+}
+let cCode = ""
+function autoApplyCoupon(code) {
+  cCode = code
+  document.getElementById("couponCode").value = code;
+  
+}
+
+async function applyCoupon() {
+  
+  const res = await fetch("/user/checkout",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({cCode})
+  })
+  const data = await res.json()
+
 }
 
 

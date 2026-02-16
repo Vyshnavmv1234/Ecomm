@@ -7,6 +7,10 @@ const couponSchema = new Schema({
     required: true,
     unique: true
   },
+  discountValue: {
+    type: Number,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,
