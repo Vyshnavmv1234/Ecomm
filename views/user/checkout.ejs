@@ -12,6 +12,12 @@
   text-decoration: underline;
   margin-bottom: 10px;
 }
+.error {
+  color: red;
+  font-size: 13px;
+  margin-top: 4px;
+  display: none;   /* 🔥 hide by default */
+}
 
 .available-coupons {
   display: none;
@@ -376,6 +382,11 @@ input[type="checkbox"] {
 
 
 </style>
+<!-- Toastify CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<!-- Toastify JS -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 </head>
 <body>
@@ -431,90 +442,106 @@ input[type="checkbox"] {
 </div>
   </div>
 
-    <div class="form-row">
-      <div>
-        <label>Name</label>
-        <input id="name" type="text">
-      </div>
-      <div>
-      <label>Region / State</label>
-      <select id="state">
-        <option value="">Select...</option>
-        <option value="Kerala">Kerala</option>
-        <option value="Tamil Nadu">Tamil Nadu</option>
-        <option value="Karnataka">Karnataka</option>
-      </select>
+   <div class="form-row">
+  <div>
+    <label>Name</label>
+    <input id="name" type="text">
+    <p class="error" id="nameError"></p>
+  </div>
+
+  <div>
+    <label>Region / State</label>
+    <select id="state">
+      <option value="">Select...</option>
+      <option value="Kerala">Kerala</option>
+      <option value="Tamil Nadu">Tamil Nadu</option>
+      <option value="Karnataka">Karnataka</option>
+    </select>
+    <p class="error" id="stateError"></p>
+  </div>
 </div>
 
-    </div>
+<div class="form-row">
+  <div>
+    <label>Address</label>
+    <input id="ADDRESS" type="text">
+    <p class="error" id="addressError"></p>
+  </div>
 
-     <div class="form-row">
-     <div>
-        <label>Address</label>
-        <input id="ADDRESS" type="text">
-        </div>
-        <div>
-          <label>Street name</label>
-          <input id="streetName" type="text">
-        </div>
-      
-      </div>
+  <div>
+    <label>Street name</label>
+    <input id="streetName" type="text">
+    <p class="error" id="streetError"></p>
+  </div>
+</div>
 
-    <div class="form-row">
-      <div>
-      <label>City</label>
-      <select id="city">
-        <option value="">Select...</option>
-        <option value="Ernakulam">Ernakulam</option>
-        <option value="Trivandrum">Trivandrum</option>
-        <option value="Bangalore">Bangalore</option>
-      </select>
-    </div>
-      <div>
-        <label>PIN Code</label>
-        <input id="pincode" type="text">
-      </div>
-    </div>
+<div class="form-row">
+  <div>
+    <label>City</label>
+    <select id="city">
+      <option value="">Select...</option>
+      <option value="Ernakulam">Ernakulam</option>
+      <option value="Trivandrum">Trivandrum</option>
+      <option value="Bangalore">Bangalore</option>
+    </select>
+    <p class="error" id="cityError"></p>
+  </div>
 
-    <div class="form-row">
-      <div>
-        <label>Email</label>
-        <input id="email" type="email">
-      </div>
-      <div>
-        <label>Phone Number</label>
-        <input id="phone" type="text">
-      </div>
-    </div>
+  <div>
+    <label>PIN Code</label>
+    <input id="pincode" type="text">
+    <p class="error" id="pincodeError"></p>
+  </div>
+</div>
+
+<div class="form-row">
+  <div>
+    <label>Email</label>
+    <input id="email" type="email">
+    <p class="error" id="emailError"></p>
+  </div>
+
+  <div>
+    <label>Phone Number</label>
+    <input id="phone" type="text">
+    <p class="error" id="phoneError"></p>
+  </div>
+</div>
+
 
 <div class="form-row full">
   <label class="default-address-row">
-    <input id="defaultAddress" type="checkbox" name="defaultAddress" <%= defaultAddress ? "checked" : "" %> 
+    <input id="defaultAddress" type="checkbox" name="defaultAddress"
+      <%= defaultAddress ? "checked" : "" %>>
     <span>Default address</span>
   </label>
+  <p class="error" id="defaultAddressError"></p>
 </div>
 
+<div class="payment">
+  <h3>Payment Option</h3>
 
-    <div class="payment">
-      <h3>Payment Option</h3>
-      <div class="payment-options">
-        <div class="payment-box">
-          💵<br>Cash on Delivery<br>
-          <input type="radio" name="pay" value="COD">
-
-        </div>
-        <div class="payment-box">
-          ⚡<br>Razorpay<br>
-          <input type="radio" name="pay" value="RAZORPAY">
-
-        </div>
-        <div class="payment-box">
-          💳<br>My Wallet<br>
-         <input type="radio" name="pay" value="WALLET">
-
-        </div>
-      </div>
+  <div class="payment-options">
+    <div class="payment-box">
+      💵<br>Cash on Delivery<br>
+      <input type="radio" name="pay" value="COD">
     </div>
+
+    <div class="payment-box">
+      ⚡<br>Razorpay<br>
+      <input type="radio" name="pay" value="RAZORPAY">
+    </div>
+
+    <div class="payment-box">
+      💳<br>My Wallet<br>
+      <input type="radio" name="pay" value="WALLET">
+    </div>
+  </div>
+
+  <!-- Error message below payment -->
+  <p class="error" id="paymentError"></p>
+</div>
+
   </div>
 
   <!-- RIGHT -->
@@ -550,17 +577,59 @@ input[type="checkbox"] {
       ₹<%=total%>
     </div>
 
-    <button class="place-order" onclick="handlePlaceOrder('<%=gst%>','<%=total%>')">
+    <button class="place-order" onclick="return placeOrderHandler('<%=gst%>','<%=total%>')">
       Place Order
     </button>
 
+
     <div class="coupon-section">
-    <div class="coupon-input-wrapper">
-      <input type="text" id="couponCode" placeholder="Enter coupon code">
-      <button onclick="applyCoupon()">Apply</button>
-    </div>
-    <p id="couponMessage"></p>
+  <div class="coupon-input-wrapper" style="position:relative;">
+
+    <input 
+      value="<%= appliedCoupons ? appliedCoupons.code : '' %>" 
+      type="text" 
+      id="couponCode" 
+      placeholder="Enter coupon code"
+      <%= appliedCoupons ? 'readonly' : '' %>
+    >
+
+    <% if (appliedCoupons) { %>
+
+      <!-- Remove Button -->
+      <button 
+        type="button"
+        onclick="removeCoupon()"
+        style="
+          position:absolute;
+          right:90px;
+          top:50%;
+          transform:translateY(-50%);
+          background:none;
+          border:none;
+          font-size:18px;
+          cursor:pointer;
+        "
+      >
+        ❌
+      </button>
+
+      <button disabled style="background:#888;">
+        Applied
+      </button>
+
+    <% } else { %>
+
+      <button onclick="applyCoupon()">
+        Apply
+      </button>
+
+    <% } %>
+
   </div>
+
+  <p id="couponMessage"></p>
+</div>
+
   <div class="available-coupons-wrapper">
   <p class="view-coupons-text" onclick="toggleCoupons()">
     View Available Coupons
@@ -574,7 +643,7 @@ input[type="checkbox"] {
           <div>
             <strong><%= coupon.code %></strong><br>
             <small>
-              <%= coupon.discountValue %>% OFF • Min ₹<%= coupon.minOrderAmount %>
+              <%= coupon.discountValue %>Rs OFF • Min ₹<%= coupon.minOrderAmount %>
             </small>
           </div>
           <button onclick="autoApplyCoupon('<%= coupon.code %>')">
@@ -599,31 +668,23 @@ input[type="checkbox"] {
 
 <script>
 
-  function showError(message) {
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "bottom",
-      position: "center",
-      close: true,
-      style: {
-        background: "linear-gradient(to right, #dc2626, #ef4444)"
-      }
-    }).showToast();
-  }
+function showToast(message, type = "success") {
 
-  function showSuccess(message) {
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "bottom",
-      position: "center",
-      close: true,
-      style: {
-        background: "linear-gradient(to right, #16a34a, #22c55e)"
-      }
-    }).showToast();
-  }
+  Toastify({
+    text: message,
+    duration: 3000,
+    gravity: "bottom",        // top or bottom
+    position: "center",     // left, center or right
+    close: true,
+    stopOnFocus: true,
+    style: {
+      background: type === "success"
+        ? "linear-gradient(to right, #00b09b, #96c93d)"
+        : "linear-gradient(to right, #ff5f6d, #ffc371)"
+    }
+  }).showToast();
+
+}
 
   // ===== DATA FROM BACKEND =====
   const defaultAddressDoc = <%- JSON.stringify(defaultAddress || null) %>;
@@ -707,71 +768,97 @@ input[type="checkbox"] {
   }
   //VALIDATION
 
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  function placeOrderHandler(gst, total) {
+
+  // First validate form
+  if (!validateForm()) {
+    return false; // stop execution if invalid
   }
 
-  function isValidPhone(phone) {
-    return /^[6-9]\d{9}$/.test(phone);
+  // If validation passes
+  handlePlaceOrder(gst, total);
+
+}
+
+
+ function validateForm() {
+
+  let isValid = true;
+
+  // 🔹 Clear all previous errors
+  document.querySelectorAll(".error").forEach(el => {
+    el.innerText = "";
+    el.style.display = "none";
+  });
+
+  const name = document.getElementById("name").value.trim();
+  const state = document.getElementById("state").value;
+  const address = document.getElementById("ADDRESS").value.trim();
+  const street = document.getElementById("streetName").value.trim();
+  const city = document.getElementById("city").value;
+  const pincode = document.getElementById("pincode").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+
+  // Helper function to show error
+  function showError(id, message) {
+    const el = document.getElementById(id);
+    el.innerText = message;
+    el.style.display = "block";
+    isValid = false;
   }
 
-  function isValidPincode(pin) {
-    return /^\d{6}$/.test(pin);
+  // Name validation
+  if (name === "") {
+    showError("nameError", "Name is required");
   }
 
-
-  function validateCheckout() {
-    if (!fields.name.value.trim()) {
-      showError("Please enter your name");
-      return false;
-    }
-
-    if (!fields.state.value) {
-      showError("Please select a state");
-      return false;
-    }
-
-    if (!fields.city.value) {
-      showError("Please select a city");
-      return false;
-    }
-
-    if (!fields.address.value.trim()) {
-      showError("Please enter address");
-      return false;
-    }
-
-    if (!fields.streetName.value.trim()) {
-      showError("Please enter street name");
-      return false;
-    }
-
-    if (!isValidPincode(fields.pincode.value)) {
-      showError("Please enter a valid 6-digit PIN code");
-      return false;
-    }
-
-    if (!isValidEmail(fields.email.value)) {
-      showError("Please enter a valid email address");
-      return false;
-    }
-
-    if (!isValidPhone(fields.phone.value)) {
-      showError("Please enter a valid 10-digit phone number");
-      return false;
-    }
-
-    const paymentSelected = document.querySelector('input[name="pay"]:checked');
-    if (!paymentSelected) {
-      showError("Please select a payment option");
-      return false;
-    }
-
-    return true;
+  // State validation
+  if (state === "") {
+    showError("stateError", "Please select a state");
   }
+
+  // Address validation
+  if (address === "") {
+    showError("addressError", "Address is required");
+  }
+
+  // Street validation
+  if (street === "") {
+    showError("streetError", "Street name is required");
+  }
+
+  // City validation
+  if (city === "") {
+    showError("cityError", "Please select a city");
+  }
+
+  // Pincode validation
+  if (!/^[0-9]{6}$/.test(pincode)) {
+    showError("pincodeError", "Enter valid 6-digit PIN code");
+  }
+
+  // Email validation
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    showError("emailError", "Enter valid email");
+  }
+
+  // Phone validation
+  if (!/^[0-9]{10}$/.test(phone)) {
+    showError("phoneError", "Enter valid 10-digit phone number");
+  }
+
+  // Payment validation
+  const paymentSelected = document.querySelector('input[name="pay"]:checked');
+  if (!paymentSelected) {
+    showError("paymentError", "Please select a payment option");
+  }
+
+  return isValid;
+}
 
 async function handlePlaceOrder(gst, total) {
-  if (!validateCheckout()) return;
+  if (!validateForm()) return;
 
   const paymentSelected = document.querySelector('input[name="pay"]:checked');
   const paymentMethod = paymentSelected.value;
@@ -811,6 +898,9 @@ async function handlePlaceOrder(gst, total) {
       if (data.success) {
         window.location.href = `/user/order/${data.orderId}`;
       }
+      if(res.status == 400){
+        showToast("Coupon already used","error")
+      }
 
       return;
     }
@@ -830,6 +920,10 @@ async function handlePlaceOrder(gst, total) {
       isDefaultUsed: checkbox.checked
     })
   });
+
+      if(createOrderRes.status == 400){
+        showToast("Coupon already used","error")
+      }
 
   const createOrderData = await createOrderRes.json();
 
@@ -929,7 +1023,7 @@ function autoApplyCoupon(code) {
 
 async function applyCoupon() {
   
-  const res = await fetch("/user/checkout",{
+  const res = await fetch("/user/coupon/applyCoupon",{
     method:"POST",
     headers:{
       "Content-Type":"application/json"
@@ -938,6 +1032,33 @@ async function applyCoupon() {
   })
   const data = await res.json()
 
+  if(data.success && res.ok){
+    showToast("Coupon applied successfully","success")
+    setTimeout(()=>{
+      window.location.reload()
+    },1000)
+    
+  }
+  if(res.status==404){
+    showToast(data.message,"error")
+  }
+  if(res.status==409){
+    showToast("Coupon already applied","error")
+  }
+}
+async function removeCoupon() {
+  const response = await fetch('/user/coupon/removeCoupon', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    location.reload();
+  }
 }
 
 

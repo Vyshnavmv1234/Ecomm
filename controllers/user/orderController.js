@@ -2,6 +2,7 @@ import Cart from "../../models/cartSchema.js"
 import Address from "../../models/addressSchema.js"
 import Order from "../../models/orderSchema.js"
 import Product from "../../models/productSchema.js"
+import Coupon from "../../models/couponSchema.js"
 import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import moment from "moment"
@@ -9,16 +10,28 @@ import moment from "moment"
 
 const orderSuccess = async (req,res)=>{
   try {
-    const userId = req.session.user
+    const user = req.session.user
     const orderId = req.params.id
-    const cart = await Cart.findOne({userId}).populate("items.productId")
-    const userData = await User.findById(userId)
+    const cart = await Cart.findOne({userId:user}).populate("items.productId")
+    const userData = await User.findById(user)
     const order = await Order.find({_id:orderId})
+
+    const couponCode = req.session.appliedCoupon
+    const coupon = await Coupon.findOne({code:couponCode})
+
+    if(coupon){
+      
+      if(!coupon.userId.includes(user)){
+        coupon.userId.push(user)
+        coupon.usedCount+=1
+        await coupon.save()
+      }
+    }
     
       for(const item of order[0].orderItems){
         await Product.updateOne({_id : item.product,"variants._id" : item.variant},{$inc:{"variants.$.stock" : -item.quantity}})
       }
-      await cart.deleteOne({userId})
+      await cart.deleteOne({userId:user})
       return res.render("user/orderSuccess",{user:userData,orderId})
     
     
@@ -33,6 +46,12 @@ const placeOrder = async (req,res)=>{
 
     const userId = req.session.user
     const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,total} = req.body;
+    const couponCode = req.session.appliedCoupon
+
+    const validateCoupon = await Coupon.findOne({code:couponCode,userId:req.session.user})
+    if(validateCoupon){
+      return res.status(STATUS_CODES.BAD_REQUEST).json({success:false})
+    }
 
     console.log(paymentMethod, paymentStatus, address, isDefaultUsed,gst)
 

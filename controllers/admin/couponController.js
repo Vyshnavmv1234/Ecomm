@@ -19,15 +19,21 @@ const loadCoupons = async (req,res)=>{
 const createCoupon = async (req,res)=>{
   try {
 
-    const {code,discountValue,minOrderAmount,maxDiscount,expireDate,usageLimit} = req.body
+    const {code,discountValue,minOrderAmount,expireDate,usageLimit} = req.body
+    const userId = req.session.user
+    let coupon = await Coupon.findOne({code})
 
-    const exists = await Coupon.findOne({code})
-
-    if(exists){
+    if(coupon){
       return res.json({message:"Coupon already exists"})
     }
-    const coupon = new Coupon(req.body)
-    await coupon.save()
+    coupon = await Coupon.create({
+      code,
+      discountValue,
+      expireDate,
+      minOrderAmount,
+      usageLimit,
+      userId: [],
+    })
 
     return res.redirect("/admin/coupon/couponManagement")
 

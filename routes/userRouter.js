@@ -90,8 +90,6 @@ router.delete("/remove/wishlist",userAuth,wishlistController.deleteWishlist)
 
 router.get("/checkout",userAuth,checkoutController.loadCheckout)
 router.post("/checkout",userAuth,checkoutController.postCheckout)
-router.post("/checkout",userAuth,checkoutController.loadCheckout)
-
 
 //ORDERS
 
@@ -111,7 +109,10 @@ router.post("/verify-payment",userAuth,checkoutController.verifyPayment);
 router.get("/paymentFailed",userAuth,checkoutController.paymentFailed)
 router.post("/update-payment-status", checkoutController.updatePaymentStatus);
 
+//COUPON
 
+router.post("/coupon/applyCoupon",userAuth,checkoutController.applyCoupon)
+router.post("/coupon/removeCoupon",userAuth,checkoutController.removeCoupon)
 
 
 

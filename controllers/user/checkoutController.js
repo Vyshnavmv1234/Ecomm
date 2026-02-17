@@ -16,16 +16,26 @@ const razorpay = new Razorpay({
 
 const loadCheckout = async (req,res)=>{
   try {
-    const couponCode = req.body?.cCode||0
-    console.log(couponCode)
+
     const userId = req.session.user
     const userData = await User.findById(userId)
     const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
     const addresses = await Address.findOne({user_id:userId})
     const cart = await Cart.findOne({userId}).populate("items.productId")
-    
-    const orderSummary = calculateTotal(cart)
-    const total = orderSummary.grandTotal
+
+    let couponCode = 0
+    let couponValue = 0
+    let couponDetails = ""
+
+    if(req.session.appliedCoupon){
+     couponCode = req.session.appliedCoupon
+     couponDetails = await Coupons.findOne({code:couponCode})
+     couponValue = couponDetails.discountValue
+     
+    }    
+
+    const orderSummary = calculateTotal(cart,couponValue)
+    const total = orderSummary?.grandTotal
     const coupons = await Coupons.find({minOrderAmount:{$lte:total},isActive:true})
 
     if (!cart || cart.items.length === 0) {
@@ -42,7 +52,8 @@ const loadCheckout = async (req,res)=>{
       discount:orderSummary.totalDiscount,
       gst:orderSummary.gstAmount,
       total:orderSummary.grandTotal,
-      availableCoupons:coupons
+      availableCoupons:coupons,
+      appliedCoupons: couponDetails
     })
     }else{
       return res.redirect("/user/pageNotFound")
@@ -53,6 +64,7 @@ const loadCheckout = async (req,res)=>{
     return res.redirect("/user/pageNotFound")
   }
 }
+
 const postCheckout = async (req,res)=>{
   try {
     const userId = req.session.user
@@ -95,25 +107,27 @@ const postCheckout = async (req,res)=>{
     return res.redirect("/user/pageNotFound")
   }
 }
-const calculateTotal = (cart)=>{
+
+const calculateTotal = (cart,couponValue =0)=>{
   try {
 
     let subTotal = 0
-    let totalDiscount = 0 
+    let productDiscount = 0 
 
     cart.items.forEach(item => {
       subTotal += item.originalPrice * item.quantity
-      totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
+      productDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
-    const taxableAmount = subTotal - totalDiscount
+    console.log(productDiscount)
+    const amountAfterProductDiscount  = subTotal - productDiscount
+    const taxableAmount = amountAfterProductDiscount - couponValue
     const gstAmount = Math.round(taxableAmount * (5 / 100))
 
-    const grandTotal = taxableAmount + gstAmount
+    const grandTotal = taxableAmount + gstAmount 
     
-
     return {
       subTotal,
-      totalDiscount,
+      totalDiscount:productDiscount+couponValue,
       gstAmount,
       grandTotal
     }
@@ -123,6 +137,43 @@ const calculateTotal = (cart)=>{
 
   }
 }
+const applyCoupon = async(req,res)=>{
+  try {
+
+    const couponCode = req.body.cCode
+    req.session.appliedCoupon = couponCode
+
+    const coupon = await Coupons.findOne({userId:req.session.user,code:couponCode})
+    const notUserCoupon = await Coupons.findOne({code:couponCode})
+    if(coupon){
+      return res.status(409).json({success:false,message:"Coupon already used"})
+    }
+    if(notUserCoupon.expireDate < new Date()){
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Coupon expired"})
+    }
+    return res.status(STATUS_CODES.OK).json({success:true})
+    
+  } catch (error) {
+    console.error("Error while applying coupon",error)
+  }
+}
+
+const removeCoupon = async (req, res) => {
+  try {
+
+    req.session.appliedCoupon = null
+
+    return res.status(200).json({
+      success: true
+    })
+
+  } catch (error) {
+    console.error("Error removing coupon", error)
+    return res.status(500).json({ success: false })
+  }
+}
+
+
 const createRazorpayOrder = async (req, res) => {
   try {
     const { amount ,dbOrderId} = req.body;
@@ -210,4 +261,12 @@ const updatePaymentStatus = async (req, res) => {
 };
 
 
-export default{loadCheckout,postCheckout,verifyPayment,createRazorpayOrder,paymentFailed,updatePaymentStatus}
+export default{
+  loadCheckout,
+  postCheckout,
+  verifyPayment,
+  createRazorpayOrder,
+  paymentFailed,
+  updatePaymentStatus,
+  applyCoupon,
+  removeCoupon}

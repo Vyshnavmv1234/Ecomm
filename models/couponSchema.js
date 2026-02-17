@@ -20,10 +20,6 @@ const couponSchema = new Schema({
     type: Date,
     required: true
   },
-  maxDiscount: {
-    type: Number,
-    required: true
-  },
   minOrderAmount: {
     type: Number,
     required: true
@@ -31,6 +27,10 @@ const couponSchema = new Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  usedCount: {
+    type: Number,
+    default: 0             
   },
   usageLimit: {
     type: Number

@@ -255,9 +255,8 @@
           <thead>
             <tr>
               <th>Code</th>
-              <th>Value (%)</th>
-              <th>Min Order</th>
-              <th>Max Discount</th>
+              <th>Value</th>
+              <th>Min Order Amount</th>
               <th>Expire Date</th>
               <th>Status</th>
               <th>Action</th>
@@ -279,7 +278,6 @@
                 </td>
 
                 <td>₹<%= coupon.minOrderAmount %></td>
-                <td>₹<%= coupon.maxDiscount %></td>
 
                 <td>
                   <%= coupon.expireDate 
@@ -303,7 +301,6 @@
                     code: coupon.code,
                     discount: coupon.discountValue,
                     min: coupon.minOrderAmount,
-                    max: coupon.maxDiscount,
                     expire: coupon.expireDate,
                     limit: coupon.usageLimit || ""
                   }) %>)'>
@@ -376,11 +373,6 @@
       </div>
 
       <div class="form-group">
-        <label>Maximum Discount</label>
-        <input type="number" name="maxDiscount" placeholder="Enter max discount" required>
-      </div>
-
-      <div class="form-group">
         <label>Expiry Date</label>
         <input type="date" name="expireDate" required>
       </div>
@@ -422,11 +414,6 @@
       <div class="form-group">
         <label>Minimum Order Amount</label>
         <input type="number" name="minOrderAmount" id="editMinOrder" required>
-      </div>
-
-      <div class="form-group">
-        <label>Maximum Discount</label>
-        <input type="number" name="maxDiscount" id="editMaxDiscount" required>
       </div>
 
       <div class="form-group">
@@ -539,7 +526,6 @@ function openEditModal(coupon) {
   document.getElementById("editCode").value = coupon.code;
   document.getElementById("editDiscount").value = coupon.discount;
   document.getElementById("editMinOrder").value = coupon.min;
-  document.getElementById("editMaxDiscount").value = coupon.max;
 
   document.getElementById("editExpireDate").value =
     new Date(coupon.expire).toISOString().split("T")[0];
@@ -564,7 +550,6 @@ function openEditModal(coupon) {
       code: document.getElementById("editCode").value,
       discountValue: document.getElementById("editDiscount").value,
       minOrderAmount: document.getElementById("editMinOrder").value,
-      maxDiscount: document.getElementById("editMaxDiscount").value,
       expireDate: document.getElementById("editExpireDate").value,
       usageLimit: document.getElementById("editUsageLimit").value
     };
