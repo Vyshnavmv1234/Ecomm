@@ -12,7 +12,7 @@ import wishlistController from "../controllers/user/wishlistController.js"
 import checkoutController from "../controllers/user/checkoutController.js"
 import orderController from "../controllers/user/orderController.js"
 import invoiceController from "../controllers/user/invoiceController.js"
-import order from "../models/orderSchema.js";
+import walletController from "../controllers/user/walletController.js";
 
 const router = express.Router()
 
@@ -114,7 +114,9 @@ router.post("/update-payment-status", checkoutController.updatePaymentStatus);
 router.post("/coupon/applyCoupon",userAuth,checkoutController.applyCoupon)
 router.post("/coupon/removeCoupon",userAuth,checkoutController.removeCoupon)
 
+//WALLET
 
+router.get("/wallet",userAuth,walletController.loadWallet)
 
 
 export default router 
