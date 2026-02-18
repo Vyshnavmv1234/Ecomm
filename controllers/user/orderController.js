@@ -6,6 +6,7 @@ import Coupon from "../../models/couponSchema.js"
 import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import moment from "moment"
+import Wallet from "../../models/walletSchema.js"
 
 
 const orderSuccess = async (req,res)=>{
@@ -45,9 +46,9 @@ const placeOrder = async (req,res)=>{
   try {
 
     const userId = req.session.user
-    const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,total} = req.body;
+    const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,status,total} = req.body;
     const couponCode = req.session.appliedCoupon
-
+    const wallet = await Wallet.findOne()
     const validateCoupon = await Coupon.findOne({code:couponCode,userId:req.session.user})
     if(validateCoupon){
       return res.status(STATUS_CODES.BAD_REQUEST).json({success:false})
@@ -63,6 +64,16 @@ const placeOrder = async (req,res)=>{
         success: false,
         message: "Address required"
       });
+    }
+    if(status == "WALLET"){
+      wallet.balance -= total
+
+      wallet.transactions.push({
+        amount:total,
+        type: "Debit",
+        description: "Paid using wallet",
+      })
+      await wallet.save()
     }
 
     const order = await Order.create({
@@ -91,9 +102,8 @@ const placeOrder = async (req,res)=>{
       },
       status: paymentMethod === "COD" ? "pending" : "processing",
       paymentMethod,
-      paymentStatus: paymentMethod === "COD"? "Pending": "Pending"
+      paymentStatus: paymentMethod === "COD"? "Pending": "Paid"
     })
-
     return res.status(STATUS_CODES.OK).json({success:true,orderId:order._id})
 
 

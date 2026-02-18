@@ -117,6 +117,9 @@ router.post("/coupon/removeCoupon",userAuth,checkoutController.removeCoupon)
 //WALLET
 
 router.get("/wallet",userAuth,walletController.loadWallet)
+router.post("/wallet/create-order",walletController.createWalletOrder)
+router.post("/wallet/verify-payment",walletController.verifyWalletPayment)
+
 
 
 export default router 

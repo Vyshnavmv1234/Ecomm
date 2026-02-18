@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
+const {Schema} = mongoose
 
-const walletSchema = new mongoose.Schema({
+const walletSchema = new Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -20,4 +21,5 @@ const walletSchema = new mongoose.Schema({
   ]
 })
 
-export default mongoose.model("Wallet", walletSchema)
+const wallet = mongoose.model("wallet",walletSchema)
+export default wallet

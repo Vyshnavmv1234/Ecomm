@@ -876,6 +876,35 @@ async function handlePlaceOrder(gst, total) {
 
   try {
 
+    //WALLET
+
+    if (paymentMethod === "WALLET") {
+
+      const res = await fetch("/user/place-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentMethod: "WALLET",
+          address: addressData,
+          status: "WALLET",
+          gst,
+          total,
+          isDefaultUsed: checkbox.checked
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.location.href = `/user/order/${data.orderId}`;
+      }
+      if(res.status == 400){
+        showToast("Coupon already used","error")
+      }
+
+      return;
+    }
+
     // ==============================
     // 🟢 CASH ON DELIVERY FLOW
     // ==============================
