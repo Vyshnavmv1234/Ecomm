@@ -230,33 +230,34 @@
                         <th>Transaction ID</th>
                         <th>Description</th>
                         <th>Date</th>
-                        <th>Withdrawal</th>
-                        <th>Deposit</th>
+                        <th>Amount</th>
+                       
                     </tr>
                 </thead>
 <tbody>
-    <% if (wallet && wallet.transactions.length > 0) { %>
-        <% wallet.transactions.slice().reverse().forEach((txn, index) => { %>
-            <tr>
-                <td>#<%= txn._id %></td>
-                <td><%= txn.description %></td>
-                <td><%= new Date(txn.date).toDateString() %></td>
-
-                <% if (txn.type === "debit") { %>
-                    <td>₹ <%= txn.amount %></td>
-                    <td>-</td>
-                <% } else { %>
-                    <td>-</td>
-                    <td>₹ <%= txn.amount %></td>
-                <% } %>
-            </tr>
-        <% }) %>
-    <% } else { %>
+<% if (walletDetails && walletDetails.length > 0) { %>
+    <% walletDetails.forEach((txn) => { %>
         <tr>
-            <td colspan="5" style="text-align:center;">No Transactions Found</td>
+            <td>#<%= txn._id %></td>
+            <td><%= txn.description %></td>
+            <td><%= new Date(txn.date).toDateString() %></td>
+
+            <td>
+                <% if (txn.description === "Paid using wallet") { %>
+                    <span style="color:red;">- ₹ <%= txn.amount %></span>
+                <% } else { %>
+                    <span style="color:green;">+ ₹ <%= txn.amount %></span>
+                <% } %>
+            </td>
         </tr>
-    <% } %>
+    <% }) %>
+<% } else { %>
+    <tr>
+        <td colspan="4" style="text-align:center;">No Transactions Found</td>
+    </tr>
+<% } %>
 </tbody>
+
 
             </table>
 
@@ -385,9 +386,11 @@
             const verifyData = await verifyRes.json();
 
             if (verifyData.success) {
-                showToast("Wallet updated successfully","success");
                 closeWalletModal();
-                location.reload();
+                setTimeout(()=>{
+                    location.reload();
+                },1500)
+                showToast("Wallet updated successfully","success");
             } else {
                 showToast("Payment verification failed","error");
             }

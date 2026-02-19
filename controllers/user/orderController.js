@@ -53,6 +53,11 @@ const placeOrder = async (req,res)=>{
     if(validateCoupon){
       return res.status(STATUS_CODES.BAD_REQUEST).json({success:false})
     }
+    if(status== "WALLET"){
+      if(wallet.balance <total){
+      return res.json({success:false,message:"Insufficient balance"})
+    }
+    }
 
     console.log(paymentMethod, paymentStatus, address, isDefaultUsed,gst)
 
@@ -162,9 +167,18 @@ const cancelProduct = async (req, res) => {
   try {
 
     const { itemId, orderId } = req.body;
-
+    const wallet = await Wallet.findOne()
     const order = await Order.findById(orderId);
     const item = order.orderItems.id(itemId);
+
+    wallet.balance += item.unitPrice*item.quantity
+
+    wallet.transactions.push({
+      amount: item.unitPrice,
+      type: "Credit",
+      description: "Order Cancellation",
+    })
+    await wallet.save()
 
     if (item.status === "cancelled") {
     return res.status(400).json({ success: false });
@@ -209,15 +223,26 @@ const cancelProduct = async (req, res) => {
   }
 };
 
-
 const cancelOrder = async(req,res)=>{
   try {
     const orderId = req.body.orderId
     const order = await Order.findOne({_id:orderId})
+    const wallet = await Wallet.findOne()
     
     order.orderItems.forEach(item=>{
       item.status ="cancelled"
     })
+    
+    wallet.balance += order.orderSummary.total
+    wallet.transactions.push({
+      amount: order.orderSummary.total,
+      type: "credit",
+      description: "Order Cancellation"
+    })
+    await wallet.save()
+
+    console.log(order,"hhh",wallet)
+
     await order.save()
     return res.status(STATUS_CODES.OK).json({success:true})
     
@@ -272,5 +297,29 @@ const requestReturn = async (req, res) => {
     res.redirect("/user/pageNotFound")
   }
 }
+const requestItemReturn = async (req,res)=>{
+  try {
+    
+    const {orderItemId,reason,orderId} = req.body
 
-export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder,orderHistory,requestReturn}
+    console.log(orderItemId,reason,orderId)
+
+    const order = await Order.findById(orderId)
+    const item = order.orderItems.id(orderItemId)
+
+    item.returnRequested = true
+    item.returnReason = reason
+    item.returnStatus = "requested"
+
+    await order.save()
+    res.redirect(`/user/orderDetail/${orderId}`)
+
+    console.log(item)
+
+  } catch (error) {
+    console.error("Return request error", error)
+    res.redirect("/user/pageNotFound")
+  }
+}
+
+export default {placeOrder,orderSuccess,orderDetail,cancelProduct,cancelOrder,orderHistory,requestReturn,requestItemReturn}

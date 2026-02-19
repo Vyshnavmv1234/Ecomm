@@ -101,6 +101,8 @@ router.post("/cancelOrder",userAuth,orderController.cancelOrder)
 router.get("/order/:orderId/invoice",userAuth,invoiceController.generateInvoice)
 router.get("/ordersHistory",userAuth,orderController.orderHistory)
 router.post("/request-return",userAuth,orderController.requestReturn)
+router.post("/request-returnItem",userAuth,orderController.requestItemReturn)
+
 
 //PAYMENT
 

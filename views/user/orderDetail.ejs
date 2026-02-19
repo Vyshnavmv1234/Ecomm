@@ -314,8 +314,10 @@
     </div>
   </div>
 
-<% } else { %>
-    <a > <button onclick="cancelOrder('<%=orderId%>')">Cancel Order</button></a>
+<% } else if(order.status !== "delivered" ) { %>
+    <%if(order.status !== "returned"){%>
+      <a > <button onclick="cancelOrder('<%=orderId%>')">Cancel Order</button></a>
+    <%}%>
     <%}%>
   </div>
 
@@ -355,26 +357,38 @@
           </div>
           <div class="product-qty">x<%= item.quantity %></div>
           <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
-          <%if(item.status ==="placed"&&order.status !=="delivered"){%>
+
+          <%if(order.status == "returned"){%>
+              <div class="stat"><button style="color: red;">Returned</button></div>
+           <% }
+          else if(item.status ==="placed"&&order.status !=="delivered"){%>
             <div class="product-price"><button onclick="cancelProduct('<%=item._id%>','<%=orderId%>')" >Cancel</button></div>
-          <%}else if(order.status !== "delivered"){%>
+          <%}
+          
+          else if(order.status !== "delivered"){%>
               <div class="stat"><button style="color: red;">Cancelled</button></div>
-           <% }else if(order.status === "delivered"){%>
+           <% }
+
+           else if(item.returnRequested == true){%>
+              <div class="stat"><button style="color: red;">Requested</button></div>
+           <% }
+           
+           else if(order.status === "delivered"){%>
             
-            <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
-    Return
-  </button>
+            <button class="return-btn" onclick="openReturnItemModal('<%=item._id%>','<%=order._id%>')">
+             Return
+            </button>
 
   <!-- Return Modal -->
-  <div id="returnModal" class="modal">
+  <div id="returnItemModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeReturnModal()">&times;</span>
 
       <h3>Request Return</h3>
 
-      <form action="/user/request-return" method="POST">
-        <input type="hidden" name="orderId" id="modalOrderId">
-
+      <form action="/user/request-returnItem" method="POST">
+        <input type="hidden" name="orderItemId" id="modalItemOrderId">
+        <input type="hidden" name="orderId" id = "orderId">
         <textarea
           name="reason"
           required
@@ -488,6 +502,11 @@
   function openReturnModal(orderId) {
     document.getElementById("modalOrderId").value = orderId;
     document.getElementById("returnModal").style.display = "block";
+  }
+  function openReturnItemModal(itemId,orderId) {
+    document.getElementById("modalItemOrderId").value = itemId;
+    document.getElementById("orderId").value = orderId;
+    document.getElementById("returnItemModal").style.display = "block";
   }
 
   function closeReturnModal() {
