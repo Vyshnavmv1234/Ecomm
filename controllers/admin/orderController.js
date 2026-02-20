@@ -1,6 +1,7 @@
 import Order from "../../models/orderSchema.js"
 import User from "../../models/userSchema.js"
 import mongoose from "mongoose"
+import Wallet from "../../models/walletSchema.js"
 
 const order = async (req,res)=>{
   try {
@@ -136,6 +137,17 @@ const handleReturn = async (req, res) => {
         returnStatus: "approved",
         status: "returned"
       });
+
+      const order = await Order.findById(orderId)
+      const wallet = await Wallet.findOne()
+
+      wallet.balance += order.orderSummary.total
+      wallet.transactions.push({
+      amount: order.orderSummary.total,
+      type: "credit",
+      description: "Product return"
+    })
+    await wallet.save()
     }
 
     if (action === "reject") {

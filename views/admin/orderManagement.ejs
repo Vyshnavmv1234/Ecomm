@@ -472,9 +472,36 @@
             <th>Action</th>
           </tr> 
         </thead>
-        <tbody>
+<tbody>
+
   <% returnOrders.forEach(order => { %>
 
+    <!-- 🔹 FULL ORDER RETURN -->
+    <% if (order.returnStatus === "requested") { %>
+
+      <tr>
+        <td><%= order._id %></td>
+        <td><%= order.userId.name %></td>
+        <td><%= order.returnReason %></td>
+        <td>
+          <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
+            <input type="hidden" name="orderId" value="<%= order._id %>">
+
+            <button class="approve-btn" name="action" value="approve">
+              Approve
+            </button>
+
+            <button class="reject-btn" name="action" value="reject">
+              Reject
+            </button>
+          </form>
+        </td>
+      </tr>
+
+    <% } %>
+
+
+    <!-- 🔹 SINGLE ITEM RETURN -->
     <% order.orderItems.forEach(item => { %>
       <% if (item.returnStatus === "requested") { %>
 
@@ -502,6 +529,7 @@
     <% }) %>
 
   <% }) %>
+
 </tbody>
       </table>
     <% } %>

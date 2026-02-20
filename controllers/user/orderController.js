@@ -300,6 +300,7 @@ const requestReturn = async (req, res) => {
 const requestItemReturn = async (req,res)=>{
   try {
     
+    const wallet = await Wallet.findOne()
     const {orderItemId,reason,orderId} = req.body
 
     console.log(orderItemId,reason,orderId)
@@ -307,9 +308,39 @@ const requestItemReturn = async (req,res)=>{
     const order = await Order.findById(orderId)
     const item = order.orderItems.id(orderItemId)
 
+    wallet.balance += order.orderSummary.total
+    wallet.transactions.push({
+      amount: order.orderSummary.total,
+      type: "credit",
+      description: "Order Cancellation"
+    })
+    await wallet.save()
+
     item.returnRequested = true
     item.returnReason = reason
     item.returnStatus = "requested"
+
+    let newSubTotal = 0;
+    let newDiscount = 0;
+
+    order.orderItems.forEach(i => {
+      if (i.status !== "returned") {
+        const itemSubTotal = i.originalPrice * i.quantity;
+        const itemDiscount =
+          (i.originalPrice - i.unitPrice) * i.quantity;
+
+        newSubTotal += itemSubTotal;
+        newDiscount += itemDiscount;
+      }
+    });
+
+    const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
+    const newTotal = newSubTotal - newDiscount + newGST;
+
+    order.orderSummary.subTotal = newSubTotal;
+    order.orderSummary.discount = newDiscount;
+    order.orderSummary.GST = newGST;
+    order.orderSummary.total = newTotal;
 
     await order.save()
     res.redirect(`/user/orderDetail/${orderId}`)
