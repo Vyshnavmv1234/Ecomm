@@ -25,8 +25,10 @@ const order = async (req,res)=>{
     const totalOrders = await Order.countDocuments(query)
 
      const returnOrders = await Order.find({
-      returnRequested: true,
-      returnStatus: "requested"
+      $or: [
+        { returnStatus: "requested" },
+        { orderItems: { $elemMatch: { returnStatus: "requested" } } }
+      ]
     });
     
     const ordersData = await Order.find(query)
@@ -35,7 +37,7 @@ const order = async (req,res)=>{
       .skip(skip)
       .limit(limit)
 
-    const totalPages = Math.ceil(totalOrders / limit)
+    const totalPages = Math.ceil(totalOrders / limit)  
 
     return res.render("admin/orderManagement",{
       admin:admin.name,
@@ -105,7 +107,29 @@ const updateStatus = async(req,res)=>{
 
 const handleReturn = async (req, res) => {
   try {
-    const { orderId, action } = req.body;
+    const { orderId, action ,itemId} = req.body;
+
+    if(itemId){
+
+      if(action == "approve"){
+        await Order.updateOne({_id:orderId,"orderItems._id":itemId},{$set:
+          {"orderItems.$.returnStatus": "approved",
+           "orderItems.$.returnRequested": false,
+           "orderItems.$.status": "returned"}})
+      }
+      if (action === "reject") {
+        await Order.updateOne(
+          { _id: orderId, "orderItems._id": itemId },
+          {
+            $set: {
+              "orderItems.$.returnStatus": "rejected",
+              "orderItems.$.returnRequested": false
+            }
+          }
+        );
+      }
+    }
+    else{
 
     if (action === "approve") {
       await Order.findByIdAndUpdate(orderId, {
@@ -120,6 +144,20 @@ const handleReturn = async (req, res) => {
         returnRequested: false
       });
     }
+  }
+      const updatedOrder = await Order.findById(orderId);
+
+      const allReturned = updatedOrder.orderItems.every(
+        item => item.status === "returned"
+      );
+
+      if (allReturned) {
+        await Order.findByIdAndUpdate(orderId, {
+          status: "returned"
+        });
+      }
+
+    
 
     res.redirect("/admin/order");
   } catch (error) {

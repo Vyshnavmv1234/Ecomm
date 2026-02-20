@@ -358,7 +358,7 @@
           <div class="product-qty">x<%= item.quantity %></div>
           <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
 
-          <%if(order.status == "returned"){%>
+          <%if(order.status == "returned" || item.status == "returned"){%>
               <div class="stat"><button style="color: red;">Returned</button></div>
            <% }
           else if(item.status ==="placed"&&order.status !=="delivered"){%>

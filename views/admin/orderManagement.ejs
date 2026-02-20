@@ -462,7 +462,7 @@
 
     <% if (returnOrders.length === 0) { %>
       <p>No return requests found.</p>
-    <% } else { %>
+    <% } else if(returnOrders.returnStatus !== "approved") { %>
       <table class="return-table">
         <thead>
           <tr>
@@ -470,30 +470,39 @@
             <th>User</th>
             <th>Reason</th>
             <th>Action</th>
-          </tr>
+          </tr> 
         </thead>
         <tbody>
-          <% returnOrders.forEach(order => { %>
-            <tr>
-              <td><%= order._id %></td>
-              <td><%= order.userId.name %></td>
-              <td><%= order.returnReason %></td>
-              <td>
-                <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
-                  <input type="hidden" name="orderId" value="<%= order._id %>">
+  <% returnOrders.forEach(order => { %>
 
-                  <button class="approve-btn" name="action" value="approve">
-                    Approve
-                  </button>
+    <% order.orderItems.forEach(item => { %>
+      <% if (item.returnStatus === "requested") { %>
 
-                  <button class="reject-btn" name="action" value="reject">
-                    Reject
-                  </button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
+        <tr>
+          <td><%= order._id %></td>
+          <td><%= order.userId.name %></td>
+          <td><%= item.returnReason %></td>
+          <td>
+            <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
+              <input type="hidden" name="orderId" value="<%= order._id %>">
+              <input type="hidden" name="itemId" value="<%= item._id %>">
+
+              <button class="approve-btn" name="action" value="approve">
+                Approve
+              </button>
+
+              <button class="reject-btn" name="action" value="reject">
+                Reject
+              </button>
+            </form>
+          </td>
+        </tr>
+
+      <% } %>
+    <% }) %>
+
+  <% }) %>
+</tbody>
       </table>
     <% } %>
   </div>
