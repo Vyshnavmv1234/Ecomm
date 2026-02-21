@@ -320,27 +320,7 @@ const requestItemReturn = async (req,res)=>{
     item.returnReason = reason
     item.returnStatus = "requested"
 
-    let newSubTotal = 0;
-    let newDiscount = 0;
-
-    order.orderItems.forEach(i => {
-      if (i.status !== "returned") {
-        const itemSubTotal = i.originalPrice * i.quantity;
-        const itemDiscount =
-          (i.originalPrice - i.unitPrice) * i.quantity;
-
-        newSubTotal += itemSubTotal;
-        newDiscount += itemDiscount;
-      }
-    });
-
-    const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
-    const newTotal = newSubTotal - newDiscount + newGST;
-
-    order.orderSummary.subTotal = newSubTotal;
-    order.orderSummary.discount = newDiscount;
-    order.orderSummary.GST = newGST;
-    order.orderSummary.total = newTotal;
+    
 
     await order.save()
     res.redirect(`/user/orderDetail/${orderId}`)

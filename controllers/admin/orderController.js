@@ -2,6 +2,7 @@ import Order from "../../models/orderSchema.js"
 import User from "../../models/userSchema.js"
 import mongoose from "mongoose"
 import Wallet from "../../models/walletSchema.js"
+import Product from "../../models/productSchema.js"
 
 const order = async (req,res)=>{
   try {
@@ -109,14 +110,46 @@ const updateStatus = async(req,res)=>{
 const handleReturn = async (req, res) => {
   try {
     const { orderId, action ,itemId} = req.body;
+    const order = await Order.findById(orderId)
+    const item =  order.orderItems.id(itemId)
 
     if(itemId){
 
       if(action == "approve"){
-        await Order.updateOne({_id:orderId,"orderItems._id":itemId},{$set:
-          {"orderItems.$.returnStatus": "approved",
+        await Order.updateOne({_id:orderId,"orderItems._id":itemId},{
+          $set:{
+           "orderItems.$.returnStatus": "approved",
            "orderItems.$.returnRequested": false,
-           "orderItems.$.status": "returned"}})
+           "orderItems.$.status": "returned"
+          }})
+      
+          await Product.updateOne({_id:item.product,"variants._id":item.variant},{$inc:{"variants.$.stock":item.quantity}})
+
+          const updatedOrder = await Order.findById(orderId)
+
+          let newSubTotal = 0;
+          let newDiscount = 0;
+
+          updatedOrder.orderItems.forEach(i => {
+            if (i.status !== "returned") {
+              const itemSubTotal = i.originalPrice * i.quantity;
+              const itemDiscount =
+                (i.originalPrice - i.unitPrice) * i.quantity;
+
+              newSubTotal += itemSubTotal;
+              newDiscount += itemDiscount;
+            }
+          });
+
+          const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
+          const newTotal = newSubTotal - newDiscount + newGST;
+
+          updatedOrder.orderSummary.subTotal = newSubTotal;
+          updatedOrder.orderSummary.discount = newDiscount;
+          updatedOrder.orderSummary.GST = newGST;
+          updatedOrder.orderSummary.total = newTotal;
+
+          await updatedOrder.save()
       }
       if (action === "reject") {
         await Order.updateOne(
@@ -131,15 +164,22 @@ const handleReturn = async (req, res) => {
       }
     }
     else{
-
+      
+      const order = await Order.findById(orderId)
     if (action === "approve") {
       await Order.findByIdAndUpdate(orderId, {
         returnStatus: "approved",
         status: "returned"
       });
 
-      const order = await Order.findById(orderId)
-      const wallet = await Wallet.findOne()
+      for (let item of order.orderItems) {
+          await Product.updateOne(
+            { _id: item.product, "variants._id": item.variant },
+            { $inc: { "variants.$.stock": item.quantity } }
+          );
+        }
+
+      const wallet = await Wallet.findOne({userId:order.userId})
 
       wallet.balance += order.orderSummary.total
       wallet.transactions.push({
@@ -168,8 +208,6 @@ const handleReturn = async (req, res) => {
           status: "returned"
         });
       }
-
-    
 
     res.redirect("/admin/order");
   } catch (error) {
