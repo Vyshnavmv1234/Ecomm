@@ -300,7 +300,7 @@
 
 <div class="price-section">
   <span class="current-price">
-    ₹ <%= sellingPrice.toLocaleString() %>
+    ₹ <%= product.variants[0].finalPrice || product.variants[0].price %>
   </span>
 
   <% if(discountPercent > 0){ %>

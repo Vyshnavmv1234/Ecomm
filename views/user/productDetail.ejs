@@ -513,7 +513,7 @@ body {
     <span
           class="size-option <%= i === 0 ? 'active' : '' %> <%= v.stock === 0 ? 'disabled' : ''%> "
           data-size="<%= v.size %>"
-          data-price="<%= v.price %>"
+          data-price="<%= v.finalPrice || v.price %>"
           data-stock="<%= v.stock %>"
           onclick="selectSize(this,'<%=v._id%>')">
           <%= v.size %>

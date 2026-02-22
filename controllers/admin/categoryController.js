@@ -92,7 +92,7 @@ const postAddCategory = async (req, res) => {
     return res.status(201).json({
       message: "Category added successfully"
     })
-
+    
   } catch (error) {
     console.error("Category create failed:", error)
     return res.status(500).json({ error: "Internal server error" })

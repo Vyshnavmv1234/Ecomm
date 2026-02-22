@@ -1,0 +1,616 @@
+<%- include("../../views/partials/admin/header") %>
+
+<title>Offer Management</title>
+
+<style>
+
+/* ================= GLOBAL ================= */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6f9;
+}
+.action-btn{
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-size:16px;
+    margin-right:8px;
+}
+
+.container {
+    display: flex;
+}
+
+/* ================= MAIN ================= */
+
+.main {
+    flex: 1;
+    margin-left: 270px;
+    margin-top: 60px;
+    padding: 30px;
+}
+
+/* ================= HEADER ================= */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.create-btn {
+    background: #bdabab;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ================= TABS ================= */
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #eee;
+    text-decoration: none;
+    color: black;
+}
+
+.tab.active {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* ================= FILTER ================= */
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.filter-bar input {
+    width: 280px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+/* ================= TABLE ================= */
+
+.table-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #fafafa;
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: left;
+}
+
+tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* ================= BADGES ================= */
+
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.badge-discount {
+    background: #fde2e1;
+    color: #d11a2a;
+}
+
+.badge-active {
+    background: #d4f8e8;
+    color: #1aa75b;
+}
+
+.badge-inactive {
+    background: #eee;
+}
+
+/* ================= MODAL ================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .4);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    width: 480px;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+}
+
+.modal-actions {
+    text-align: right;
+}
+
+.save-btn {
+    background: #e53935;
+    color: white;
+}
+
+.cancel-btn {
+    background: #eee;
+}
+
+</style>
+
+<body>
+
+<div class="container">
+
+    <%- include("../../views/partials/admin/sidebar") %>
+
+    <div class="main">
+
+        <!-- ================= HEADER ================= -->
+
+        <div class="header">
+            <h1>Offers Management</h1>
+
+            <button class="create-btn"
+                    onclick="openOfferModal()">
+                + Add <%= offerType.charAt(0).toUpperCase() + offerType.slice(1) %> Offer
+            </button>
+        </div>
+
+        <!-- ================= TABS ================= -->
+
+        <div class="tabs">
+
+            <a href="/admin/offers?type=product"
+               class="tab <%= offerType === 'product' ? 'active' : '' %>">
+                Product Offers
+            </a>
+
+            <a href="/admin/offers?type=category"
+               class="tab <%= offerType === 'category' ? 'active' : '' %>">
+                Category Offers
+            </a>
+
+        </div>
+
+        <!-- ================= FILTER ================= -->
+
+        <div class="filter-bar">
+            <input placeholder="Search by offer name or product">
+
+            <div>
+                <select>
+                    <option>All Status</option>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                </select>
+
+                <button>Apply</button>
+            </div>
+        </div>
+
+        <!-- ================= TABLE ================= -->
+
+        <div class="table-card">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Offer Name</th>
+                        <th>
+                            <%= offerType === "category"
+                                ? "Category"
+                                : "Product" %>
+                        </th>
+                        <th>Discount</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                <% if (offers && offers.length > 0) { %>
+
+                    <% offers.forEach(offer => { %>
+
+                        <tr>
+
+                            <td><%= offer.title %></td>
+
+                            <td>
+                                <% if (offerType === "product") { %>
+                                    <%= offer.product?.name || "-" %>
+                                <% } %>
+
+                                <% if (offerType === "category") { %>
+                                    <%= offer.category?.name || "-" %>
+                                <% } %>
+                            </td> 
+
+                            <td>
+                                <span class="badge badge-discount">
+                                    <% if (offer.discountType === "percentage") { %>
+                                        <%= offer.discountValue %>% OFF
+                                    <% } else { %>
+                                        ₹<%= offer.discountValue %> OFF
+                                    <% } %>
+                                </span>
+                            </td>
+
+                            <td>
+                                <div style="color:green">
+                                    Start:
+                                    <%= offer.startDate.toDateString() %>
+                                </div>
+
+                                <div style="color:red">
+                                    End:
+                                    <%= offer.endDate.toDateString() %>
+                                </div>
+                            </td>
+
+                            <td>
+
+                                <%
+                                    const today = new Date();
+                                    const active =
+                                        offer.isActive &&
+                                        today >= offer.startDate &&
+                                        today <= offer.endDate;
+                                %>
+
+                                <span class="badge
+                                    <%= active ? 'badge-active' : 'badge-inactive' %>">
+
+                                    <%= active ? "Active" : "Inactive" %>
+
+                                </span>
+
+                            </td>
+                            <td>
+
+                            <button
+                              onclick="toggleOffer('<%=offer._id%>', '<%=offer.isActive%>')"
+                              class="action-btn">
+
+                              <% if(offer.isActive){ %>
+                                  🚫 Unlist
+                              <% } else { %>
+                                  ✅ List
+                              <% } %>
+
+                            </button>
+
+                            </td>
+
+                        </tr>
+
+                    <% }) %>
+
+                <% } else { %>
+
+                    <tr>
+                        <td colspan="5" style="text-align:center">
+                            No Offers Found
+                        </td>
+                    </tr>
+
+                <% } %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div id="offerModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h3>Add Offer</h3>
+            <span onclick="closeOfferModal()">×</span>
+        </div>
+
+<form id="offerForm">
+
+<input type="hidden" name="type" value="<%= offerType %>">
+
+<div class="form-group">
+    <label>Title</label>
+    <input name="title">
+    <div class="error" id="titleError"></div>
+</div>
+
+<% if (offerType === "product") { %>
+<div class="form-group">
+    <label>Product</label>
+    <select name="product">
+        <option value="">Select</option>
+        <% products.forEach(p => { %>
+            <option value="<%= p._id %>"><%= p.name %></option>
+        <% }) %>
+    </select>
+    <div class="error" id="productError"></div>
+</div>
+<% } %>
+
+<% if (offerType === "category") { %>
+<div class="form-group">
+    <label>Category</label>
+    <select name="category">
+        <option value="">Select</option>
+        <% categories.forEach(c => { %>
+            <option value="<%= c._id %>"><%= c.name %></option>
+        <% }) %>
+    </select>
+    <div class="error" id="categoryError"></div>
+</div>
+<% } %>
+
+<div class="form-group">
+    <label>Discount Type</label>
+    <select name="discountType">
+        <option value="flat">Flat</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Discount Value</label>
+    <input type="number" name="discountValue">
+    <div class="error" id="discountError"></div>
+</div>
+
+<div class="form-group">
+    <label>Start Date</label>
+    <input type="date" name="startDate">
+</div>
+
+<div class="form-group">
+    <label>End Date</label>
+    <input type="date" name="endDate">
+    <div class="error" id="dateError"></div>
+</div>
+
+<div class="modal-actions">
+    <button type="button"
+        class="cancel-btn"
+        onclick="closeOfferModal()">Cancel</button>
+
+    <button class="save-btn">Create</button>
+</div>
+
+</form>
+
+    </div>
+
+</div>
+
+<script>
+
+const offerModal = document.getElementById("offerModal");
+const offerForm = document.getElementById("offerForm");
+
+function openOfferModal() {
+    offerModal.style.display = "flex";
+}
+
+function closeOfferModal() {
+    offerModal.style.display = "none";
+    offerForm.reset();
+    clearErrors();
+}
+
+function clearErrors(){
+    document.querySelectorAll(".error")
+        .forEach(e => e.innerText = "");
+}
+
+/* ================= VALIDATION ================= */
+
+function validateForm(f){
+
+    let valid = true;
+    clearErrors();
+
+    const title = f.title.value.trim();
+    const discount = Number(f.discountValue.value);
+    const startDate = f.startDate.value;
+    const endDate = f.endDate.value;
+    const type = f.type.value;
+
+    /* TITLE */
+    if(!title){
+        titleError.innerText = "Title is required";
+        valid = false;
+    }
+
+    /* PRODUCT */
+    if(type === "product" && f.product && !f.product.value){
+        productError.innerText = "Select a product";
+        valid = false;
+    }
+
+    /* CATEGORY */
+    if(type === "category" && f.category && !f.category.value){
+        categoryError.innerText = "Select a category";
+        valid = false;
+    }
+
+    /* DISCOUNT */
+    if(!discount || discount <= 0){
+        discountError.innerText =
+            "Discount must be greater than 0";
+        valid = false;
+    }
+
+    /* DATE VALIDATION */
+    if(!startDate || !endDate){
+        dateError.innerText =
+            "Select both dates";
+        valid = false;
+    }
+    else{
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if(start >= end){
+            dateError.innerText =
+                "End date must be after start date";
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
+/* ================= SUBMIT ================= */
+
+offerForm.addEventListener("submit", async(e)=>{
+
+    e.preventDefault();
+
+    const f = e.target;
+
+    if(!validateForm(f)) return;
+
+    const data = {
+        title: f.title.value.trim(),
+        product: f.product?.value || null,
+        category: f.category?.value || null,
+        discountType: f.discountType.value,
+        discountValue: Number(f.discountValue.value),
+        startDate: f.startDate.value,
+        endDate: f.endDate.value,
+        type: f.type.value
+    };
+
+    try{
+
+        const res = await fetch("/admin/offer/addOffer",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if(res.ok && result.success){
+            location.reload();
+        }else{
+            alert(result.message || "Failed");
+        }
+
+    }catch(err){
+        alert("Server error");
+    }
+
+});
+async function toggleOffer(id,isActive){
+
+  const action = isActive
+      ? "unlist"
+      : "list";
+
+  const ok = confirm(
+      `Do you want to ${action} this offer?`
+  );
+
+  if(!ok) return;
+
+  try{
+
+    const res = await fetch(
+      `/admin/offer/toggle/${id}`,
+      { method:"PATCH" }
+    );
+
+    const result = await res.json();
+
+    if(res.ok && result.success){
+        location.reload();
+    }else{
+        alert(result.message || "Failed");
+    }
+
+  }catch(err){
+      alert("Server error");
+  }
+}
+
+/* CLOSE MODAL OUTSIDE CLICK */
+
+window.onclick = function(e){
+    if(e.target === offerModal){
+        closeOfferModal();
+    }
+}
+
+</script>
+
+</body>
+</html>

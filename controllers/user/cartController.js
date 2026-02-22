@@ -91,10 +91,18 @@ const addToCart = async (req,res)=>{
       return res.status(STATUS_CODES.UNAUTHORIZED).json({status:false,message:"This Size is Out of stock"})
     }
 
-    const discount = productData.discount || 0
-    const discountedUnitPrice = Math.round(
+    let discountedUnitPrice =0
+    let discount =0
+
+    if(variant.finalPrice>0){
+      discount = variant.price - variant.finalPrice
+      discountedUnitPrice = variant.finalPrice
+    }else{
+      discount = productData.discount || 0
+      discountedUnitPrice = Math.round(
       variant.price - (variant.price * discount / 100)
     )
+    }
 
     let cart = await Cart.findOne({ userId })
 
@@ -106,7 +114,7 @@ const addToCart = async (req,res)=>{
           variantId,
           quantity: 1,
           unitPrice: discountedUnitPrice,
-          originalPrice: variant.price,
+          originalPrice: variant.price < variant.finalPrice ? variant.price : variant.finalPrice,
           discount
         }]
       })

@@ -8,6 +8,7 @@ import { uploadProduct } from "../middlewares/multer.js"
 import { uploadCategory } from "../middlewares/multer.js"
 import orderController from "../controllers/admin/orderController.js"
 import couponController from "../controllers/admin/couponController.js"
+import offerController from "../controllers/admin/offerController.js"
 
 
 const router = express.Router()
@@ -64,6 +65,11 @@ router.patch("/coupon/disableCoupon/:id",adminAuth,couponController.disableCoupo
 router.patch("/coupon/enableCoupon/:id",adminAuth,couponController.enableCoupon)
 router.patch("/coupon/updateCoupon/:id",adminAuth,couponController.updateCoupon)
 
+//OFFER
+
+router.get("/offers",adminAuth,offerController.loadOffer)
+router.post("/offer/addOffer",adminAuth,offerController.loadAddOffer)
+router.patch("/offer/toggle/:id",adminAuth,offerController.toggleOfferStatus)
 
 
 export default router     

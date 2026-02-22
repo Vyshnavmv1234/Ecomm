@@ -4,6 +4,7 @@ import env from "dotenv"
 import bcrypt from "bcrypt"
 import Category from "../../models/categorySchema.js"
 import Product from "../../models/productSchema.js"
+import Offer from "../../models/offerSchema.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
 import mongoose from "mongoose"
 
@@ -386,6 +387,17 @@ const loadProductList = async(req,res)=>{
       const categoryData = await Category.find({isBlocked:false})
       const productData = await Product.aggregate(pipeline) 
 
+      const products = await Product.find().populate({path:"offer",match:{isActive:false}})
+      const inactiveOfferProducts = products.filter(p => p.offer);
+
+      for(const product of inactiveOfferProducts){
+        
+        product.variants.forEach(i=>{
+          i.finalPrice = i.price
+        })
+        await products.save()
+      }
+       
       return res.render("user/productList",{
         user:userData,
         products:productData,

@@ -33,7 +33,12 @@ const productSchema = new Schema({
     url: String,
     public_id: String
   }],
-
+  
+  offer: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Offer",
+  default: null
+},
   variants: [
     {
       size: {
@@ -50,7 +55,11 @@ const productSchema = new Schema({
         type: Number,
         required: true,
         min:0
-      }
+      },
+      finalPrice: {
+      type: Number,
+      default: null
+    },
     }
   ],
 
