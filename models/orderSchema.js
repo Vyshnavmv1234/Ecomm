@@ -59,6 +59,9 @@ const orderSchema = new Schema({
       type: Number,
       required: true
     },
+    coupon:{
+      type: Number,
+    },
     total:{
       type: Number,
       required: true

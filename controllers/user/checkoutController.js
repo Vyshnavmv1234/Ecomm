@@ -30,7 +30,7 @@ const loadCheckout = async (req,res)=>{
     if(req.session.appliedCoupon){
      couponCode = req.session.appliedCoupon
      couponDetails = await Coupons.findOne({code:couponCode})
-     couponValue = couponDetails.discountValue
+     couponValue = couponDetails?.discountValue
      
     }    
 

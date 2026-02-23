@@ -163,7 +163,7 @@
           <!-- ONE PRODUCT -->
           <div class="cart-item">
 
-            <img src="<%= item.productId.images[0].url %>" alt="">
+            <a href="/user/productDetail?id=<%=item.productId._id%>"><img src="<%= item.productId.images[0].url %>" alt=""></a>
 
             <div class="item-info">
               <h4><%= item.productId.name %></h4>

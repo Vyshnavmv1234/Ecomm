@@ -350,7 +350,7 @@
 
       <% order.orderItems.forEach(item => { %>
         <div class="product-row">
-          <img src="<%= item.product.images[0].url %>" alt="">
+          <a href="/user/productDetail?id=<%=item.product._id%>"><img src="<%= item.product.images[0].url %>" alt=""></a>
           <div class="product-info">
             <small><%= item.product.title %></small>
             <p><%= item.product.name %></p>

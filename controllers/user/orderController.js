@@ -80,12 +80,14 @@ const placeOrder = async (req,res)=>{
       })
       await wallet.save()
     }
+    const gstValue = Number(gst);
+    const totalValue = Number(total);
 
     const order = await Order.create({
       userId,
       orderItems: cart.items.map(item=>({ 
         product: item.productId._id,
-        variant: item.variantId,
+        variant: item.variantId, 
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         originalPrice: item.originalPrice
@@ -94,7 +96,8 @@ const placeOrder = async (req,res)=>{
         subTotal:orderSummary.subTotal,
         discount:orderSummary.totalDiscount,
         GST:gst,
-        total
+        total,
+        coupon: orderSummary.subTotal+gstValue-orderSummary.totalDiscount-totalValue
       },
       shipping_address:{
         name: address.name,
@@ -105,7 +108,7 @@ const placeOrder = async (req,res)=>{
         streetName: address.streetName,
         phone: address.phone
       },
-      status: paymentMethod === "COD" ? "pending" : "processing",
+      status: paymentMethod === "COD" ? "pending" : "delivered",
       paymentMethod,
       paymentStatus: paymentMethod === "COD"? "Pending": "Paid"
     })
@@ -260,7 +263,7 @@ const orderHistory = async (req,res)=>{
 
     const totalOrders = await Order.countDocuments()
 
-    const orderDetails = await Order.find().populate("orderItems.product")
+    const orderDetails = await Order.find({userId:req.session.user}).populate("orderItems.product")
     .sort({createdAt:-1})
     .skip(skip)
     .limit(limit)

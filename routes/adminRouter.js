@@ -9,6 +9,7 @@ import { uploadCategory } from "../middlewares/multer.js"
 import orderController from "../controllers/admin/orderController.js"
 import couponController from "../controllers/admin/couponController.js"
 import offerController from "../controllers/admin/offerController.js"
+import analyticsController from "../controllers/admin/analyticsController.js"
 
 
 const router = express.Router()
@@ -71,5 +72,11 @@ router.get("/offers",adminAuth,offerController.loadOffer)
 router.post("/offer/addOffer",adminAuth,offerController.loadAddOffer)
 router.patch("/offer/toggle/:id",adminAuth,offerController.toggleOfferStatus)
 
+//ANALYTICS
+
+router.get("/analytics",adminAuth,analyticsController.loadAnalytics)
+router.get("/analytics-data",adminAuth,analyticsController.postAnalytics);
+router.get("/analytics/export-pdf",adminAuth,analyticsController.exportPDF);
+router.get("/analytics/export-excel",adminAuth,analyticsController.exportExcel);
 
 export default router     
