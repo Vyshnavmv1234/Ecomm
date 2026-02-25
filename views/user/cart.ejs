@@ -254,6 +254,7 @@
 
     <!-- Toastify JS -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
       const defaultAddress = <%- JSON.stringify(defaultAddress || null) %>;
@@ -281,39 +282,71 @@
       }).showToast();
     }
 
-    async function cFun(pId,vId) {
+    async function cFun(pId, vId) {
 
-      confirm("Are you sure you want to remove this item?")
+    const result = await Swal.fire({
+      title: "Remove Item?",
+      text: "Are you sure you want to remove this item?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, Remove",
+      cancelButtonText: "Cancel"
+    });
 
-      const res = await fetch("/user/cart/remove",{
+    if (!result.isConfirmed) return;
+
+    try {
+
+      const res = await fetch("/user/cart/remove", {
         method: "DELETE",
-        headers:{
-          "Content-Type":"application/json"
+        headers: {
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({productId:pId, variantId:vId})
-      })
+        body: JSON.stringify({
+          productId: pId,
+          variantId: vId
+        })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
-          if (res.status === 401) {
-          showToast(data.message || "Please login", "error")
+      /* LOGIN ERROR */
+      if (res.status === 401) {
+        showToast(data.message || "Please login", "error");
 
-          setTimeout(() => {
-            window.location.href = "/user/login"
-          }, 1200)
+        setTimeout(() => {
+          window.location.href = "/user/login";
+        }, 1200);
 
-          return
-    }
-
-      if(res.ok && data.success){
-
-        window.location.reload()
-        showToast(data.message,"error")
-      }else{
-        showToast("Error occured while removing product","error") 
+        return;
       }
-      
+
+      /* SUCCESS */
+      if (res.ok && data.success) {
+
+        showToast(
+          data.message || "Item removed successfully",
+          "success"
+        );
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 900);
+
+      } else {
+        showToast(
+          data.message || "Error removing product",
+          "error"
+        );
+      }
+
+    } catch (err) {
+      console.error(err);
+      showToast("Server error", "error");
     }
+  }
 
     async function updateQty(productId, variantId, num) {
 

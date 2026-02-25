@@ -289,29 +289,31 @@
        <div class="brand"><%=product.name%></div>
        <p class="title"><%=product.title%></p>
 
-       <%
-  const originalPrice = product.variants[0].price; 
-  const discountPercent = product.discount || 0;
+<%
+const originalPrice = product.variants[0].price;
 
-  const sellingPrice = discountPercent > 0
-    ? Math.round(originalPrice - (originalPrice * discountPercent / 100))
-    : originalPrice;
+const finalPrice =
+  product.variants[0].finalPrice ||
+  originalPrice;
+
+/* Offer exists only if price reduced */
+const hasOffer = finalPrice < originalPrice;
 %>
 
 <div class="price-section">
+
+  <!-- Selling Price -->
   <span class="current-price">
-    ₹ <%= product.variants[0].finalPrice || product.variants[0].price %>
+    ₹ <%= finalPrice.toLocaleString() %>
   </span>
 
-  <% if(discountPercent > 0){ %>
+  <!-- Show only if offer exists -->
+  <% if(hasOffer){ %>
     <span class="original-price">
       ₹ <%= originalPrice.toLocaleString() %>
     </span>
-
-    <span class="discount-percent">
-      <%= discountPercent %>% off
-    </span>
   <% } %>
+
 </div>
 
        

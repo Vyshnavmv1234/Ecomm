@@ -19,24 +19,34 @@ const loadCoupons = async (req,res)=>{
 const createCoupon = async (req,res)=>{
   try {
 
-    const {code,discountValue,minOrderAmount,expireDate,usageLimit} = req.body
-    const userId = req.session.user
+    let {code,discountValue,minOrderAmount,expireDate,usageLimit} = req.body
     let coupon = await Coupon.findOne({code})
 
-    if(coupon){
-      return res.json({message:"Coupon already exists"})
+    discountValue = Number(discountValue);
+    minOrderAmount = Number(minOrderAmount);
+
+    if(discountValue >= minOrderAmount/2){
+      return res.status(400).json({
+        success:false,
+        message:
+        "Discount must be less than twice minimum order"
+      });
     }
+
+    if(coupon){
+    return res.status(400).json({success:false,message:"Coupon already exists"});
+  }
     coupon = await Coupon.create({
       code,
       discountValue,
       expireDate,
+      usageLimit:Number(usageLimit)||1,
       minOrderAmount,
       usageLimit,
       userId: [],
     })
 
-    return res.redirect("/admin/coupon/couponManagement")
-
+    return res.json({success:true,message:"Coupon created successfully"});
     
   } catch (error) {
     console.error("Error while creating coupon",error)
@@ -47,10 +57,9 @@ const disableCoupon = async (req,res)=>{
   try {
 
     const couponId = req.params.id
-    console.log(couponId)
 
     await Coupon.updateOne({_id:couponId},{$set:{isActive:false}})
-    return res.json({success:true})
+    return res.json({success:true,message:"Coupon disabled"})
     
   } catch (error) {
     console.error("Error while creating coupon",error)
@@ -60,10 +69,9 @@ const enableCoupon = async (req,res)=>{
   try {
 
     const couponId = req.params.id
-    console.log(couponId)
 
     await Coupon.updateOne({_id:couponId},{$set:{isActive:true}})
-    return res.json({success:true})
+    return res.json({success:true,message:"Coupon enabled"})
     
   } catch (error) {
     console.error("Error while creating coupon",error)
@@ -74,12 +82,29 @@ const updateCoupon = async (req,res)=>{
   try {
 
     const id = req.params.id
-    const formData = req.body
+    let {code,discountValue,minOrderAmount} = req.body;
+    
+    const existingCoupon = await Coupon.findOne({
+    code: code.toUpperCase(),
+    _id: { $ne: req.params.id }  
+  });
 
-    const existingCode = await Coupon.findOne({code:formData.code})
+  if(existingCoupon){
+    return res.json({
+      success:false,
+      message:"Coupon already exists"
+    });
+  }
+    
+    discountValue = Number(discountValue);
+    minOrderAmount = Number(minOrderAmount);
 
-    if(existingCode){
-      return res.json({message:"Code already exists"})
+    if(discountValue >= minOrderAmount/2){
+      return res.status(400).json({
+        success:false,
+        message:
+        "Discount must be less than twice minimum order"
+      });
     }
     
     await Coupon.findByIdAndUpdate(id,req.body)

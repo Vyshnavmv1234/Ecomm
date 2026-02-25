@@ -545,6 +545,21 @@ const loadAddAddress = async (req,res)=>{
     res.redirect("/user/pageNotFound")
   }
 }
+const setDefaultAddress = async (req,res)=>{
+try{
+
+  const userId=req.session.user;
+  const {addressId}=req.body;
+
+  await Address.updateOne({user_id:userId},{$set:{"address.$[].isDefault":false}})
+  await Address.updateOne({user_id:userId,"address._id":addressId},{$set:{"address.$.isDefault":true}})
+
+  res.json({success:true});
+
+}catch(err){
+  res.json({success:false});
+}
+};
 
 const postAddAddress = async (req,res)=>{
   try {
@@ -563,7 +578,7 @@ const postAddAddress = async (req,res)=>{
       city,
       streetName,
       house,
-      isDefault: !userAddress || userAddress.address.length === 0
+      
     }
 
     if(!userAddress){
@@ -648,6 +663,7 @@ const postEditAddress = async(req,res)=>{
         _id:addressId,
         name:data.name,
         city:data.city,
+        house:data.house,
         state:data.state,
         pincode:data.pincode,
         phone:data.phone,
@@ -684,4 +700,4 @@ const deleteAddress = async(req,res)=>{
   }
 }
 
-export default {getForgotPassword,loadResetPassword,forgotPassEmailValid,resendForgotPasswordOtp,loadUpdateEmail,verifyForgotPassOtp,newPassword,userDashboard,userProfile,changeEmail,changeEmailValid,verifyEmailOtp,resendEmailOtp,updateEmail,changePassword,changePasswordValid,verifyChangePasswordOtp,resendChangePassword,loadChangeResetPassword,newChangePassword,loadAddAddress,postAddAddress,loadEditAddress,loadAddress,postEditAddress,deleteAddress}
+export default {getForgotPassword,loadResetPassword,forgotPassEmailValid,resendForgotPasswordOtp,loadUpdateEmail,verifyForgotPassOtp,newPassword,userDashboard,userProfile,changeEmail,changeEmailValid,verifyEmailOtp,resendEmailOtp,updateEmail,changePassword,changePasswordValid,verifyChangePasswordOtp,resendChangePassword,loadChangeResetPassword,newChangePassword,loadAddAddress,postAddAddress,loadEditAddress,loadAddress,postEditAddress,deleteAddress,setDefaultAddress}

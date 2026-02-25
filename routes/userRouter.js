@@ -67,6 +67,7 @@ router.post('/add-address',userAuth,profileController.postAddAddress)
 router.get("/edit-address",userAuth,profileController.loadEditAddress)
 router.post("/edit-address",userAuth,profileController.postEditAddress)
 router.get("/delete-address",userAuth,profileController.deleteAddress)
+router.patch("/address/set-default",userAuth,profileController.setDefaultAddress)
 
 //PRODUCT LISTINGS + Details
 

@@ -1,90 +1,208 @@
-  <%-include("../../views/partials/user/header")%>
+<%- include("../../views/partials/user/header") %>
 
+<style>
+
+/* ADDRESS CARD */
+.address-card{
+  padding:20px;
+  border-radius:8px;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:0.25s;
+  margin-bottom:15px;
+  background:#fff;
+}
+
+.address-card:hover{
+  border-color:#8c9dc2;
+}
+
+/* DEFAULT ADDRESS */
+.active-address{
+  border:2px solid #8c9dc2;
+  background:#eff6ff;
+}
+
+/* BUTTONS */
+.edit-btn{
+  padding:8px 18px;
+  border:1px solid #2fbc47;
+  color:#68b432;
+  border-radius:6px;
+  text-decoration:none;
+}
+
+.delete-btn{
+  padding:8px 18px;
+  border:1px solid red;
+  color:red;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+</style>
 
 <!-- ================= MAIN ================= -->
 <main style="padding:50px 60px;">
 
-  <h2 style="text-align:center; margin-bottom:40px;">
+<div style="display:flex; gap:40px; align-items:flex-start;">
 
-  </h2>
-
-  <div style="display:flex; gap:40px; align-items:flex-start;">
-
-    <!-- ========== SIDEBAR ========== -->
-      <%-include("../../views/partials/user/sidebar")%>
+<!-- SIDEBAR -->
+<%- include("../../views/partials/user/sidebar") %>
 
 
-<div style="flex:1; background:#fff; border-radius:8px; padding:25px; border:1px solid #e5e5e5;">
-  <h4 style="margin-bottom:20px;">ADDRESS</h4>
+<div style="flex:1; background:#fff; border-radius:8px;
+            padding:25px; border:1px solid #e5e5e5;">
 
-<% if (userAddress && userAddress.address.length > 0) { %>
+<h4 style="margin-bottom:20px;">ADDRESS</h4>
+
+<% if(userAddress && userAddress.address.length > 0){ %>
 
   <% userAddress.address.forEach(address => { %>
 
-    <div style="margin-bottom:20px;">
+  <!-- ADDRESS CARD -->
+  <div
+    class="address-card <%= address.isDefault ? 'active-address' : '' %>"
+    onclick="setDefaultAddress('<%= address._id %>', this)"
+  >
 
-      <!-- ADDRESS DETAILS -->
-      <p><%= address.name %></p>
-      <p><%= address.house %></p>
-      <p><%= address.streetName %></p>
-      <p><%= address.city %></p>
-      <p><%= address.state %></p>
-      <p><%= address.pincode %></p>
-      <p><%= address.phone %></p>
+    <p><%= address.name %></p>
+    <p><%= address.house %></p>
+    <p><%= address.streetName %></p>
+    <p><%= address.city %></p>
+    <p><%= address.state %></p>
+    <p><%= address.pincode %></p>
+    <p><%= address.phone %></p>
 
-      <!-- BUTTONS FOR THIS ADDRESS -->
-      <div style="display:flex; gap:12px; margin-top:10px;">
+    <!-- ACTION BUTTONS -->
+    <div style="display:flex; gap:12px; margin-top:10px;">
 
-        <!-- EDIT -->
-        <a href="/user/edit-address?id=<%= address._id %>"
-           style="padding:8px 18px; border:1px solid #2fbc47;
-                  color:#68b432; border-radius:6px;
-                  text-decoration:none;">
-          Edit address
-        </a>
+      <a href="/user/edit-address?id=<%= address._id %>"
+         onclick="event.stopPropagation()"
+         class="edit-btn">
+        Edit address
+      </a>
 
-        <!-- DELETE -->
-        <a onclick="return confirm('Are you sure you want to delete this address?')"
-        
-           href="/user/delete-address?id=<%= address._id %>"
-           style="padding:8px 18px; border:1px solid red;
-                  color:red; border-radius:6px;
-                  text-decoration:none;">
-          Delete address
-        </a>
-
-      </div>
+      <button
+        onclick="event.stopPropagation();
+                 deleteAddress('<%= address._id %>')"
+        class="delete-btn">
+        Delete address
+      </button>
 
     </div>
 
-    <hr style="border:0; border-top:1px solid #ccc; margin:15px 0;">
+  </div>
+
+  <hr>
 
   <% }) %>
 
-  <div style="display:flex; justify-content:center; margin-top:20px;">
-    <a href="/user/add-address"
-       style="padding:8px 18px; border:1px solid #2bb0c0;
-              color:#2bb0c0; border-radius:6px;
-              text-decoration:none;">
-      Add address
-    </a>
-  </div>
-
-<% } else { %>
-
-  <div style="display:flex; justify-content:center; margin-top:20px;">
-    <a href="/user/add-address"
-       style="padding:8px 18px; border:1px solid #2bb0c0;
-              color:#2bb0c0; border-radius:6px;
-              text-decoration:none;">
-      Add address
-    </a>
-  </div>
-
 <% } %>
 
-    </section>
-  </div>
+<!-- ADD ADDRESS -->
+<div style="display:flex; justify-content:center; margin-top:20px;">
+  <a href="/user/add-address"
+     style="padding:8px 18px;
+            border:1px solid #2bb0c0;
+            color:#2bb0c0;
+            border-radius:6px;
+            text-decoration:none;">
+    Add address
+  </a>
+</div>
+
+</div>
+</div>
 </main>
 
-  <%-include("../../views/partials/user/footer")%>
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+/* ===============================
+   TOAST
+================================*/
+function showToast(msg,type="success"){
+  Toastify({
+    text:msg,
+    duration:2500,
+    gravity:"bottom",
+    position:"center",
+    style:{
+      background:
+        type==="success"
+        ?"linear-gradient(to right,#16a34a,#22c55e)"
+        :"linear-gradient(to right,#dc2626,#ef4444)"
+    }
+  }).showToast();
+}
+
+
+/* ===============================
+   SET DEFAULT ADDRESS
+================================*/
+async function setDefaultAddress(id,el){
+
+try{
+
+  const res = await fetch(
+    "/user/address/set-default",
+    {
+      method:"PATCH",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({addressId:id})
+    }
+  );
+
+  const data = await res.json();
+
+  if(!data.success){
+    showToast("Failed to update","error");
+    return;
+  }
+
+  document
+    .querySelectorAll(".address-card")
+    .forEach(card =>
+      card.classList.remove("active-address")
+    );
+
+  el.classList.add("active-address");
+
+  showToast("Default address selected");
+
+}catch(err){
+  console.error(err);
+  showToast("Server error","error");
+}
+
+}
+
+
+/* ===============================
+   DELETE ADDRESS
+================================*/
+async function deleteAddress(id){
+
+const result = await Swal.fire({
+  title:"Delete Address?",
+  text:"This address will be removed",
+  icon:"warning",
+  showCancelButton:true,
+  confirmButtonColor:"#dc2626",
+  confirmButtonText:"Delete"
+});
+
+if(!result.isConfirmed) return;
+
+window.location.href =
+  `/user/delete-address?id=${id}`;
+}
+
+</script>
+
+<%- include("../../views/partials/user/footer") %>

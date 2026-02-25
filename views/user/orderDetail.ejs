@@ -450,9 +450,11 @@
           <span>₹<%= order.orderSummary.total %></span>
         </div>
 
-        <a href="/user/order/<%= order._id %>/invoice" class="btn">
+       <% if(order.status == "delivered"){%>
+          <a href="/user/order/<%= order._id %>/invoice" class="btn">
         <button class="invoice-btn">⬇ Download Invoice</button>
         </a>
+        <%}%>
       </div>
       
 

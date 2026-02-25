@@ -1,5 +1,9 @@
 <%- include("../../views/partials/admin/header") %>
 <title>Coupon</title>
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <style>
 
   /* Modal Overlay */
@@ -434,148 +438,307 @@
 </div>
 
 
-
+ 
   </div>
 
 </div>
 
 <script>
-  function openCouponModal() {
-    document.getElementById("couponModal").style.display = "flex";
-  }
 
-  function closeCouponModal() {
-    document.getElementById("couponModal").style.display = "none";
-  }
+/* =====================================================
+   TOAST FUNCTION ✅
+=====================================================*/
+function showToast(message, type = "success") {
 
-  window.addEventListener("click", function(event) {
-  const addModal = document.getElementById("couponModal");
-  const editModal = document.getElementById("editCouponModal");
+  const colors = {
+    success: "#16a34a",
+    error: "#dc2626",
+    warning: "#f59e0b",
+    info: "#2563eb"
+  };
 
-  if (event.target === addModal) {
-    addModal.style.display = "none";
-  }
-
-  if (event.target === editModal) {
-    editModal.style.display = "none";
-  }
-});
-
-
-  async function disableCoupon(couponId){
-    console.log(couponId)
-    
-    const ok = confirm("Do you want to disable the coupon")
-    if(!ok){
-      return
-    }
-    try {
-
-      const res = await fetch(`/admin/coupon/disableCoupon/${couponId}`,{
-        method: "PATCH",
-        headers:{
-          "Content-Type":"application/json"
-        },
-      })
-      const data = await res.json()
-
-      if(data.success){
-        location.reload()
-      }else{
-        alert("Failed to block")
-      }
-      
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    }
-  }
-
-  async function enableCoupon(couponId){
-    
-    const ok = confirm("Do you want to enable the coupon")
-    if(!ok){
-      return
-    }
-    try {
-
-      const res = await fetch(`/admin/coupon/enableCoupon/${couponId}`,{
-        method: "PATCH",
-        headers:{
-          "Content-Type":"application/json"
-        },
-      })
-      const data = await res.json()
-
-      if(data.success){
-        location.reload()
-      }else{
-        alert("Failed to unblock")
-      }
-      
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    }
-  }
-
-function openEditModal(coupon) {
-
-  document.getElementById("editCouponModal").style.display = "flex";
-
-  document.getElementById("editCode").value = coupon.code;
-  document.getElementById("editDiscount").value = coupon.discount;
-  document.getElementById("editMinOrder").value = coupon.min;
-
-  document.getElementById("editExpireDate").value =
-    new Date(coupon.expire).toISOString().split("T")[0];
-
-  document.getElementById("editUsageLimit").value = coupon.limit;
-
-  document.getElementById("editCouponForm").dataset.id = coupon.id;
+  Toastify({
+    text: message,
+    duration: 3000,
+    gravity: "bottom",
+    position: "center",
+    close: true,
+    stopOnFocus: true,
+    style: {
+      background: colors[type] || colors.info,
+      borderRadius: "8px",
+      padding: "12px 18px",
+      fontSize: "14px"
+    } 
+  }).showToast();
 }
 
-  function closeEditModal() {
-    document.getElementById("editCouponModal").style.display = "none";
+
+/* =====================================================
+   COMMON VALIDATION
+=====================================================*/
+function validateCoupon(discount, minOrder){
+
+  if(isNaN(discount) || isNaN(minOrder)){
+    showToast("Invalid numeric values","error");
+    return false;
   }
 
-  const editForm = document.getElementById("editCouponForm");
+  if(discount <= 0 || minOrder <= 0){
+    showToast("Values must be greater than zero","warning");
+    return false;
+  }
 
-  editForm.addEventListener("submit", async function (e) {
-    e.preventDefault(); 
+  if(discount >= (minOrder * 2)){
+    showToast(
+      "Discount must be less than twice minimum order",
+      "warning"
+    );
+    return false;
+  }
 
-    const id = editForm.dataset.id; 
+  return true;
+}
 
-    const formData = {
-      code: document.getElementById("editCode").value,
-      discountValue: document.getElementById("editDiscount").value,
-      minOrderAmount: document.getElementById("editMinOrder").value,
-      expireDate: document.getElementById("editExpireDate").value,
-      usageLimit: document.getElementById("editUsageLimit").value
-    };
 
-    try {
-      const response = await fetch(`/admin/coupon/updateCoupon/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
+/* =====================================================
+   ADD COUPON
+=====================================================*/
+const addForm = document.getElementById("addCouponForm");
+
+if(addForm){
+
+addForm.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const discount =
+    Number(addForm.discountValue.value);
+
+  const minOrder =
+    Number(addForm.minOrderAmount.value);
+
+  if(!validateCoupon(discount,minOrder)){
+    return;
+  }
+
+  const formData = {
+    code:addForm.code.value
+          .trim()
+          .toUpperCase(),
+
+    discountValue:discount,
+    minOrderAmount:minOrder,
+    expireDate:addForm.expireDate.value,
+    usageLimit:
+      Number(addForm.usageLimit.value)||1
+  };
+
+  try{
+
+    const res = await fetch(
+      "/admin/coupon/createCoupon",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
         },
-        body: JSON.stringify(formData)
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        location.reload(); 
-      } else {
-        alert(result.message);
+        body:JSON.stringify(formData)
       }
+    );
 
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
+    const result = await res.json();
+
+    if(result.success){
+
+      showToast(result.message,"success");
+
+      addForm.reset();
+      closeCouponModal();
+
+      setTimeout(()=>{
+        location.reload();
+      },1200);
+
+    }else{
+      showToast(result.message,"error");
+    }
+
+  }catch(err){
+    console.error(err);
+    showToast("Server error","error");
+  }
+
+});
+}
+
+
+/* =====================================================
+   MODAL CONTROLS
+=====================================================*/
+function openCouponModal(){
+  document.getElementById("couponModal").style.display="flex";
+}
+
+function closeCouponModal(){
+  document.getElementById("couponModal").style.display="none";
+}
+
+function closeEditModal(){
+  document.getElementById("editCouponModal").style.display="none";
+}
+
+window.onclick=function(event){
+  ["couponModal","editCouponModal"].forEach(id=>{
+    const modal=document.getElementById(id);
+    if(event.target===modal){
+      modal.style.display="none";
     }
   });
+};
+
+
+/* =====================================================
+   ENABLE / DISABLE COUPON
+=====================================================*/
+async function toggleCoupon(url,message){
+
+  if(!confirm(message)) return;
+
+  try{
+
+    const res = await fetch(url,{method:"PATCH"});
+    const data = await res.json();
+
+    if(data.success){
+      showToast(data.message || "Updated successfully");
+      setTimeout(()=>location.reload(),1000);
+    }else{
+      showToast(data.message || "Operation failed","error");
+    }
+
+  }catch(err){
+    console.error(err);
+    showToast("Server error","error");
+  }
+}
+
+function disableCoupon(id){
+  toggleCoupon(
+    `/admin/coupon/disableCoupon/${id}`,
+    "Disable this coupon?"
+  );
+}
+
+function enableCoupon(id){
+  toggleCoupon(
+    `/admin/coupon/enableCoupon/${id}`,
+    "Enable this coupon?"
+  );
+}
+
+
+/* =====================================================
+   OPEN EDIT MODAL
+=====================================================*/
+function openEditModal(coupon){
+
+  document.getElementById("editCouponModal").style.display="flex";
+
+  document.getElementById("editCode").value =
+    coupon.code?.trim() || "";
+
+  document.getElementById("editDiscount").value =
+    coupon.discount || "";
+
+  document.getElementById("editMinOrder").value =
+    coupon.min || "";
+
+  document.getElementById("editUsageLimit").value =
+    coupon.limit || "";
+
+  if(coupon.expire){
+    document.getElementById("editExpireDate").value =
+      new Date(coupon.expire)
+        .toISOString()
+        .split("T")[0];
+  }
+
+  document
+    .getElementById("editCouponForm")
+    .dataset.id=coupon.id;
+}
+
+
+/* =====================================================
+   UPDATE COUPON
+=====================================================*/
+const editForm =
+  document.getElementById("editCouponForm");
+
+if(editForm){
+
+editForm.addEventListener("submit",
+async function(e){
+
+  e.preventDefault();
+
+  const id = editForm.dataset.id;
+
+  const discount =
+    Number(editForm.discountValue.value);
+
+  const minOrder =
+    Number(editForm.minOrderAmount.value);
+
+  if(!validateCoupon(discount,minOrder)){
+    return;
+  }
+
+  const formData={
+    code:editForm.code.value
+          .trim()
+          .toUpperCase(),
+
+    discountValue:discount,
+    minOrderAmount:minOrder,
+    expireDate:editForm.expireDate.value,
+    usageLimit:
+      Number(editForm.usageLimit.value)||0
+  };
+
+  try{
+
+    const res = await fetch(
+      `/admin/coupon/updateCoupon/${id}`,
+      {
+        method:"PATCH",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(formData)
+      }
+    );
+
+    const result = await res.json();
+
+    if(result.success){
+      showToast("Coupon updated successfully ✅");
+      setTimeout(()=>location.reload(),1000);
+    }else{
+      showToast(
+        result.message || "Update failed",
+        "error"
+      );
+    }
+
+  }catch(err){
+    console.error(err);
+    showToast("Update failed","error");
+  }
+
+});
+}
 
 </script>
 

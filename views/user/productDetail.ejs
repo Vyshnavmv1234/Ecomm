@@ -22,6 +22,24 @@
   position: relative;
   z-index: 10;
 }
+ .price-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.current-price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+}
+
+.original-price {
+  font-size: 14px;
+  color: #878787;
+  text-decoration: line-through;
+}
 .availability {
   font-size: 14px;
   font-weight: 500;
@@ -495,7 +513,16 @@ body {
   <div class="product-details">
     <div class="brand"><%=productData.name%></div>
     <div class="title"><%=productData.title%></div>
-    <div id="productPrice" class="price">₹<%=productData.variants[0].price%></div>
+    <div class="price-section">
+  <span id="productPrice" class="current-price">
+    ₹ <%= productData.variants[0].finalPrice || productData.variants[0].price %>
+  </span>
+
+    <span id="originalPrice" class="original-price">
+      ₹ <%=productData.variants[0].price %>
+    </span>
+
+</div>
     <div class="availability">
     Availability :
     <span
@@ -514,6 +541,7 @@ body {
           class="size-option <%= i === 0 ? 'active' : '' %> <%= v.stock === 0 ? 'disabled' : ''%> "
           data-size="<%= v.size %>"
           data-price="<%= v.finalPrice || v.price %>"
+          data-originalprice="<%= v.price %>"
           data-stock="<%= v.stock %>"
           onclick="selectSize(this,'<%=v._id%>')">
           <%= v.size %>
@@ -687,28 +715,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function selectSize(el, id) {
 
-  const stock = Number(el.dataset.stock)
-  const price = Number(el.dataset.price)
-  
-  selectedVariantId = id
-  selectedSize = el.dataset.size
-  selectedPrice = Number(el.dataset.price)
+  const originalPriceEl =
+    document.getElementById("originalPrice");
 
-  priceEl.innerText = "₹" + selectedPrice
+  const stock = Number(el.dataset.stock);
 
-  if (stock > 0) {
-    stockEl.innerText = "IN STOCK"
-    stockEl.className = "in-stock"
-  } else {
-    stockEl.innerText = "OUT OF STOCK"
-    stockEl.className = "out-stock"
+  const finalPrice =
+    Number(el.dataset.price);   // ✅ FIXED
+
+  const originalPrice =
+    Number(el.dataset.originalprice);
+
+  selectedVariantId = id;
+  selectedSize = el.dataset.size;
+  selectedPrice = finalPrice;
+
+  /* PRICE UPDATE */
+  if(priceEl){
+    priceEl.innerText = "₹" + finalPrice;
   }
 
-  document.querySelectorAll(".size-option")
-    .forEach(s => s.classList.remove("active"))
+  /* ORIGINAL PRICE */
+  if(originalPriceEl){
+    originalPriceEl.innerText =
+      "₹" + originalPrice;
 
-  el.classList.add("active")
-  addError.innerText = ""
+    if(finalPrice === originalPrice){
+      originalPriceEl.style.display="none";
+    }else{
+      originalPriceEl.style.display="inline";
+    }
+  }
+
+  /* STOCK */
+  if (stock > 0) {
+    stockEl.innerText = "IN STOCK";
+    stockEl.className = "in-stock";
+  } else {
+    stockEl.innerText = "OUT OF STOCK";
+    stockEl.className = "out-stock";
+  }
+
+  document
+    .querySelectorAll(".size-option")
+    .forEach(s => s.classList.remove("active"));
+
+  el.classList.add("active");
+
+  addError.innerText = "";
 }
 
   /* ===== ADD TO CART ===== */

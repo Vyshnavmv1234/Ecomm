@@ -174,7 +174,7 @@
           </td>
 
           <td class="price">
-            ₹<%= item.productId.variants.id(item.variantId).price %>
+            ₹<%= item.productId.variants.id(item.variantId).finalPrice||item.productId.variants.id(item.variantId).price %>
           </td>
 
           <td>
