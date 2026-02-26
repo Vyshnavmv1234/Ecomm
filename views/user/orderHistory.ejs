@@ -207,7 +207,8 @@
           <div>ACTION</div>
         </div>
 
-        <% orders.forEach(order => { %>
+        <%if(orders){%>
+          <% orders.forEach(order => { %>
         <div class="order-row">
           <div>
             <%= order.orderItems[0]?.product?.name || "Product" %>
@@ -230,6 +231,9 @@
           </div>
         </div>
         <% }) %>
+        <%}else{%>
+          <p>No orders found</p>
+        <%}%>
 
         <!-- PAGINATION -->
         <div class="pagination">

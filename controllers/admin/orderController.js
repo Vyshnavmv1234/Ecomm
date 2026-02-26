@@ -74,38 +74,78 @@ const editOrder = async (req,res)=>{
     
   }
 } 
-const updateStatus = async(req,res)=>{
+const updateStatus = async (req, res) => {
   try {
-    const status = req.body.status
-    const orderId = req.body.orderId
+
+    const { status, orderId } = req.body;
 
     if (!orderId || !status) {
-      return res.redirect("/admin/pageNotFound")
+      return res.json({
+        success: false,
+        message: "Invalid request"
+      });
     }
 
-   await Order.findByIdAndUpdate(
-      orderId,
-      { status },
-      { new: true }
-    )
-    if (status === "delivered") {
+    const order = await Order.findById(orderId);
 
-  const order = await Order.findById(orderId);
+    if (!order) {
+      return res.json({
+        success: false,
+        message: "Order not found"
+      });
+    }
 
-  if (order.paymentMethod === "COD") {
-    await Order.updateOne(
-      { _id: orderId },
-      { $set: { paymentStatus: "Paid" } }
-    );
+    const currentStatus = order.status;
+
+    const statusFlow = {
+      pending: 1,
+      shipped: 2,
+      "out for delivery": 3,
+      cancelled: 4,
+      delivered: 5,
+    };
+
+    if(currentStatus == "delivered" || currentStatus == "cancelled"){
+      return res.json({
+        success: false,
+        message: "Cannot rollback order status"
+      });
+    }
+
+    if (statusFlow[status] < statusFlow[currentStatus]) {
+      return res.json({
+        success: false,
+        message: "Cannot rollback order status"
+      });
+    }
+
+    order.status = status;
+
+    if (
+      status === "delivered" &&
+      order.paymentMethod === "COD"
+    ) {
+      order.paymentStatus = "Paid";
+    }
+
+    await order.save();
+
+    return res.json({
+      success: true,
+      message: "Order status updated",
+      status: order.status
+    });
+
+  } catch (error) {
+
+    console.error("Update status error:", error);
+
+    return res.json({
+      success: false,
+      message: "Server error"
+    });
   }
-}
-    return res.redirect(`/admin/editOrder/${orderId}`)
-    
-  } catch (error) { 
-    console.error("Update status error:", error)
-    return res.redirect("/admin/pageNotFound")
-  }
-}
+};
 
 const handleReturn = async (req, res) => {
   try {
@@ -157,7 +197,7 @@ const handleReturn = async (req, res) => {
           {
             $set: {
               "orderItems.$.returnStatus": "rejected",
-              "orderItems.$.returnRequested": false
+              "orderItems.$.returnRequested": true
             }
           }
         );
@@ -179,7 +219,15 @@ const handleReturn = async (req, res) => {
           );
         }
 
-      const wallet = await Wallet.findOne({userId:order.userId})
+      let wallet = await Wallet.findOne({userId:req.session.user})
+
+      if(!wallet){
+        wallet = new Wallet({
+          userId: order.userId,
+          balance:0,
+          transactions:[]
+        })
+      }
 
       wallet.balance += order.orderSummary.total
       wallet.transactions.push({
@@ -193,7 +241,7 @@ const handleReturn = async (req, res) => {
     if (action === "reject") {
       await Order.findByIdAndUpdate(orderId, {
         returnStatus: "rejected",
-        returnRequested: false
+        returnRequested: true
       });
     }
   }

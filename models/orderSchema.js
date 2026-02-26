@@ -41,6 +41,8 @@ const orderSchema = new Schema({
       default: false
     },
     returnReason: String,
+    cancelReason: String,
+    cancelComment: String,
     returnStatus: {
       type: String,
       enum: ["requested", "approved", "rejected"],
@@ -82,7 +84,7 @@ const orderSchema = new Schema({
   status: {     //order status
     type: String,
     required: true,
-    enum: ["pending","processing","shipped","delivered","cancelled","return request","returned","Cancelled"]
+    enum: ["pending","processing","shipped","delivered","cancelled","return request","returned","out for delivery"]
   },
 
   paymentMethod: {
@@ -109,6 +111,8 @@ const orderSchema = new Schema({
       default: false
     },
     returnReason: String,
+    cancelReason: String,
+    cancelComment: String,
     returnStatus: {
       type: String,
       enum: ["requested", "approved", "rejected"],

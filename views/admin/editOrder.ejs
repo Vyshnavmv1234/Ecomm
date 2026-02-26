@@ -1,6 +1,10 @@
   <%- include("../../views/partials/admin/header") %>
 
   <%- include("../../views/partials/admin/sidebar") %>
+  <link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
   <style>
     * {
@@ -179,19 +183,21 @@
     <div class="card">
       <h4>Update Order Status</h4>
 
-      <form action="/admin/update-status" method="POST">
-        <input type="hidden" name="orderId" value="<%= order._id %>">
- 
-        <select name="status" class="status-select">
-          <option value="pending" <%= order.status==="pending"?"selected":"" %>>Pending</option>
-          <option value="shipped" <%= order.status==="shipped"?"selected":"" %>>Shipped</option>
-          <option value="out for delivery" <%= order.status==="out for delivery"?"selected":"" %>>Out for Delivery</option>
-          <option value="delivered" <%= order.status==="delivered"?"selected":"" %>>Delivered</option>
-          <option value="cancelled" <%= order.status==="cancelled"?"selected":"" %>>Cancelled</option>
-        </select>
+      <div>
+  <input type="hidden" id="orderId" value="<%= order._id %>">
 
-        <button class="btn">Update Status</button>
-      </form>
+  <select id="statusSelect" class="status-select">
+    <option value="pending" <%= order.status==="pending"?"selected":"" %>>Pending</option>
+    <option value="shipped" <%= order.status==="shipped"?"selected":"" %>>Shipped</option>
+    <option value="out for delivery" <%= order.status==="out for delivery"?"selected":"" %>>Out for Delivery</option>
+    <option value="cancelled" <%= order.status==="cancelled"?"selected":"" %>>Cancelled</option>
+    <option value="delivered" <%= order.status==="delivered"?"selected":"" %>>Delivered</option>
+  </select>
+
+  <button onclick="updateStatus()" class="btn">
+    Update Status
+  </button>
+</div>
     </div>
   </div>
 
@@ -241,4 +247,72 @@
 </div>
 
 </body>
+<script>
+async function updateStatus() {
+
+  const orderId = document.getElementById("orderId").value;
+  const status = document.getElementById("statusSelect").value;
+
+  try {
+
+    const res = await fetch("/admin/update-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        orderId,
+        status
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      // ✅ SUCCESS TOAST
+      Toastify({
+        text: "✅ Order status updated successfully",
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        close: true,
+        backgroundColor: "#28a745"
+      }).showToast();
+
+      // Update badge instantly
+      const badge = document.querySelector(".badge");
+
+      badge.innerText = status;
+      badge.className = "badge " + status;
+
+    } else {
+
+     
+      Toastify({
+        text: data.message || "Update failed",
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        close: true,
+        backgroundColor: "#dc3545"
+      }).showToast();
+
+    }
+
+  } catch (err) {
+
+    Toastify({
+      text: "Server error occurred",
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      close: true,
+      backgroundColor: "#ff7675"
+    }).showToast();
+
+    console.error(err);
+  }
+}
+</script>
 </html>

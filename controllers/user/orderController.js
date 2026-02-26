@@ -7,6 +7,7 @@ import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import moment from "moment"
 import Wallet from "../../models/walletSchema.js"
+import { transcode } from "buffer"
 
 
 const orderSuccess = async (req,res)=>{
@@ -48,18 +49,16 @@ const placeOrder = async (req,res)=>{
     const userId = req.session.user
     const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,status,total} = req.body;
     const couponCode = req.session.appliedCoupon
-    const wallet = await Wallet.findOne()
+    const wallet = await Wallet.findOne({userId})
     const validateCoupon = await Coupon.findOne({code:couponCode,userId:req.session.user})
     if(validateCoupon){
       return res.status(STATUS_CODES.BAD_REQUEST).json({success:false})
     }
     if(status== "WALLET"){
-      if(wallet.balance <total){
+      if(wallet?.balance <total||!wallet){
       return res.json({success:false,message:"Insufficient balance"})
     }
     }
-
-    console.log(paymentMethod, paymentStatus, address, isDefaultUsed,gst)
 
     const cart = await Cart.findOne({userId}).populate("items.productId")
     const orderSummary = calculateTotal(cart)
@@ -108,7 +107,7 @@ const placeOrder = async (req,res)=>{
         streetName: address.streetName,
         phone: address.phone
       },
-      status: paymentMethod === "COD" ? "pending" : "delivered",
+      status: "pending",
       paymentMethod,
       paymentStatus: paymentMethod === "COD"? "Pending": "Paid"
     })
@@ -169,82 +168,110 @@ const orderDetail = async (req,res)=>{
 const cancelProduct = async (req, res) => {
   try {
 
-    const { itemId, orderId } = req.body;
-    const wallet = await Wallet.findOne()
+    const { itemId, orderId, reason, comment } = req.body;
+
+    let wallet = await Wallet.findOne({userId:req.session.user});
     const order = await Order.findById(orderId);
+
+    if (!order)
+      return res.status(404).json({ success:false });
+
     const item = order.orderItems.id(itemId);
 
-    wallet.balance += item.unitPrice*item.quantity
-
-    wallet.transactions.push({
-      amount: item.unitPrice,
-      type: "Credit",
-      description: "Order Cancellation",
-    })
-    await wallet.save()
-
-    if (item.status === "cancelled") {
-    return res.status(400).json({ success: false });
-  }
+    if (!item || item.status === "cancelled") {
+      return res.status(400).json({
+        success:false,
+        message:"Item already cancelled"
+      });
+    }
+    if(!wallet){
+      wallet = new Wallet({
+        userId:req.session.user,
+        balance:0,
+        transactions:[]
+      })
+    }
 
     item.status = "cancelled";
+    item.cancelReason = reason;
+
+    if (comment) {
+      item.cancelComment = comment;
+    }
+
+    const refundAmount = item.unitPrice * item.quantity;
+
+    wallet.balance += refundAmount;
+
+    if(order.paymentStatus ==="Paid" && allCancelled){
+      order.paymentStatus = "Refunded";
+
+      wallet.transactions.push({
+      amount: refundAmount,
+      type: "Credit",
+      description: "Order Item Cancellation Refund"
+    });
+    }
+
+    await wallet.save();
 
     await Product.updateOne(
       { _id: item.product, "variants._id": item.variant },
       { $inc: { "variants.$.stock": item.quantity } }
     );
 
-    let newSubTotal = 0;
-    let newDiscount = 0;
+    const allCancelled = order.orderItems.every(
+      i => i.status === "cancelled"
+    );
 
-    order.orderItems.forEach(i => {
-      if (i.status !== "cancelled") {
-        const itemSubTotal = i.originalPrice * i.quantity;
-        const itemDiscount =
-          (i.originalPrice - i.unitPrice) * i.quantity;
-
-        newSubTotal += itemSubTotal;
-        newDiscount += itemDiscount;
-      }
-    });
-
-    const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
-    const newTotal = newSubTotal - newDiscount + newGST;
-
-    order.orderSummary.subTotal = newSubTotal;
-    order.orderSummary.discount = newDiscount;
-    order.orderSummary.GST = newGST;
-    order.orderSummary.total = newTotal;
+    if (allCancelled) {
+      order.status = "cancelled";
+    }
 
     await order.save();
 
-    return res.status(200).json({ success: true });
+    return res.json({ success:true });
 
   } catch (error) {
-    console.error("Cancel product error:", error);
-    return res.status(500).json({ success: false });
+    console.error(error);
+    return res.json({
+      success:false,
+      message:"Server error"
+    });
   }
 };
 
 const cancelOrder = async(req,res)=>{
   try {
     const orderId = req.body.orderId
+    const comment = req.body.comment 
+    const reason =  req.body.reason
     const order = await Order.findOne({_id:orderId})
-    const wallet = await Wallet.findOne()
+    let wallet = await Wallet.findOne({userId:req.session.user})
     
     order.orderItems.forEach(item=>{
       item.status ="cancelled"
     })
+    await Order.findByIdAndUpdate(orderId,{cancelReason:reason,cancelComment:comment,status:"cancelled"})
+
+    if(!wallet){
+      wallet = new Wallet({
+        userId:req.session.user,
+        balance:0,
+        transactions:[]
+      })
+      
+    }
     
-    wallet.balance += order.orderSummary.total
+    if(order.paymentStatus == "Paid"){
+      wallet.balance += order.orderSummary.total
     wallet.transactions.push({
       amount: order.orderSummary.total,
       type: "credit",
       description: "Order Cancellation"
     })
+    }
     await wallet.save()
-
-    console.log(order,"hhh",wallet)
 
     await order.save()
     return res.status(STATUS_CODES.OK).json({success:true})
@@ -303,13 +330,21 @@ const requestReturn = async (req, res) => {
 const requestItemReturn = async (req,res)=>{
   try {
     
-    const wallet = await Wallet.findOne()
+    let wallet = await Wallet.findOne({userId:req.session.user})
     const {orderItemId,reason,orderId} = req.body
 
     console.log(orderItemId,reason,orderId)
 
     const order = await Order.findById(orderId)
     const item = order.orderItems.id(orderItemId)
+
+    if(!wallet){
+      wallet = new Wallet({
+        userId:req.session.user,
+        balance:0,
+        transactions:[]
+      })
+    }
 
     wallet.balance += order.orderSummary.total
     wallet.transactions.push({
@@ -322,8 +357,6 @@ const requestItemReturn = async (req,res)=>{
     item.returnRequested = true
     item.returnReason = reason
     item.returnStatus = "requested"
-
-    
 
     await order.save()
     res.redirect(`/user/orderDetail/${orderId}`)

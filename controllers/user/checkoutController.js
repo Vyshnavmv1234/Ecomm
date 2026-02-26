@@ -19,7 +19,7 @@ const loadCheckout = async (req,res)=>{
 
     const userId = req.session.user
     const userData = await User.findById(userId)
-    const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
+    const userAddress = await Address.findOne({user_id:userId,"address.isDefault":true})
     const addresses = await Address.findOne({user_id:userId})
     const cart = await Cart.findOne({userId}).populate("items.productId")
 
