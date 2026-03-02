@@ -26,7 +26,11 @@ passport.use(
             isGoogleUser: true,
           });
         }
-
+        if (user.isBlocked) {
+        return done(null, false, {
+        message: "Blocked by admin"
+      });
+    }
         if (!user.googleId) {
           user.googleId = profile.id;
           await user.save();

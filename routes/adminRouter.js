@@ -79,4 +79,9 @@ router.get("/analytics-data",adminAuth,analyticsController.postAnalytics);
 router.get("/analytics/export-pdf",adminAuth,analyticsController.exportPDF);
 router.get("/analytics/export-excel",adminAuth,analyticsController.exportExcel);
 
+//DASHBOARD
+
+router.get("/revenue-chart",adminAuth,analyticsController.getRevenueChart);
+router.get("/top-products",adminAuth,analyticsController.getTopProducts);
+
 export default router     

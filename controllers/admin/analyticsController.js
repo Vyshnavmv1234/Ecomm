@@ -122,6 +122,12 @@ const exportPDF = async (req,res)=>{
     startDate = new Date();
     startDate.setDate(startDate.getDate()-7);
     break;
+    
+    case "monthly":
+    startDate = new Date();
+    startDate.setDate(1);        
+    startDate.setHours(0,0,0,0);
+    break;
 
     case "yearly":
     startDate = new Date();
@@ -136,7 +142,6 @@ const exportPDF = async (req,res)=>{
     default:
     startDate = new Date("2000-01-01");
     }
-
 
     const orders = await Order.find({ 
     status:"delivered",
@@ -453,7 +458,6 @@ const exportExcel = async (req, res) => {
       };
     });
 
-    /* ================= TABLE DATA ================= */
 
     orders.forEach(order => {
 
@@ -483,13 +487,11 @@ const exportExcel = async (req, res) => {
 
     });
 
-    /* ================= AUTO COLUMN WIDTH ================= */
 
     sheet.columns.forEach(column => {
       column.width = 18;
     });
 
-    /* ================= DOWNLOAD RESPONSE ================= */
 
     res.setHeader(
       "Content-Type",
@@ -510,4 +512,174 @@ const exportExcel = async (req, res) => {
   }
 };
 
-export default {loadAnalytics,postAnalytics,exportPDF,exportExcel}
+const getRevenueChart = async (req, res) => {
+
+  const { frequency = "monthly" } = req.query;
+
+  let groupFormat;
+  let startDate = new Date();
+
+  switch (frequency) {
+
+    case "daily":
+      startDate.setHours(0,0,0,0);
+      groupFormat = "%Y-%m-%d";
+      break;
+
+    case "weekly":
+      startDate.setDate(startDate.getDate() - 7);
+      groupFormat = "%G-%V";
+      break;
+
+    case "monthly":
+      startDate.setMonth(startDate.getMonth() - 1);
+      groupFormat = "%Y-%m";
+      break;
+
+    case "yearly":
+      startDate.setFullYear(startDate.getFullYear() - 1);
+      groupFormat = "%Y";
+      break;
+  }
+
+  const chartData = await Order.aggregate([
+    {
+      $match: {
+        status: "delivered",
+        createdAt: { $gte: startDate }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString:{
+            format: groupFormat,
+            date: "$createdAt"
+          }
+        },
+        revenue:{
+          $sum:{ $toDouble:"$orderSummary.total" }
+        },
+        orders:{ $sum:1 }
+      }
+    },
+    { $sort:{ _id:1 } }
+  ]);
+
+
+  const summary = await Order.aggregate([
+    {
+      $match:{
+        status:"delivered",
+        createdAt:{ $gte:startDate }
+      }
+    },
+    {
+      $group:{
+        _id:null,
+        totalRevenue:{
+          $sum:{ $toDouble:"$orderSummary.total" }
+        },
+        totalSales:{ $sum:1 }
+      }
+    }
+  ]);
+
+  const usersCount = await User.countDocuments();
+
+  res.json({
+    chartData,
+    totalRevenue: summary[0]?.totalRevenue || 0,
+    totalSales: summary[0]?.totalSales || 0,
+    usersCount
+  });
+};
+
+const getTopProducts = async (req,res)=>{
+
+  try{
+
+    const { frequency="monthly" } = req.query;
+
+    let startDate = new Date();
+
+
+    switch(frequency){
+
+      case "daily":
+        startDate.setHours(0,0,0,0);
+        break;
+
+      case "weekly":
+        startDate.setDate(startDate.getDate()-7);
+        break;
+
+      case "monthly":
+        startDate.setMonth(startDate.getMonth()-1);
+        break;
+
+      case "yearly":
+        startDate.setFullYear(startDate.getFullYear()-1);
+        break;
+    }
+
+    const products = await Order.aggregate([
+
+      {
+        $match:{
+          status:"delivered",
+          createdAt:{ $gte:startDate }
+        }
+      },
+
+      { $unwind:"$orderItems" },
+
+      {
+        $lookup:{
+          from:"products",
+          localField:"orderItems.product",
+          foreignField:"_id",
+          as:"productData"
+        }
+      },
+
+      { $unwind:"$productData" },
+
+      {
+        $group:{
+          _id:"$productData.name",
+          totalSold:{
+            $sum:"$orderItems.quantity"
+          }
+        }
+      },
+
+      { $sort:{ totalSold:-1 } },
+
+      { $limit:5 }
+
+    ]);
+    
+    const totalQty =
+      products.reduce(
+        (sum,p)=>sum+p.totalSold,0
+      );
+
+    const result = products.map(p=>({
+      name:p._id,
+      percentage:
+        ((p.totalSold/totalQty)*100)
+        .toFixed(2)
+    }));
+
+    console.log(result)
+    res.json(result);
+
+  }catch(err){
+    console.log(err);
+    res.status(500).json({error:"Server error"});
+  }
+};
+
+
+export default {loadAnalytics,postAnalytics,exportPDF,exportExcel,getRevenueChart,getTopProducts}

@@ -78,6 +78,19 @@
     <div id="cpassError" class="error-message"></div>
   </div>
 
+    <!-- Referral Code -->
+<div class="form-group">
+  <label for="referral">Referral Code (Optional)</label>
+  <input
+    type="text"
+    id="referral"
+    name="referralCode"
+    class="form-control"
+    placeholder="Enter referral code"
+  >
+  <div id="refError" class="error-message"></div>
+</div>
+
   <% if(message){%>
   <div class="error">
     <%=message%>
@@ -153,6 +166,24 @@
     emailError.innerHTML = ""
   }
 }
+function referralValidateCheck(){
+
+  const ref =
+    document.getElementById("referral").value.trim();
+
+  const refError =
+    document.getElementById("refError");
+
+  const pattern = /^[A-Z0-9]{5,10}$/i;
+
+  if(ref && !pattern.test(ref)){
+    refError.style.display="block";
+    refError.innerHTML="Invalid referral format";
+  }else{
+    refError.style.display="none";
+    refError.innerHTML="";
+  }
+}
 
 function phoneValidateCheck() {
   const phoneval = phoneid.value
@@ -210,11 +241,12 @@ function cPasswordValidateCheck() {
         phoneValidateCheck()
         passwordValidateCheck()
         cPasswordValidateCheck()
+        referralValidateCheck()
 
         if(!nameid || !emailid || !phoneid || !passwordid || !nameError ||! passwordError || !phoneError || !emailError || !cpassError || !signform){
           console.error("One or More elements not found")
         }
-        if(nameError.innerHTML || emailError.innerHTML || phoneError.innerHTML || passwordError.innerHTML || cpassError.innerHTML){
+        if(refError.innerHTML ||nameError.innerHTML || emailError.innerHTML || phoneError.innerHTML || passwordError.innerHTML || cpassError.innerHTML){
           e.preventDefault()
         }
       })

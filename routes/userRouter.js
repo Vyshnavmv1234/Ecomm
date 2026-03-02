@@ -28,7 +28,7 @@ router.post("/verify-otp",userController.verifyOtp)
 router.post("/resent-otp",userController.resentOtp) 
 
 router.get("/auth/google",passport.authenticate("google",{scope:["profile","email"],}))
-router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/user/login"}),(req,res)=>{
+router.get("/auth/google/callback",passport.authenticate("google",{failureRedirect:"/user/login",failureMessage:true}),(req,res)=>{
   req.session.user = req.session.passport.user
     res.redirect("/user/homepage"); 
 })

@@ -519,7 +519,7 @@ textarea{
           <span class = "variant-price">₹${v.price}</span>
           <span class = "variant-stock">${v.stock}</span>
           <button onclick="editbtn(${index})" event.stopPropagation()">Edit</button>
-          <button onclick="removeVariant(${index})">✖</button>
+          <button type="button" onclick="removeVariant(${index})">✖</button>
         </div>
       `
     })

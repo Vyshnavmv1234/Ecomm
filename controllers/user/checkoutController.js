@@ -29,8 +29,8 @@ const loadCheckout = async (req,res)=>{
 
     if(req.session.appliedCoupon){
      couponCode = req.session.appliedCoupon
-     couponDetails = await Coupons.findOne({code:couponCode})
-     couponValue = couponDetails?.discountValue
+     couponDetails = await Coupons.findById(couponCode)
+     couponValue = couponDetails?.discountValue ||0
      
     }    
 
@@ -141,17 +141,18 @@ const applyCoupon = async(req,res)=>{
   try {
 
     const couponCode = req.body.cCode
-    req.session.appliedCoupon = couponCode
+    const coupon = await Coupons.findOne({code:couponCode})
+    
+    if(!coupon){
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Invalid Coupon"})
+    }
+    const alreadyUsed = coupon.userId.some(i=>i.toString() === req.session.user)
 
-    const coupon = await Coupons.findOne({userId:req.session.user,code:couponCode})
-    const notUserCoupon = await Coupons.findOne({code:couponCode})
-    if(coupon){
-      return res.status(409).json({success:false,message:"Coupon already used"})
-    }
-    if(notUserCoupon.expireDate < new Date()){
-      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Coupon expired"})
-    }
-    return res.status(STATUS_CODES.OK).json({success:true})
+    if (alreadyUsed) {
+  return res.status(409).json({success:false,message:"Coupon already used"});
+}
+  req.session.appliedCoupon = coupon._id
+  return res.status(STATUS_CODES.OK).json({success:true,message:"Coupon applied successfully"})
     
   } catch (error) {
     console.error("Error while applying coupon",error)

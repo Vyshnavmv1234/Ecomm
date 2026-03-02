@@ -29,7 +29,7 @@ const cartSchema = new Schema({
       },
       originalPrice: {
         type: Number,
-        required: true
+
       },
       discount: {
         type: Number,

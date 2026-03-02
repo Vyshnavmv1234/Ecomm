@@ -7,7 +7,6 @@ import User from "../../models/userSchema.js"
 import STATUS_CODES from "../../utitls/statusCodes.js"
 import moment from "moment"
 import Wallet from "../../models/walletSchema.js"
-import { transcode } from "buffer"
 
 
 const orderSuccess = async (req,res)=>{
@@ -48,12 +47,17 @@ const placeOrder = async (req,res)=>{
 
     const userId = req.session.user
     const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,status,total} = req.body;
-    const couponCode = req.session.appliedCoupon
+    const couponId = req.session.appliedCoupon
     const wallet = await Wallet.findOne({userId})
-    const validateCoupon = await Coupon.findOne({code:couponCode,userId:req.session.user})
-    if(validateCoupon){
-      return res.status(STATUS_CODES.BAD_REQUEST).json({success:false})
+    const coupon = Coupon.findOne({_id:couponId})
+
+    if(coupon){
+      await Coupon.findByIdAndUpdate(couponId,{$addToSet:{userId:req.session.user},$inc:{usedCount:1}})
     }
+    if (coupon.usedCount >= coupon.usageLimit) {
+      return res.status(400).json({message:"Coupon usage limit reached"});
+}
+
     if(status== "WALLET"){
       if(wallet?.balance <total||!wallet){
       return res.json({success:false,message:"Insufficient balance"})
@@ -93,7 +97,7 @@ const placeOrder = async (req,res)=>{
       })),
       orderSummary:{
         subTotal:orderSummary.subTotal,
-        discount:orderSummary.totalDiscount,
+        discount:orderSummary.totalDiscount+orderSummary.subTotal+gstValue-orderSummary.totalDiscount-totalValue,
         GST:gst,
         total,
         coupon: orderSummary.subTotal+gstValue-orderSummary.totalDiscount-totalValue
@@ -131,8 +135,6 @@ const calculateTotal = (cart)=>{
       totalDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
 
-    const grandTotal = subTotal -totalDiscount
-
     return {
       subTotal,
       totalDiscount,
@@ -151,6 +153,8 @@ const orderDetail = async (req,res)=>{
     const orderId = req.params.id
     const orderDetails = await Order.findOne({_id:orderId}).populate("orderItems.product")
     orderDetails.formattedDate = moment(orderDetails.createdAt).format("DD MMM YYYY");
+
+    req.session.appliedCoupon = null
 
     return res.render("user/orderDetail",{
       user:userData,

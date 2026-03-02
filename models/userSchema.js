@@ -60,6 +60,16 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  referralCode:{
+  type:String,
+  unique:true
+},
+
+  referredBy:{
+  type:Schema.Types.ObjectId,
+  ref:"User",
+  default:null
+},
   searchHistory: [{
     category: {
       type: Schema.Types.ObjectId,

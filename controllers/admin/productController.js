@@ -158,21 +158,32 @@ const postEditProduct = async (req, res) => {
 
     if (variants.length) {
 
-    variants.forEach(updatedVariant => {
-    if (updatedVariant._id) {
-      
-      const existingVariant = product.variants.id(updatedVariant._id);
+  const updatedIds = variants
+    .filter(v => v._id)
+    .map(v => v._id.toString());
 
-      if (existingVariant) {
-        existingVariant.price = updatedVariant.price;
-        existingVariant.stock = updatedVariant.stock;
-        existingVariant.size = updatedVariant.size;
+    product.variants =
+    product.variants.filter(v =>
+      updatedIds.includes(v._id.toString())
+    );
+
+  variants.forEach(updatedVariant => {
+
+    if (updatedVariant._id) {
+
+      const existing =
+        product.variants.id(updatedVariant._id);
+
+      if (existing) {
+        existing.size = updatedVariant.size;
+        existing.price = updatedVariant.price;
+        existing.stock = updatedVariant.stock;
       }
+
     } else {
-      
+
       product.variants.push(updatedVariant);
     }
-
   });
 }
 

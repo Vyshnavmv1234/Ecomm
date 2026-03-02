@@ -19,6 +19,20 @@
   color: #878787;
   text-decoration: line-through;
 }
+.wishlist{
+  position:absolute;
+  top:12px;
+  right:12px;
+  font-size:20px;
+  cursor:pointer;
+  color:#bbb;
+  transition:0.3s;
+}
+
+.wishlist.active{
+  color:red;
+  transform:scale(1.1);
+}
 
 .discount-percent {
   font-size: 14px;
@@ -280,7 +294,13 @@
 
      <div class="product">
 
-       <span class="wishlist">♡</span>
+       <span
+        class="wishlist <%= wishlistIds?.includes(product._id.toString()) ? 'active' : '' %>"
+        data-product="<%= product._id %>"
+        data-variant="<%= product.variants[0]._id %>"
+      >
+        ♥
+      </span>
 
        <a href="/user/productDetail?id=<%=product._id%>">
         <div class="product-image"><img src="<%=product.images[0].url%>"></div>      
@@ -435,6 +455,24 @@ const hasOffer = finalPrice < originalPrice;
 
 <Script>
 
+  function showToast(message, type="success"){
+
+  Toastify({
+    text: message,
+    duration: 2500,
+    gravity: "bottom",
+    position: "center",
+    close: true,
+    stopOnFocus: true,
+    style:{
+      background:
+        type === "success"
+          ? "linear-gradient(to right,#16a34a,#22c55e)"
+          : "linear-gradient(to right,#dc2626,#ef4444)"
+    }
+  }).showToast();
+}
+
   document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search)
 
@@ -476,6 +514,64 @@ function toggleSection(el) {
   const content = el.nextElementSibling;
   content.style.display = content.style.display === "block" ? "none" : "block";
 }
+
+document.querySelectorAll(".wishlist")
+.forEach(icon => {
+
+  icon.addEventListener("click", async (e) => {
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const productId = icon.dataset.product;
+    const variantId = icon.dataset.variant;
+
+    try{
+
+      const res = await fetch("/user/wishlist",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          productId,
+          variantId
+        })
+      });
+
+      const data = await res.json();
+
+      if(data.success){
+
+        if(data.action === "added"){
+          icon.classList.add("active");
+
+          showToast(
+            "Added to Wishlist ❤️",
+            "success"
+          );
+
+        }else{
+
+          icon.classList.remove("active");
+
+          showToast(
+            "Removed from Wishlist 💔",
+            "error"
+          );
+        }
+
+      }
+
+    }catch(err){
+      console.error(err);
+      showToast("Something went wrong","error");
+    }
+
+  });
+
+});
+
 </Script>
 
 <%- include("../../views/partials/user/footer") %>

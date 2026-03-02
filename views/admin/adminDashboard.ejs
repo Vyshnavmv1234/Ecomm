@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -17,11 +18,25 @@ body{
   background:#f6f7fb;
 }
 
-/* MAIN CONTENT */
 .main{
-  margin-top:70px;      /* header height */
-  margin-left:240px;    /* sidebar width */
+  margin-top:70px;
+  margin-left:240px;
   padding:25px;
+}
+canvas{
+  width:100% !important;
+  height:100% !important;
+}
+
+.progress{
+  margin-top:15px;
+}
+
+.progress-header{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  margin-bottom:5px;
 }
 
 /* STATS */
@@ -44,11 +59,6 @@ body{
   font-size:24px;
 }
 
-.card p{
-  color:#777;
-  font-size:14px;
-}
-
 /* GRID */
 .grid{
   display:grid;
@@ -56,20 +66,11 @@ body{
   gap:20px;
 }
 
-/* CHART */
-.chart{
-  height:220px;
-  background:#eef2ff;
-  border-radius:12px;
+.chart-container{
+  height:350px;
   margin-top:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#4a5cff;
-  font-size:18px;
 }
 
-/* PROGRESS */
 .progress{
   margin-top:15px;
 }
@@ -78,7 +79,6 @@ body{
   display:flex;
   justify-content:space-between;
   font-size:14px;
-  margin-bottom:6px;
 }
 
 .bar{
@@ -93,33 +93,6 @@ body{
   border-radius:10px;
 }
 
-/* TABLE */
-.table{
-  margin-top:30px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-th,td{
-  padding:14px;
-  border-bottom:1px solid #eee;
-  font-size:14px;
-}
-
-th{
-  color:#777;
-}
-
-.status{
-  background:#ffe7ea;
-  color:#ff4d6d;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:12px;
-}
 </style>
 </head>
 
@@ -131,105 +104,197 @@ th{
 <!-- SIDEBAR -->
 <%- include("../../views/partials/admin/sidebar") %>
 
-<!-- MAIN CONTENT -->
 <div class="main">
 
-  <h2>Dashboard</h2>
+<h2>Dashboard</h2>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="card">
-      <p>Today's Sales</p>
-      <h3>₹100,999</h3>
-    </div>
+<!-- STATS -->
+<div class="stats">
 
-    <div class="card">
-      <p>Today's Revenue</p>
-      <h3>₹30,000</h3>
-      <small>Profit made so today so far</small>
-    </div>
+<div class="card">
+<p >Total Sales</p>
+<h3 id="sales">23</h3>
+</div>
 
-    <div class="card">
-      <p>Users Count</p>
-      <h3>20390</h3>
-      <small>Total users signed up</small>
-    </div>
-  </div>
+<div class="card">
+<p>Revenue</p>
+<h3 id="rev">₹0</h3>
+<small>Profit made so far</small>
+</div>
 
-  <!-- GRID -->
-  <div class="grid">
-    <div class="card">
-      <p>Total Revenue</p>
-      <h3>₹50,23780</h3>
-      <div class="chart">Revenue Chart</div>
-    </div>
-
-    <div class="card">
-      <p>Most Sold Items</p>
-
-      <div class="progress">
-        <div class="progress-header"><span>Hoodie</span><span>70%</span></div>
-        <div class="bar"><div style="width:70%"></div></div>
-      </div>
-
-      <div class="progress">
-        <div class="progress-header"><span>T-Shirt</span><span>40%</span></div>
-        <div class="bar"><div style="width:40%"></div></div>
-      </div>
-
-      <div class="progress">
-        <div class="progress-header"><span>Box-Fit</span><span>60%</span></div>
-        <div class="bar"><div style="width:60%"></div></div>
-      </div>
-
-      <div class="progress">
-        <div class="progress-header"><span>Straight-Fit</span><span>80%</span></div>
-        <div class="bar"><div style="width:80%"></div></div>
-      </div>
-
-      <div class="progress">
-        <div class="progress-header"><span>OldMoney</span><span>20%</span></div>
-        <div class="bar"><div style="width:20%"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TABLE -->
-  <div class="card table">
-    <p>Latest Orders</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Product</th>
-          <th>Date</th>
-          <th>Customer</th>
-          <th>Total</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>302012</td>
-          <td>Black Ultron</td>
-          <td>29 Dec 2025</td>
-          <td>Josh Wisley</td>
-          <td>₹59000</td>
-          <td><span class="status">Processing</span></td>
-        </tr>
-        <tr>
-          <td>302012</td>
-          <td>Black Ultron</td>
-          <td>29 Dec 2025</td>
-          <td>Josh Wisley</td>
-          <td>₹59000</td>
-          <td><span class="status">Processing</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<div class="card">
+<p>Users Count</p>
+<h3 id="users">0</h3>
+<small>Total users</small>
+</div>
 
 </div>
 
+<!-- GRID -->
+<div class="grid">
+
+<div class="card">
+
+<select id="frequency">
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="monthly" selected>Monthly</option>
+<option value="yearly">Yearly</option>
+</select>
+
+<div class="chart-container">
+<canvas id="revenueChart"></canvas>
+</div>
+
+</div>
+
+<div class="card">
+
+<p>Most Sold Products</p>
+
+<div id="topProducts"></div>
+
+</div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+let revenueChart;
+
+/* ===============================
+   DROPDOWN CHANGE
+================================ */
+document
+.getElementById("frequency")
+.addEventListener("change",function(){
+  loadDashboard(this.value);
+});
+
+
+/* ===============================
+   LOAD COMPLETE DASHBOARD
+================================ */
+async function loadDashboard(freq="monthly"){
+
+  await loadRevenue(freq);
+  await loadTopProducts(freq);
+
+}
+
+
+/* ===============================
+   REVENUE + CARDS
+================================ */
+async function loadRevenue(freq){
+
+  const res =
+    await fetch(`/admin/revenue-chart?frequency=${freq}`);
+
+  const data = await res.json();
+
+  /* ----- CARDS ----- */
+
+  document.getElementById("rev")
+    .innerText =
+      "₹"+(data.totalRevenue||0).toLocaleString();
+
+  document.getElementById("sales")
+    .innerText =
+      data.totalSales || 0;
+
+  document.getElementById("users")
+    .innerText =
+      data.usersCount || 0;
+
+
+  /* ----- CHART ----- */
+
+  const labels =
+    data.chartData.map(d=>d._id);
+
+  const values =
+    data.chartData.map(d=>d.revenue);
+
+  const ctx =
+    document.getElementById("revenueChart")
+    .getContext("2d");
+
+  if(revenueChart)
+    revenueChart.destroy();
+
+  revenueChart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels,
+      datasets:[{
+        label:"Revenue",
+        data:values,
+        borderWidth:2,
+        tension:0.4,
+        fill:true
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        y:{ beginAtZero:true }
+      }
+    }
+  });
+}
+
+
+/* ===============================
+   TOP PRODUCTS
+================================ */
+async function loadTopProducts(freq){
+
+  const res =
+    await fetch(`/admin/top-products?frequency=${freq}`);
+
+  const products = await res.json();
+
+  const container =
+    document.getElementById("topProducts");
+
+  container.innerHTML="";
+
+  if(!products.length){
+    container.innerHTML="<p>No sales data</p>";
+    return;
+  }
+
+  products.forEach(p=>{
+
+    container.innerHTML += `
+      <div class="progress">
+
+        <div class="progress-header">
+          <span>${p.name}</span>
+          <span>${p.percentage}%</span>
+        </div>
+
+        <div class="bar">
+          <div style="width:${p.percentage}%"></div>
+        </div>
+
+      </div>
+    `;
+  });
+
+}
+
+
+/* ===============================
+   INITIAL LOAD
+================================ */
+loadDashboard();
+
+</script>
 </body>
 </html>

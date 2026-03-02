@@ -41,9 +41,68 @@
             <a href="/user/userProfile">Edit Account</a>
           </button>
         </div>
+        <!-- REFERRAL SECTION -->
+<div style="
+  background:#fff;
+  border-radius:8px;
+  padding:25px;
+  border:1px solid #e5e5e5;
+">
+
+  <h4 style="margin-bottom:15px;">Invite & Earn</h4>
+
+  <p style="font-size:14px; color:#666;">
+    Share your referral code and earn rewards when your friends join!
+  </p>
+
+  <!-- Referral Code -->
+  <div style=" margin-top:15px;">
+    <label style="font-size:13px;">Your Referral Code</label>
+
+    <div style="display:flex; gap:10px; margin-top:6px;">
+      <input
+        id="referralCode"
+        type="text"
+        value="<%= user.referralCode %>"
+        readonly
+        style="
+          flex:1;
+          padding:8px;
+          border:1px solid #ddd;
+          border-radius:6px;
+        "
+      >
+
+      <button onclick="copyReferralCode()"
+        style="
+          padding:8px 15px;
+          background:#2bb0c0;
+          color:white;
+          border:none;
+          border-radius:6px;
+          cursor:pointer;
+        ">
+        Copy
+      </button>
+    </div>
+  </div>
+
+</div>
 
     </section>
   </div>
 </main>
+<script>
+  function copyReferralCode(){
+
+  const code =
+    document.getElementById("referralCode");
+
+  code.select();
+  document.execCommand("copy");
+
+  
+}
+</script>
 
   <%-include("../../views/partials/user/footer")%>

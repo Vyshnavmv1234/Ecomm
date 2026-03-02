@@ -7,6 +7,8 @@ import Product from "../../models/productSchema.js"
 import Offer from "../../models/offerSchema.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
 import mongoose from "mongoose"
+import Wallet from "../../models/walletSchema.js"
+import Wishlist from "../../models/wishlistSchema.js"
 
 env.config()
 
@@ -45,6 +47,16 @@ async function sendVerificationEmail(email,otp){
     return false
   }  
 }
+const generateReferralCode = (name)=>{
+  return (
+    name.slice(0,3).toUpperCase() +
+    Math.random()
+      .toString(36)
+      .substring(2,7)
+      .toUpperCase()
+  );
+};
+
 //LOAD LOGIN
 
 const loadLogin = async(req,res)=>{
@@ -52,7 +64,12 @@ const loadLogin = async(req,res)=>{
 
     if(!req.session.user){
 
-      return res.render("user/userLogin",{message: req.query.error,user:null})
+      const errorMessage =
+      req.session.messages?.[0] || null;
+
+      req.session.messages = [];
+
+      return res.render("user/userLogin",{message: req.query.error||errorMessage,user:null})
 
     }else{
       return res.redirect("/user/homepage")
@@ -130,7 +147,7 @@ const loadOTP = async (req,res)=>{
 const signup = async (req,res)=>{
   try {
 
-    const {name,phone,email,password,cPassword} = req.body
+    const {name,phone,email,password,cPassword,referralCode} = req.body
 
     if(password!==cPassword){
      return res.redirect("/user/signup?error=Password doesnt match")
@@ -145,7 +162,7 @@ const signup = async (req,res)=>{
     const emailSent = await sendVerificationEmail(email,otp)
 
     req.session.userOtp = otp
-    req.session.userData = {name,phone,email,password}
+    req.session.userData = {name,phone,email,password,referralCode}
     console.log("OTP is :",otp)
     return res.redirect("/user/userOtp")
 
@@ -201,42 +218,97 @@ const securePassword = async (password)=>{
 //OTP VALIDATION + SAVING USER
 
 const verifyOtp = async (req, res) => {
-  try {
 
-    const { otp } = req.body
+try {
 
-  console.log("OTP from frontend:", otp)
-  console.log("OTP in session:", req.session.userOtp)
+const { otp } = req.body;
 
-  if (otp !== req.session.userOtp) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid OTP"
-    })
-  }
-  const user = req.session.userData
-  const passwordHash = await securePassword(user.password)
+if (otp !== req.session.userOtp) {
+  return res.status(400).json({
+    success:false,
+    message:"Invalid OTP"
+  });
+}
 
-  const saveUserData = new User({
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    password: passwordHash 
-  })
-  
-  await saveUserData.save()
-  req.session.user = saveUserData._id
-  res.json({
-    success:true
-  })
+const user = req.session.userData;
+const passwordHash =
+  await securePassword(user.password);
 
-  req.session.userOtp = null
-    
-  } catch (error) {
-    console.error("Error verifying OTP",error)
-    res.status(500).json({success:false,message:"An error occ"})
+const referralCode = user.referralCode;
+
+let referrer = null;
+
+if(referralCode){
+  referrer = await User.findOne({
+    referralCode
+  });
+}
+
+const saveUserData = new User({
+  name:user.name,
+  email:user.email,
+  phone:user.phone,
+  password:passwordHash,
+  referralCode:
+    generateReferralCode(user.name),
+  referredBy:referrer?._id || null
+});
+
+await saveUserData.save();
+
+await Wallet.create({
+  userId:saveUserData._id,
+  balance:0,
+  transactions:[]
+});
+
+if(referrer){
+
+  const BONUS = 50;
+
+  const refWallet =
+    await Wallet.findOne({userId:referrer._id});
+
+  const newUserWallet =
+    await Wallet.findOne({
+      userId:saveUserData._id
+    });
+
+  if(refWallet && newUserWallet){
+
+    refWallet.balance += BONUS;
+    newUserWallet.balance += BONUS;
+
+    refWallet.transactions.push({
+      amount:BONUS,
+      type:"Credit",
+      description:"Referral Bonus"
+    });
+
+    newUserWallet.transactions.push({
+      amount:BONUS,
+      type:"Credit",
+      description:"Signup Bonus"
+    });
+
+    await refWallet.save();
+    await newUserWallet.save();
   }
 }
+
+req.session.user = saveUserData._id;
+req.session.userOtp = null;
+
+res.json({success:true});
+
+}catch(error){
+ console.error(error);
+ res.status(500).json({
+   success:false,
+   message:"Server error"
+ });
+}
+};
 //RESENT OTP
 
 const resentOtp = async (req,res)=>{
@@ -302,6 +374,20 @@ const loadProductList = async(req,res)=>{
       const skip = (page-1)*limit
       const {category,price,sort} = req.query
 
+      const userId = req.session.user;
+      let wishlistIds = [];
+
+      if(userId){
+      const wishlist =
+        await Wishlist.findOne({ userId });
+
+      if(wishlist){
+        wishlistIds =
+          wishlist.items.map(
+            item => item.productId.toString()
+          );
+      }
+    }
 
       const unblockedCategories = await Category.find({isBlocked:false})
       const allowedCategoriesId = unblockedCategories.map((category)=>category._id)
@@ -407,6 +493,7 @@ const loadProductList = async(req,res)=>{
         totalProduct,
         skip,
         search,
+        wishlistIds,
         category:categoryData,
         query:req.query
       })

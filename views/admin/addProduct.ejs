@@ -680,49 +680,109 @@ function validateForm() {
 }
 
    async function submitWithCrop(e) {
-    e.preventDefault();
 
-    if (!validateForm()) return false;
+  e.preventDefault();
+
+  const submitBtn =
+    document.getElementById("addCategoryBtn");
+
+  /* Prevent multiple submit */
+  if (submitBtn.disabled) return false;
+
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Adding...";
+
+  try {
+
+    if (!validateForm()) {
+      throw new Error("Validation failed");
+    }
 
     if (croppedImages.length < 3) {
-      imageError.innerText = "Please crop all images";
-      return false;
+      imageError.innerText =
+        "Please crop all images";
+      throw new Error("Images missing");
     }
-   if (!validateVariants()) {
-  return false;
-}
+
+    if (!validateVariants()) {
+      throw new Error("Variant invalid");
+    }
 
     const formData = new FormData();
 
-    formData.append("pName", document.getElementById("pName").value);
-    formData.append("description", document.getElementById("description").value);
-    formData.append("category", document.getElementById("category").value);
-    formData.append("pTitle",document.getElementById("pTitle").value)
-    formData.append("variants",document.getElementById("variantsInput").value)
+    formData.append(
+      "pName",
+      document.getElementById("pName").value
+    );
 
-    croppedImages.forEach((img, i) => {
-      formData.append("images", img, `product_${i}.jpg`);
+    formData.append(
+      "description",
+      document.getElementById("description").value
+    );
+
+    formData.append(
+      "category",
+      document.getElementById("category").value
+    );
+
+    formData.append(
+      "pTitle",
+      document.getElementById("pTitle").value
+    );
+
+    formData.append(
+      "variants",
+      document.getElementById("variantsInput").value
+    );
+
+    croppedImages.forEach((img, i)=>{
+      formData.append(
+        "images",
+        img,
+        `product_${i}.jpg`
+      );
     });
 
-    const res = await fetch("/admin/addProduct", {
-      method: "POST",
-      body: formData
-    });
+    const res = await fetch(
+      "/admin/addProduct",
+      {
+        method:"POST",
+        body:formData
+      }
+    );
 
     const data = await res.json();
 
-    if (res.ok && data.success) {
-      showToast("Product added successfully", "success");
+    if(res.ok && data.success){
 
-      setTimeout(() => {
-        window.location.href = "/admin/products";
-      }, 1000);
+      showToast(
+        "Product added successfully",
+        "success"
+      );
 
-    } else {
-      showToast(data.error || "Failed to add product", "error");
+      setTimeout(()=>{
+        window.location.href =
+          "/admin/products";
+      },1000);
+
+    }else{
+      throw new Error(
+        data.error ||
+        "Failed to add product"
+      );
     }
 
-    return false;
+  } catch(err){
+
+    showToast(err.message,"error");
+
+    /* enable again if failed */
+    submitBtn.disabled = false;
+    submitBtn.innerText =
+      "＋ Add Product";
+  }
+
+  return false;
 }
 
 
