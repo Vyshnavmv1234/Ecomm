@@ -15,6 +15,8 @@ const loadAddToCart = async(req,res)=>{
     const cart = await Cart.findOne({userId})
     .populate("items.productId")
 
+    
+
     const userAddress = await Address.findOne({"address.isDefault":true},{"address.$":1})
 
       if (!cart || cart.items.length === 0) {
@@ -35,7 +37,7 @@ const loadAddToCart = async(req,res)=>{
       discount: cartTotal.totalDiscount,
       total: cartTotal.grandTotal,
       cartItems: cart?cart.items:[],
-      defaultAddress: userAddress
+      defaultAddress: userAddress,
     })
     
   } catch (error) {
@@ -114,7 +116,7 @@ const addToCart = async (req,res)=>{
           variantId,
           quantity: 1,
           unitPrice: discountedUnitPrice,
-          originalPrice: variant.price < variant.finalPrice ? variant.price : variant.finalPrice,
+          originalPrice: variant.price,
           discount
         }]
       })

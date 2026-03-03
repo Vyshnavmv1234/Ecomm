@@ -202,7 +202,8 @@ const verifyPayment = async (req, res) => {
     const {
       razorpay_order_id,
       razorpay_payment_id,
-      razorpay_signature
+      razorpay_signature,
+      dbOrderId
     } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -213,11 +214,24 @@ const verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      res.json({ success: true });
-    } else {
-      res.json({ success: false });
-    }
 
+      await Order.findByIdAndUpdate(dbOrderId, {
+        paymentStatus: "Paid",
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id
+      });
+
+      return res.json({ success: true });
+
+    } else {
+
+      await Order.findByIdAndUpdate(dbOrderId, {
+        paymentStatus: "Failed",
+        orderStatus: "Cancelled"
+      });
+
+      return res.json({ success: false });
+    }
   } catch (error) {
     console.log(error);
   }

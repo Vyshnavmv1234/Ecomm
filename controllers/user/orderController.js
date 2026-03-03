@@ -42,87 +42,166 @@ const orderSuccess = async (req,res)=>{
   }
 }
 
-const placeOrder = async (req,res)=>{
+const placeOrder = async (req, res) => {
   try {
 
-    const userId = req.session.user
-    const { paymentMethod, address, paymentStatus, isDefaultUsed ,gst,status,total} = req.body;
-    const couponId = req.session.appliedCoupon
-    const wallet = await Wallet.findOne({userId})
-    const coupon = Coupon.findOne({_id:couponId})
+    const userId = req.session.user;
 
-    if(coupon){
-      await Coupon.findByIdAndUpdate(couponId,{$addToSet:{userId:req.session.user},$inc:{usedCount:1}})
-    }
-    if (coupon.usedCount >= coupon.usageLimit) {
-      return res.status(400).json({message:"Coupon usage limit reached"});
-}
+    const {paymentMethod,address,gst,total,status} = req.body;
 
-    if(status== "WALLET"){
-      if(wallet?.balance <total||!wallet){
-      return res.json({success:false,message:"Insufficient balance"})
-    }
-    }
+    const couponId = req.session.appliedCoupon;
 
-    const cart = await Cart.findOne({userId}).populate("items.productId")
-    const orderSummary = calculateTotal(cart)
+    const wallet = await Wallet.findOne({ userId });
+
+    const coupon = couponId? await Coupon.findById(couponId): null;
+
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
+
+    if (!cart || cart.items.length === 0)
+      return res.json({ success:false });
+
+    const orderSummary = calculateTotal(cart);
 
     if (!address) {
       return res.status(400).json({
-        success: false,
-        message: "Address required"
+        success:false,
+        message:"Address required"
       });
     }
-    if(status == "WALLET"){
-      wallet.balance -= total
 
-      wallet.transactions.push({
-        amount:total,
-        type: "Debit",
-        description: "Paid using wallet",
-      })
-      await wallet.save()
-    }
     const gstValue = Number(gst);
     const totalValue = Number(total);
 
-    const order = await Order.create({
-      userId,
-      orderItems: cart.items.map(item=>({ 
+    if (status === "WALLET") {
+
+      if (!wallet || wallet.balance < totalValue) {
+        return res.json({
+          success:false,
+          message:"Insufficient balance"
+        });
+      }
+    }
+
+    if (coupon) {
+
+      if (coupon.usedCount >= coupon.usageLimit) {
+        return res.status(400).json({
+          message:"Coupon usage limit reached"
+        });
+      }
+
+      await Coupon.findByIdAndUpdate(
+        couponId,
+        {
+          $addToSet:{ userId },
+          $inc:{ usedCount:1 }
+        }
+      );
+    }
+
+    // ORDER CALCULATION
+
+    const subTotal = orderSummary.subTotal;
+    const productDiscount = orderSummary.totalDiscount;
+
+    const discountBase =
+      subTotal - productDiscount;
+
+    const couponAmount =
+      subTotal + gstValue -
+      productDiscount -
+      totalValue;
+
+    const taxableAmount =
+      discountBase - couponAmount;
+
+
+    const orderItems = cart.items.map(item => {
+
+      const itemTotal = item.unitPrice * item.quantity;
+
+      // Coupon Share
+      let itemCouponShare = 0;
+
+      if (couponAmount > 0 && discountBase > 0) {
+        const couponRatio = couponAmount / discountBase;
+
+        itemCouponShare = itemTotal * couponRatio;
+      }
+
+      // GST Share
+      let itemGST = 0;
+
+      if (taxableAmount > 0) {
+        const gstRatio = gstValue / taxableAmount;
+
+        itemGST = (itemTotal - itemCouponShare) * gstRatio;
+      }
+
+      const finalPaidAmount = Math.round(itemTotal -itemCouponShare +itemGST);
+
+      return {
         product: item.productId._id,
-        variant: item.variantId, 
+        variant: item.variantId,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        originalPrice: item.originalPrice
-      })),
-      orderSummary:{
-        subTotal:orderSummary.subTotal,
-        discount:orderSummary.totalDiscount+orderSummary.subTotal+gstValue-orderSummary.totalDiscount-totalValue,
-        GST:gst,
-        total,
-        coupon: orderSummary.subTotal+gstValue-orderSummary.totalDiscount-totalValue
-      },
-      shipping_address:{
-        name: address.name,
-        city: address.city,
-        state: address.state,
-        pincode: address.pincode,
-        house: address.house,
-        streetName: address.streetName,
-        phone: address.phone
-      },
-      status: "pending",
-      paymentMethod,
-      paymentStatus: paymentMethod === "COD"? "Pending": "Paid"
-    })
-    return res.status(STATUS_CODES.OK).json({success:true,orderId:order._id})
+        originalPrice: item.originalPrice,
+        finalPaidAmount  
+      };
+    });
 
+    if (paymentMethod === "WALLET") {
+
+      wallet.balance -= totalValue;
+
+      wallet.transactions.push({
+        amount: totalValue,
+        type: "Debit",
+        description: "Paid using wallet"
+      });
+
+      await wallet.save();
+    }
+
+    const order = await Order.create({
+
+      userId,
+
+      orderItems,
+
+      orderSummary:{
+        subTotal,
+        discount: productDiscount,
+        coupon: couponAmount,
+        GST: gstValue,
+        total: totalValue
+      },
+
+      shipping_address: address,
+
+      status:"pending",
+
+      paymentMethod,
+
+      paymentStatus:
+        paymentMethod === "WALLET"
+          ? "Paid"
+          : "pending"
+    });
+
+    req.session.appliedCoupon = null;
+
+    return res.status(200).json({
+      success:true,
+      orderId:order._id
+    });
 
   } catch (error) {
-     console.error("Error placing order:", error);
-    return res.redirect("/user/pageNotFound")
+
+    console.error("Error placing order:", error);
+    return res.redirect("/user/pageNotFound");
   }
-}
+};
 
 const calculateTotal = (cart)=>{
   try {
@@ -155,6 +234,18 @@ const orderDetail = async (req,res)=>{
     orderDetails.formattedDate = moment(orderDetails.createdAt).format("DD MMM YYYY");
 
     req.session.appliedCoupon = null
+
+    orderDetails.orderItems.forEach(item => {
+
+      if (item.product && item.variant) {
+
+        const selectedVariant =
+          item.product.variants.id(item.variant);
+
+        item.selectedVariant = selectedVariant || null;
+      }
+
+    });
 
     return res.render("user/orderDetail",{
       user:userData,
@@ -203,12 +294,11 @@ const cancelProduct = async (req, res) => {
       item.cancelComment = comment;
     }
 
-    const refundAmount = item.unitPrice * item.quantity;
+    const refundAmount = item.finalPaidAmount;
 
-    wallet.balance += refundAmount;
+    if(order.paymentStatus ==="Paid"){
 
-    if(order.paymentStatus ==="Paid" && allCancelled){
-      order.paymentStatus = "Refunded";
+      wallet.balance += refundAmount;
 
       wallet.transactions.push({
       amount: refundAmount,
@@ -245,50 +335,96 @@ const cancelProduct = async (req, res) => {
   }
 };
 
-const cancelOrder = async(req,res)=>{
+const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.body.orderId
-    const comment = req.body.comment 
-    const reason =  req.body.reason
-    const order = await Order.findOne({_id:orderId})
-    let wallet = await Wallet.findOne({userId:req.session.user})
-    
-    order.orderItems.forEach(item=>{
-      item.status ="cancelled"
-    })
-    await Order.findByIdAndUpdate(orderId,{cancelReason:reason,cancelComment:comment,status:"cancelled"})
 
-    if(!wallet){
+    const { orderId, comment, reason } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    if (!order)
+      return res.status(404).json({ success:false });
+
+    let wallet = await Wallet.findOne({
+      userId: order.userId
+    });
+
+    if (!wallet) {
       wallet = new Wallet({
-        userId:req.session.user,
-        balance:0,
-        transactions:[]
-      })
-      
+        userId: order.userId,
+        balance: 0,
+        transactions: []
+      });
     }
-    
-    if(order.paymentStatus == "Paid"){
-      wallet.balance += order.orderSummary.total
-    wallet.transactions.push({
-      amount: order.orderSummary.total,
-      type: "credit",
-      description: "Order Cancellation"
-    })
-    }
-    await wallet.save()
 
-    await order.save()
-    return res.status(STATUS_CODES.OK).json({success:true})
-    
+    let totalRefund = 0;
+
+    for (const item of order.orderItems) {
+
+      if (item.status !== "cancelled") {
+
+        item.status = "cancelled";
+        item.cancelReason = reason;
+        item.cancelComment = comment;
+
+        await Product.updateOne({
+            _id: item.product,
+            "variants._id": item.variant
+          },
+          {
+            $inc: {
+              "variants.$.stock": item.quantity
+            }
+          }
+        );
+
+        totalRefund +=
+          Number(item.finalPaidAmount) || 0;
+      }
+    }
+
+    if (order.paymentStatus === "Paid" && totalRefund > 0) {
+
+      wallet.balance = Number(wallet.balance) || 0;
+
+      wallet.balance += totalRefund;
+
+      wallet.transactions.push({
+        amount: totalRefund,
+        type: "Credit",
+        description: "Full Order Cancellation Refund"
+      });
+
+      await wallet.save();
+
+      order.paymentStatus = "Refunded";
+    }
+
+    order.status = "cancelled";
+
+    await order.save();
+
+    return res.status(200).json({
+      success:true
+    });
+
   } catch (error) {
-    console.error("error cancelling order",error)
+
+    console.error(
+      "error cancelling order",
+      error
+    );
+
+    return res.json({
+      success:false
+    });
   }
-} 
+};
 const orderHistory = async (req,res)=>{
   try {
 
     const userData = await User.findById(req.session.user)
-    const limit = 3              
+    const limit = 9            
     const page = parseInt(req.query.page) || 1
     const skip = (page - 1) * limit
 
@@ -334,29 +470,12 @@ const requestReturn = async (req, res) => {
 const requestItemReturn = async (req,res)=>{
   try {
     
-    let wallet = await Wallet.findOne({userId:req.session.user})
     const {orderItemId,reason,orderId} = req.body
 
     console.log(orderItemId,reason,orderId)
 
     const order = await Order.findById(orderId)
     const item = order.orderItems.id(orderItemId)
-
-    if(!wallet){
-      wallet = new Wallet({
-        userId:req.session.user,
-        balance:0,
-        transactions:[]
-      })
-    }
-
-    wallet.balance += order.orderSummary.total
-    wallet.transactions.push({
-      amount: order.orderSummary.total,
-      type: "credit",
-      description: "Order Cancellation"
-    })
-    await wallet.save()
 
     item.returnRequested = true
     item.returnReason = reason

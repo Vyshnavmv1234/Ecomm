@@ -62,6 +62,17 @@
       border-bottom: 1px solid #eee;
       padding: 18px 60px;
     }
+    .cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #e63946;
+  color: white;
+  font-size: 9px;
+  font-weight: 400;
+  padding: 3px 6px;
+  border-radius: 50%;
+}
 
     .header-top {
       display: flex;
@@ -151,7 +162,15 @@
         <% } %>
 
         <a href="/user/wishlist">♡</a>
-        <a href="/user/cart"><img style="width: 15px; height: 13px;" src="/images/grocery-store.png" ></a>
+        <div style="position: relative; display:inline-block;">
+        <a href="/user/cart">
+          <i class="fa fa-shopping-cart"></i>
+        </a>
+
+        <% if (cartCount > 0) { %>
+          <span class="cart-badge"><%= cartCount %></span>
+        <% } %>
+      </div>
         <span>☰</span>
       </div>
     </div>

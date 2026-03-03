@@ -283,133 +283,133 @@
 
 <div class="order-container">
 
-  <!-- Header -->
+  <!-- ================= HEADER ================= -->
   <div class="order-header">
     <h3>← ORDER DETAILS</h3>
-    <% if (order.status === "delivered" && !order.returnRequested) { %>
 
-  <!-- Return Button -->
-  <button class="return-btn" onclick="openReturnModal('<%= order._id %>')">
-    Return
-  </button>
+    <% if (order.status === "cancelled") { %>
 
-  <!-- Return Modal -->
-  <div id="returnModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeReturnModal()">&times;</span>
+      <p style="color: red;">Cancelled</p>
 
-      <h3>Request Return</h3>
+    <% } else if (
+         order.paymentMethod === "RAZORPAY" &&
+         order.paymentStatus === "pending"
+    ) { %>
 
-      <form action="/user/request-return" method="POST">
-        <input type="hidden" name="orderId" id="modalOrderId">
+      <button onclick="retryPayment()">Retry Payment</button>
 
-        <textarea
-          name="reason"
-          required
-          placeholder="Please tell us the reason for return..."
-        ></textarea>
+    <% } else if (
+         order.status === "delivered" &&
+         order.orderItems.some(i => i.status === "delivered")
+    ) { %>
 
-        <button type="submit" class="submit-btn">Submit Request</button>
-      </form>
-    </div>
+      <!-- Show return only if at least one item is delivered -->
+      <button class="return-btn"
+              onclick="openReturnModal('<%= order._id %>')">
+        Return Order
+      </button>
+
+    <% } else if (
+         order.status !== "returned" &&
+         order.status !== "cancelled" &&
+         order.status !== "delivered"
+    ) { %>
+
+      <button onclick="openCancelModal('<%=orderId%>', null)">
+        Cancel Order
+      </button>
+
+    <% } %>
   </div>
 
-<% }else if(order.status == "cancelled"){%>
-  <p style="color: red;">Cancelled</p>
-<%} else if(order.status !== "delivered" ) { %>
-    <%if(order.status !== "returned"){%>
-      <a > <button onclick="openCancelModal('<%=orderId%>', null)">Cancel Order</button></a>
-    <%}%>
-    <%}%>
-  </div>
 
-  <!-- Summary -->
+  <!-- ================= SUMMARY ================= -->
   <div class="order-summary">
     <div>
       <p><strong><%= orderId %></strong></p>
-      <p>Order Placed on:<b> <%= order.formattedDate%></b></p>
-      <p>Order Status: <b><%= order.status %></b> </p>
+      <p>Order Placed on: <b><%= order.formattedDate %></b></p>
+      <p>Order Status: <b><%= order.status %></b></p>
     </div>
     <h2>₹<%= order.orderSummary.total %></h2>
   </div>
 
-  <!-- Timeline -->
-  <div class="timeline">
-    <div class="progress">
-      <div class="step"><span></span><p>Order Placed</p></div>
-      <div class="step"><span></span><p>Packaging</p></div>
-      <div class="step"><span></span><p>On The Road</p></div>
-      <div class="step"><span></span><p>Delivered</p></div>
-    </div>
-  </div>
 
-  <!-- MAIN GRID -->
+  <!-- ================= MAIN GRID ================= -->
   <div class="order-main-grid">
 
-    <!-- LEFT: PRODUCTS -->
+    <!-- ================= LEFT: PRODUCTS ================= -->
     <div class="product-section">
-      <h4>Product</h4>
+      <h4>Products</h4>
 
       <% order.orderItems.forEach(item => { %>
+
         <div class="product-row">
-          <a href="/user/productDetail?id=<%=item.product._id%>"><img src="<%= item.product.images[0].url %>" alt=""></a>
+
+          <a href="/user/productDetail?id=<%=item.product._id%>">
+            <img src="<%= item.product.images[0].url %>" alt="">
+          </a>
+
           <div class="product-info">
             <small><%= item.product.title %></small>
-            <p><%= item.product.name %></p>
+            <p><%= item.product.name%>  (<%=item.selectedVariant.size%>) </p>
           </div>
-          <div class="product-qty">x<%= item.quantity %></div>
-          <div class="product-price">₹<%= item.originalPrice * item.quantity %></div>
 
-          <%if(order.status == "returned" || item.status == "returned"){%>
-              <div class="stat"><button style="color: red;">Returned</button></div>
-           <% }
-          else if(item.status ==="placed"&&order.status !=="delivered"){%>
-            <div class="product-price"><button onclick="openCancelModal('<%=orderId%>','<%=item._id%>')" >Cancel</button></div>
-          <%}
-          
-          else if(order.status !== "delivered"){%>
-              <div class="stat"><button style="color: red;">Cancelled</button></div>
-           <% }
+          <div class="product-qty">
+            x<%= item.quantity %>
+          </div>
 
-           else if(item.returnRequested == true){%>
-              <div class="stat"><button style="color: red;">Requested</button></div>
-           <% }
-           
-           else if(order.status === "delivered"){%>
-            
-            <button class="return-btn" onclick="openReturnItemModal('<%=item._id%>','<%=order._id%>')">
-             Return
-            </button>
+          <div class="product-price">
+            ₹<%= item.originalPrice * item.quantity %>
+          </div>
 
-  <!-- Return Modal -->
-  <div id="returnItemModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeReturnModal()">&times;</span>
 
-      <h3>Request Return</h3>
+          <% if (item.status === "returned") { %>
 
-      <form action="/user/request-returnItem" method="POST">
-        <input type="hidden" name="orderItemId" id="modalItemOrderId">
-        <input type="hidden" name="orderId" id = "orderId">
-        <textarea
-          name="reason"
-          required
-          placeholder="Please tell us the reason for return..."
-        ></textarea>
+              <div class="stat">
+                <button style="color:red;">Returned</button>
+              </div>
 
-        <button type="submit" class="submit-btn">Submit Request</button>
-      </form>
-    </div>
-  </div>
-            
-          <%}%>
+          <% } else if (item.status === "cancelled") { %>
+
+              <div class="stat">
+                <button style="color:red;">Cancelled</button>
+              </div>
+
+          <% } else if (item.returnRequested) { %>
+
+              <div class="stat">
+                <button style="color:orange;">Requested</button>
+              </div>
+
+          <% } else if (
+                item.status === "placed" &&
+                order.status !== "delivered"
+          ) { %>
+
+              <button onclick="openCancelModal('<%=orderId%>','<%=item._id%>')">
+                Cancel
+              </button>
+
+          <% } else if (item.status === "delivered") { %>
+
+              <button class="return-btn"
+                      onclick="openReturnItemModal('<%=item._id%>','<%=order._id%>')">
+                Return
+              </button>
+
+          <% } %>
+
         </div>
+
       <% }) %>
+
     </div>
 
-    <!-- RIGHT: ADDRESS + PRICE -->
+
+    <!-- ================= RIGHT PANEL ================= -->
     <div class="right-panel">
 
+      <!-- ADDRESS -->
       <div class="address-section">
         <h4>Address</h4>
         <div class="address-box">
@@ -417,27 +417,34 @@
           <%= order.shipping_address.house %>,<br>
           <%= order.shipping_address.streetName %><br>
           <%= order.shipping_address.city %>,<br>
-          <%= order.shipping_address.state %> – <%= order.shipping_address.pincode %><br><br>
+          <%= order.shipping_address.state %> – 
+          <%= order.shipping_address.pincode %><br><br>
           Phone: <%= order.shipping_address.phone %><br>
           Email: <%= order.shipping_address.email || "N/A" %>
         </div>
       </div>
 
+
+      <!-- PRICE DETAILS -->
       <div class="price-details">
         <h4>Price Details</h4>
 
         <div class="price-row">
           <span>Sub-Total</span>
-          <span>₹<%=order.orderSummary.subTotal %></span>
+          <span>₹<%= order.orderSummary.subTotal %></span>
         </div>
 
         <div class="price-row">
           <span>Discount</span>
-          <span class="discount">-₹<%=order.orderSummary.discount || 0 %></span>
+          <span class="discount">
+            -₹<%= (order.orderSummary.discount || 0) + 
+                  (order.orderSummary.coupon || 0) %>
+          </span>
         </div>
+
         <div class="price-row">
           <span>GST</span>
-          <span >+₹<%=order.orderSummary.GST || 0 %></span>
+          <span>+₹<%= order.orderSummary.GST || 0 %></span>
         </div>
 
         <div class="price-row">
@@ -452,17 +459,60 @@
           <span>₹<%= order.orderSummary.total %></span>
         </div>
 
-       <% if(order.status == "delivered"){%>
-          <a href="/user/order/<%= order._id %>/invoice" class="btn">
-        <button class="invoice-btn">⬇ Download Invoice</button>
-        </a>
-        <%}%>
-      </div>
-      
+        <% if(order.status === "delivered") { %>
+          <a href="/user/order/<%= order._id %>/invoice">
+            <button class="invoice-btn">⬇ Download Invoice</button>
+          </a>
+        <% } %>
 
+      </div>
     </div>
   </div>
+</div>
+<!-- Order Return Modal -->
+<div id="returnModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeReturnModal()">&times;</span>
 
+    <h3>Request Return (Full Order)</h3>
+
+    <form action="/user/request-return" method="POST">
+      <input type="hidden" name="orderId" id="modalOrderId">
+
+      <textarea
+        name="reason"
+        required
+        placeholder="Please tell us the reason for return..."
+      ></textarea>
+
+      <button type="submit" class="submit-btn">
+        Submit Request
+      </button>
+    </form>
+  </div>
+</div>
+<!-- Item Return Modal -->
+<div id="returnItemModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeReturnItemModal()">&times;</span>
+
+    <h3>Request Return (Item)</h3>
+
+    <form action="/user/request-returnItem" method="POST">
+      <input type="hidden" name="orderItemId" id="modalItemOrderId">
+      <input type="hidden" name="orderId" id="orderId">
+
+      <textarea
+        name="reason"
+        required
+        placeholder="Please tell us the reason for return..."
+      ></textarea>
+
+      <button type="submit" class="submit-btn">
+        Submit Request
+      </button>
+    </form>
+  </div>
 </div>
 <!-- Cancel Reason Modal -->
 <div id="cancelModal" class="modal">
@@ -495,6 +545,7 @@
 
   </div>
 </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
   function openCancelModal(orderId, itemId = null) {
@@ -567,6 +618,9 @@ function closeCancelModal() {
 
   closeCancelModal();
 }
+function closeReturnItemModal() {
+  document.getElementById("returnItemModal").style.display = "none";
+}
 
   function openReturnModal(orderId) {
     document.getElementById("modalOrderId").value = orderId;
@@ -583,12 +637,71 @@ function closeCancelModal() {
   }
 
   window.onclick = function (event) {
-    const modal = document.getElementById("returnModal");
-    if (event.target === modal) {
-      closeReturnModal();
-    }
-  };
+  const orderModal = document.getElementById("returnModal");
+  const itemModal = document.getElementById("returnItemModal");
+  const cancelModal = document.getElementById("cancelModal");
 
-</script>
+  if (event.target === orderModal) closeReturnModal();
+  if (event.target === itemModal) closeReturnItemModal();
+  if (event.target === cancelModal) closeCancelModal();
+};
+
+async function retryPayment() {
+
+  const amount = "<%= order.orderSummary.total %>";
+  const dbOrderId = "<%= order._id %>";
+
+  try {
+
+    const razorRes = await fetch("/user/create-razorpay-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount,
+        dbOrderId
+      })
+    });
+
+    if (!razorRes.ok) {
+      throw new Error("Razor order creation failed");
+    }
+
+    const razorData = await razorRes.json();
+
+    const rzp = new Razorpay({
+      key: "<%= process.env.RAZORPAY_KEY_ID %>",
+      amount: razorData.amount,
+      currency: "INR",
+      order_id: razorData.id,
+
+      handler: async function (response) {
+
+        const verifyRes = await fetch("/user/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...response,
+            dbOrderId
+          })
+        });
+
+        const verifyData = await verifyRes.json();
+
+        if (!verifyData.success) {
+          alert("Payment verification failed.");
+          return;
+        }
+
+        window.location.href = `/user/order/${dbOrderId}`;
+      }
+    });
+
+    rzp.open();
+
+  } catch (err) {
+    console.error("Retry error:", err);
+    alert("Something went wrong while retrying payment");
+  }
+}</script>
 
 <%- include("../../views/partials/user/footer") %>

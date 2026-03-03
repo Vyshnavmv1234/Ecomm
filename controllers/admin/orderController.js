@@ -8,7 +8,7 @@ const order = async (req,res)=>{
   try {
     
     const admin = await User.findOne({isAdmin:true})
-    const limit = 3              
+    const limit = 9             
     const page = parseInt(req.query.page) || 1
     const skip = (page - 1) * limit
     const search = req.query.search || ""
@@ -95,6 +95,12 @@ const updateStatus = async (req, res) => {
       });
     }
 
+    for(let val of order.orderItems){
+      if(val.status!=="delivered" && val.status!=="cancelled"){
+        val.status = status
+      }
+    }
+
     const currentStatus = order.status;
 
     const statusFlow = {
@@ -165,31 +171,56 @@ const handleReturn = async (req, res) => {
       
           await Product.updateOne({_id:item.product,"variants._id":item.variant},{$inc:{"variants.$.stock":item.quantity}})
 
-          const updatedOrder = await Order.findById(orderId)
+          let wallet = await Wallet.findOne({userId: order.userId});
 
-          let newSubTotal = 0;
-          let newDiscount = 0;
-
-          updatedOrder.orderItems.forEach(i => {
-            if (i.status !== "returned") {
-              const itemSubTotal = i.originalPrice * i.quantity;
-              const itemDiscount =
-                (i.originalPrice - i.unitPrice) * i.quantity;
-
-              newSubTotal += itemSubTotal;
-              newDiscount += itemDiscount;
-            }
+        if(!wallet) {
+          wallet = new Wallet({
+            userId: order.userId,
+            balance: 0,
+            transactions: []
           });
+        }
 
-          const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
-          const newTotal = newSubTotal - newDiscount + newGST;
+        const refundAmount = item.finalPaidAmount
 
-          updatedOrder.orderSummary.subTotal = newSubTotal;
-          updatedOrder.orderSummary.discount = newDiscount;
-          updatedOrder.orderSummary.GST = newGST;
-          updatedOrder.orderSummary.total = newTotal;
+        if(order.paymentStatus ==="Paid"){
 
-          await updatedOrder.save()
+          wallet.balance += refundAmount;
+
+          wallet.transactions.push({
+          amount: refundAmount,
+          type: "credit",
+          description: "Returned Item Refund"
+        });
+        }
+
+          await wallet.save();
+
+          // const updatedOrder = await Order.findById(orderId)
+
+          // let newSubTotal = 0;
+          // let newDiscount = 0;
+
+          // updatedOrder.orderItems.forEach(i => {
+          //   if (i.status !== "returned") {
+          //     const itemSubTotal = i.originalPrice * i.quantity;
+          //     const itemDiscount =
+          //       (i.originalPrice - i.unitPrice) * i.quantity;
+
+          //     newSubTotal += itemSubTotal;
+          //     newDiscount += itemDiscount;
+          //   }
+          // });
+
+          // const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
+          // const newTotal = newSubTotal - newDiscount + newGST;
+
+          // updatedOrder.orderSummary.subTotal = newSubTotal;
+          // updatedOrder.orderSummary.discount = newDiscount;
+          // updatedOrder.orderSummary.GST = newGST;
+          // updatedOrder.orderSummary.total = newTotal;
+
+          // await updatedOrder.save()
       }
       if (action === "reject") {
         await Order.updateOne(
@@ -203,59 +234,100 @@ const handleReturn = async (req, res) => {
         );
       }
     }
-    else{
-      
-      const order = await Order.findById(orderId)
-    if (action === "approve") {
-      await Order.findByIdAndUpdate(orderId, {
-        returnStatus: "approved",
-        status: "returned"
+else {
+
+  if (action === "approve") {
+
+    let wallet = await Wallet.findOne({
+      userId: order.userId
+    });
+
+    if (!wallet) {
+      wallet = new Wallet({
+        userId: order.userId,
+        balance: 0,
+        transactions: []
       });
+    }
 
-      for (let item of order.orderItems) {
-          await Product.updateOne(
-            { _id: item.product, "variants._id": item.variant },
-            { $inc: { "variants.$.stock": item.quantity } }
-          );
-        }
+    let totalRefund = 0;
 
-      let wallet = await Wallet.findOne({userId:req.session.user})
+    for (const item of order.orderItems) {
 
-      if(!wallet){
-        wallet = new Wallet({
-          userId: order.userId,
-          balance:0,
-          transactions:[]
-        })
+      if (item.status == "delivered") {
+
+        item.status = "returned";
+        item.returnStatus = "approved";
+        item.returnRequested = false;
+
+        await Product.updateOne(
+          {
+            _id: item.product,
+            "variants._id": item.variant
+          },
+          {
+            $inc: {
+              "variants.$.stock": item.quantity
+            }
+          }
+        );
+
+        totalRefund += Number(item.finalPaidAmount) || 0;
       }
+    }
 
-      wallet.balance += order.orderSummary.total
+    if (order.paymentStatus === "Paid" && totalRefund > 0) {
+
+      wallet.balance = Number(wallet.balance) || 0;
+
+      wallet.balance += totalRefund;
+
       wallet.transactions.push({
-      amount: order.orderSummary.total,
-      type: "credit",
-      description: "Product return"
-    })
-    await wallet.save()
+        amount: totalRefund,
+        type: "credit",
+        description: "Full Order Return Refund"
+      });
+
+      await wallet.save();
+
+      order.paymentStatus = "Refunded";
     }
 
-    if (action === "reject") {
-      await Order.findByIdAndUpdate(orderId, {
-        returnStatus: "rejected",
-        returnRequested: true
-      });
-    }
+    await order.save();
   }
+
+  if (action === "reject") {
+    await Order.findByIdAndUpdate(orderId, {
+      returnStatus: "rejected",
+      returnRequested: true
+    });
+  }
+}
       const updatedOrder = await Order.findById(orderId);
 
-      const allReturned = updatedOrder.orderItems.every(
-        item => item.status === "returned"
-      );
+      const allCancelled = updatedOrder.orderItems.every(
+      item => item.status === "cancelled"
+    );
 
-      if (allReturned) {
-        await Order.findByIdAndUpdate(orderId, {
-          status: "returned"
-        });
-      }
+    const allReturned = updatedOrder.orderItems.every(
+      item => item.status === "returned"
+    );
+
+    const allClosed = updatedOrder.orderItems.every(
+      item => ["returned", "cancelled"].includes(item.status)
+    );
+
+    if (allCancelled) {
+      updatedOrder.status = "cancelled";
+    }
+    else if (allReturned) {
+      updatedOrder.status = "returned";
+    }
+    else if (allClosed) {
+      updatedOrder.status = "returned"; 
+    }
+
+    await updatedOrder.save();
 
     res.redirect("/admin/order");
   } catch (error) {

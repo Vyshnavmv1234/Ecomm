@@ -229,7 +229,20 @@ Apply Filter
 <!-- ================= ORDER TABLE ================= -->
 <div class="table-box">
 
-<h3>Delivered Orders</h3>
+  
+
+<div style="display:flex; gap:10px; margin-bottom:15px;">
+  <button class="btn filterBtn" id="deliveredBtn"
+          onclick="switchOrders('delivered')">
+    Delivered Orders
+  </button>
+
+  <button class="btn" id="returnedBtn"
+          onclick="switchOrders('returned')">
+    Returned Orders
+  </button>
+</div>
+<h3 id="tableTitle">Delivered Orders</h3>
 
 <table >
 <thead>
@@ -306,6 +319,8 @@ No Orders Found
 </body>
 
   <script>
+
+    let currentOrderType = "delivered";
     function exportExcel(){
 
   const report =
@@ -320,6 +335,26 @@ No Orders Found
   window.open(
    `/admin/analytics/export-excel?report=${report}&from=${from}&to=${to}`
   );
+}
+function switchOrders(type) {
+
+  currentOrderType = type;
+
+  // Button UI highlight
+  document.getElementById("deliveredBtn").classList.remove("filterBtn");
+  document.getElementById("returnedBtn").classList.remove("filterBtn");
+  document.getElementById("tableTitle").innerText =
+  type === "delivered"
+    ? "Delivered Orders"
+    : "Returned Orders";
+
+  if (type === "delivered") {
+    document.getElementById("deliveredBtn").classList.add("filterBtn");
+  } else {
+    document.getElementById("returnedBtn").classList.add("filterBtn");
+  }
+
+  applyFilter();
 }
 
     function exportPDF(){
@@ -351,7 +386,7 @@ async function applyFilter(){
     document.getElementById("toDate").value;
 
   const response = await fetch(
-    `/admin/analytics-data?report=${report}&from=${from}&to=${to}`
+     `/admin/analytics-data?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`
   );
 
   const data = await response.json();

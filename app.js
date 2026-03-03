@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import userRouter from "./routes/userRouter.js"
 import adminRouter from "./routes/adminRouter.js"
 import passport from "./config/passport.js"
+import { loadCartCount } from "./middlewares/cartCount.js"
 
 dotenv.config()
 
@@ -42,6 +43,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
    
 app.use(express.static(path.join(__dirname,"public")))
+app.use(loadCartCount)
 
 db() 
 

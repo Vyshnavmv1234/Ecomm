@@ -187,13 +187,20 @@ const pageNotFound = async (req,res)=>{
 
 const loadHomepage = async (req, res) => {
   try {
-    let userData
+    let userData = null;
 
     if (req.session.user) {
-      userData = await User.findById(req.session.user)
+
+      const user = await User.findById(req.session.user);
+
+      if (user && !user.isBlocked) {
+        userData = user;
+      } else {
+        req.session.user = null
+      }
     }
-  
-    res.render("user/userHome", { user: userData});
+
+    res.render("user/userHome", { user: userData });
 
   } catch (error) {
     console.log("Homepage not found", error);

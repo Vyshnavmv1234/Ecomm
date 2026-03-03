@@ -32,6 +32,11 @@ const orderSchema = new Schema({
       default: 0,
       required: true
     },
+    finalPaidAmount:{
+    type:Number,
+    required:true,
+    default:0
+  },
     status: {
       type: String,
       default: "placed", 
@@ -95,8 +100,8 @@ const orderSchema = new Schema({
 
   paymentStatus: {
   type: String,
-  enum: ["Pending", "Paid", "Failed", "Refunded"],
-  default: "Pending"
+  enum: ["pending", "Paid", "Failed", "Refunded"],
+  default: "pending"
   },
   razorpayOrderId: {
   type: String
@@ -121,6 +126,9 @@ const orderSchema = new Schema({
     type: Date,
     default: Date.now,
     required: true
+  },
+  deliveredAt: {
+    type: Date
   },
   couponApplied: {
     type: Boolean,

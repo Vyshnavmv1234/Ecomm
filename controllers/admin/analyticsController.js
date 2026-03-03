@@ -458,7 +458,6 @@ const exportExcel = async (req, res) => {
       };
     });
 
-
     orders.forEach(order => {
 
       const discount =

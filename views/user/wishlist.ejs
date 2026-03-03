@@ -233,6 +233,9 @@
 
       if(data.success && res.ok){
 
+        setTimeout(()=>{
+          window.location.reload()
+        },1000)
         showToast("Item added to cart","success")
       }
       if(res.status ==403){

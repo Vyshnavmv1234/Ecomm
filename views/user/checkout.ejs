@@ -337,7 +337,9 @@ input[type="checkbox"] {
   width: auto;
   padding: 0;
 }
-
+.full-width {
+  grid-column: span 2;
+}
 
 .default-address-row input {
   margin: 0;
@@ -367,6 +369,34 @@ input[type="checkbox"] {
   font-weight: bold;
   font-size: 18px;
   margin-top: 15px;
+}
+.default-address-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f9fafb;
+  padding: 18px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+}
+
+.deliver-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.address-tag {
+  background: #e5e7eb;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.address-line {
+  margin: 6px 0;
+  font-size: 14px;
 }
 
 .place-order {
@@ -399,83 +429,96 @@ input[type="checkbox"] {
   <div class="card">
     <h2>Billing Information</h2>
 
-    <div class="form-row full">
+<%
+  const defaultAddrData =
+    defaultAddress &&
+    defaultAddress.address &&
+    defaultAddress.address.length
+      ? defaultAddress.address[0]
+      : null;
+%>
 
-    <button type="button" class="change-address-btn" onclick="openAddressModal()">
-      Change address
-    </button>
+<div class="default-address-display" id="deliverToSection">
+  <% if (defaultAddrData) { %>
+    <div>
+      <p class="deliver-label">Deliver to:</p>
 
-    <div id="addressModal" class="address-modal">
+      <strong><%= defaultAddrData.name %></strong>
+      <% if(defaultAddrData.isDefault){ %>
+        <span class="address-tag">DEFAULT</span>
+      <% } %>
+
+      <p class="address-line">
+        <%= defaultAddrData.house %>, <%= defaultAddrData.streetName %>,
+        <%= defaultAddrData.city %>, <%= defaultAddrData.state %> –
+        <%= defaultAddrData.pincode %>
+      </p>
+
+      <p><%= defaultAddrData.phone %></p>
+    </div>
+  <% } else { %>
+    <p>No address found</p>
+  <% } %>
+
+  <button type="button"
+          class="change-address-btn"
+          onclick="openAddressModal()">
+    Change
+  </button>
+</div>
+
+<div id="addressModal" class="address-modal">
   <div class="modal-content">
     <h3>Select Address</h3>
 
-<div class="address-list">
-  <% allAddress.forEach((addr, index) => { %>
-    <label class="address-option">
-      <input
-        type="radio"
-        name="addressSelect"
-        value="<%= index %>"
-        <%= addr.isDefault ? "checked" : "" %>
-      />
-      <div class="address-text">
-        <strong><%= addr.name %></strong>
-        <p>
-          <%= addr.house %>, <%= addr.streetName %><br>
-          <%= addr.city %>, <%= addr.state %> – <%= addr.pincode %>
-        </p>
-      </div>
-    </label>
-  <% }) %>
-</div>
+    <div class="address-list">
+      <% allAddress.forEach((addr, index) => { %>
+        <div class="address-option">
+          <input type="radio"
+                 name="addressSelect"
+                 value="<%= index %>"
+                 <%= addr.isDefault ? "checked" : "" %> />
 
-<div class="modal-actions">
-  <button class="btn btn-primary" onclick="applySelectedAddress()">
-    Use this address
-  </button>
-  <button class="btn btn-secondary" onclick="closeAddressModal()">
-    Cancel
-  </button>
-</div>
+          <div class="address-text">
+            <strong><%= addr.name %></strong>
+            <p>
+              <%= addr.house %>, <%= addr.streetName %><br>
+              <%= addr.city %>, <%= addr.state %> – <%= addr.pincode %>
+            </p>
+          </div>
 
-  </div>
-</div>
-  </div>
+          <button type="button"
+                  class="edit-btn"
+                  onclick="editAddress(<%= index %>)">
+            Edit
+          </button>
+        </div>
+      <% }) %>
+    </div>
 
-   <div class="form-row">
-  <div>
-    <label>Name</label>
-    <input id="name" type="text">
-    <p class="error" id="nameError"></p>
-  </div>
-
-  <div>
-    <label>Region / State</label>
-    <select id="state">
-      <option value="">Select...</option>
-      <option value="Kerala">Kerala</option>
-      <option value="Tamil Nadu">Tamil Nadu</option>
-      <option value="Karnataka">Karnataka</option>
-    </select>
-    <p class="error" id="stateError"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="applySelectedAddress()">
+        Use this address
+      </button>
+      <button class="btn btn-secondary" onclick="closeAddressModal()">
+        Cancel
+      </button>
+    </div>
   </div>
 </div>
 
-<div class="form-row">
-  <div>
-    <label>Address</label>
-    <input id="ADDRESS" type="text">
-    <p class="error" id="addressError"></p>
-  </div>
 
-  <div>
-    <label>Street name</label>
-    <input id="streetName" type="text">
-    <p class="error" id="streetError"></p>
-  </div>
-</div>
+<!-- 🔽 HIDDEN EDIT FORM -->
+<div id="billingForm" style="display:none;">
 
-<div class="form-row">
+  <div class="form-row">
+    <div>
+      <label>Name</label>
+      <input id="name" type="text">
+      <p class="error" id="nameError"></p>
+    </div>
+
+    <div class="form-row">
   <div>
     <label>City</label>
     <select id="city">
@@ -488,35 +531,58 @@ input[type="checkbox"] {
   </div>
 
   <div>
-    <label>PIN Code</label>
-    <input id="pincode" type="text">
-    <p class="error" id="pincodeError"></p>
+    <label>Street name</label>
+    <input id="streetName" type="text">
+    <p class="error" id="streetError"></p>
   </div>
 </div>
 
 <div class="form-row">
   <div>
-    <label>Email</label>
-    <input id="email" type="email">
-    <p class="error" id="emailError"></p>
+    <label>Address</label>
+    <input id="ADDRESS" type="text">
+    <p class="error" id="addressError"></p>
   </div>
 
   <div>
-    <label>Phone Number</label>
+    <label>Phone</label>
     <input id="phone" type="text">
     <p class="error" id="phoneError"></p>
   </div>
 </div>
 
-
-<div class="form-row full">
-  <label class="default-address-row">
-    <input id="defaultAddress" type="checkbox" name="defaultAddress"
-      <%= defaultAddress ? "checked" : "" %>>
-    <span>Default address</span>
-  </label>
-  <p class="error" id="defaultAddressError"></p>
+<div class="form-row">
+  <div>
+    <label>Pincode</label>
+    <input id="pincode" type="text">
+    <p class="error" id="pincodeError"></p>
+  </div>
 </div>
+
+    <div>
+      <label>Region / State</label>
+      <select id="state">
+        <option value="">Select...</option>
+        <option value="Kerala">Kerala</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+        <option value="Karnataka">Karnataka</option>
+      </select>
+      <p class="error" id="stateError"></p>
+    </div>
+  </div>
+
+  <!-- ALL OTHER FORM ROWS HERE -->
+
+  <div class="form-row full">
+    <label class="default-address-row">
+      <input id="defaultAddress" type="checkbox"
+        <%= defaultAddress ? "checked" : "" %>>
+      <span>Default address</span>
+    </label>
+  </div>
+
+</div>
+
 
 <div class="payment">
   <h3>Payment Option</h3>
@@ -577,7 +643,7 @@ input[type="checkbox"] {
       ₹<%=total%>
     </div>
 
-    <button class="place-order" onclick="return placeOrderHandler('<%=gst%>','<%=total%>')">
+    <button class="place-order" id="placeOrderBtn">
       Place Order
     </button>
 
@@ -667,52 +733,63 @@ input[type="checkbox"] {
 
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
 
-function showToast(message, type = "success") {
+  // =========================
+  // 🔔 TOAST
+  // =========================
+  function showToast(message, type = "success") {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      close: true,
+      stopOnFocus: true,
+      style: {
+        background: type === "success"
+          ? "linear-gradient(to right, #00b09b, #96c93d)"
+          : "linear-gradient(to right, #ff5f6d, #ffc371)"
+      }
+    }).showToast();
+  }
 
-  Toastify({
-    text: message,
-    duration: 3000,
-    gravity: "bottom",        // top or bottom
-    position: "center",     // left, center or right
-    close: true,
-    stopOnFocus: true,
-    style: {
-      background: type === "success"
-        ? "linear-gradient(to right, #00b09b, #96c93d)"
-        : "linear-gradient(to right, #ff5f6d, #ffc371)"
-    }
-  }).showToast();
-
-}
-
-  // ===== DATA FROM BACKEND =====
+  // =========================
+  // 📦 BACKEND DATA
+  // =========================
   const defaultAddressDoc = <%- JSON.stringify(defaultAddress || null) %>;
   const addresses = <%- JSON.stringify(allAddress || []) %>;
 
-  const checkbox = document.getElementById("defaultAddress");
-
-  // ===== FORM FIELDS =====
-  const fields = {
-    name: document.querySelector("#name"),
-    state: document.querySelector("#state"),
-    city: document.querySelector("#city"),
-    streetName: document.querySelector("#streetName"),
-    address: document.querySelector("#ADDRESS"),
-    email: document.querySelector("#email"),
-    phone: document.querySelector("#phone"),
-    pincode: document.querySelector("#pincode")
-  };
-
-  // ===== NORMALIZE DEFAULT ADDRESS =====
-  const defaultAddr =
+  const defaultAddrJS =
     defaultAddressDoc &&
     Array.isArray(defaultAddressDoc.address) &&
     defaultAddressDoc.address.length
       ? defaultAddressDoc.address[0]
       : null;
 
-  // ===== HELPERS =====
+  const checkbox = document.getElementById("defaultAddress");
+
+  const fields = {
+    name: document.querySelector("#name"),
+    state: document.querySelector("#state"),
+    city: document.querySelector("#city"),
+    streetName: document.querySelector("#streetName"),
+    address: document.querySelector("#ADDRESS"),
+    phone: document.querySelector("#phone"),
+    pincode: document.querySelector("#pincode")
+  };
+
+  // =========================
+  // 📝 SHOW FORM IF NO DEFAULT
+  // =========================
+  if (!defaultAddrJS) {
+    const form = document.getElementById("billingForm");
+    if (form) form.style.display = "block";
+  }
+
+  // =========================
+  // 🧠 ADDRESS HELPERS
+  // =========================
   function setAddress(addr) {
     if (!addr) return;
 
@@ -721,134 +798,190 @@ function showToast(message, type = "success") {
     fields.city.value = addr.city || "";
     fields.streetName.value = addr.streetName || "";
     fields.address.value = addr.house || "";
-    fields.email.value = addr.email || "";
     fields.phone.value = addr.phone || "";
     fields.pincode.value = addr.pincode || "";
   }
 
   function clearAddress() {
-    Object.values(fields).forEach(field => field.value = "");
+    Object.values(fields).forEach(field => {
+      if (field) field.value = "";
+    });
   }
 
-  // ===== DEFAULT CHECKBOX BEHAVIOR =====
-  if (checkbox && checkbox.checked && defaultAddr) {
-    setAddress(defaultAddr);
+  // =========================
+  // 🔄 DEFAULT CHECKBOX
+  // =========================
+  if (checkbox && checkbox.checked && defaultAddrJS) {
+    setAddress(defaultAddrJS);
   }
 
-  checkbox.addEventListener("change", function () {
-    if (this.checked) {
-      setAddress(defaultAddr);
-    } else {
-      clearAddress();
-    }
+  if (checkbox) {
+    checkbox.addEventListener("change", function () {
+      if (this.checked) {
+        setAddress(defaultAddrJS);
+      } else {
+        clearAddress();
+      }
+    });
+  }
+
+  const placeOrderBtn = document.getElementById("placeOrderBtn");
+
+if (placeOrderBtn) {
+  placeOrderBtn.addEventListener("click", function () {
+    placeOrderHandler("<%=gst%>", "<%=total%>");
   });
-
-  // ===== ADDRESS MODAL =====
-  function openAddressModal() {
-    document.getElementById("addressModal").style.display = "flex";
-  }
-
-  function closeAddressModal() {
-    document.getElementById("addressModal").style.display = "none";
-  }
-
-  function applySelectedAddress() {
-    const selected = document.querySelector(
-      'input[name="addressSelect"]:checked'
-    );
-    if (!selected) return;
-
-    const addr = addresses[selected.value];
-    setAddress(addr);
-
-    // Using another address → not default
-    checkbox.checked = false;
-
-    closeAddressModal();
-  }
-  //VALIDATION
-
-  function placeOrderHandler(gst, total) {
-
-  // First validate form
-  if (!validateForm()) {
-    return false; // stop execution if invalid
-  }
-
-  // If validation passes
-  handlePlaceOrder(gst, total);
-
 }
 
+  // =========================
+  // 🪟 MODAL FUNCTIONS
+  // =========================
+  window.openAddressModal = function () {
+    document.getElementById("addressModal").style.display = "flex";
+  };
 
- function validateForm() {
+  window.closeAddressModal = function () {
+    document.getElementById("addressModal").style.display = "none";
+  };
+
+  window.editAddress = function (index) {
+    const addr = addresses[index];
+    if (!addr) return;
+
+    setAddress(addr);
+    document.getElementById("billingForm").style.display = "block";
+    closeAddressModal();
+  };
+
+  window.applySelectedAddress = function () {
+  const selected = document.querySelector(
+    'input[name="addressSelect"]:checked'
+  );
+  if (!selected) return;
+
+  const addr = addresses[selected.value];
+  setAddress(addr);
+
+  const deliverSection = document.getElementById("deliverToSection");
+
+  if (deliverSection && addr) {
+    deliverSection.innerHTML = `
+      <div>
+        <p class="deliver-label">Deliver to:</p>
+        <strong>${addr.name}</strong>
+        <p class="address-line">
+          ${addr.house}, ${addr.streetName},
+          ${addr.city}, ${addr.state} – ${addr.pincode}
+        </p>
+        <p>${addr.phone}</p>
+      </div>
+
+      <button type="button"
+              class="change-address-btn"
+              onclick="openAddressModal()">
+        Change
+      </button>
+    `;
+  }
+
+  if (checkbox) checkbox.checked = false;
+
+  closeAddressModal();
+};
+
+  // =========================
+  // ✅ VALIDATION
+  // =========================
+  function validateForm() {
 
   let isValid = true;
 
-  // 🔹 Clear all previous errors
+  // Clear previous errors
   document.querySelectorAll(".error").forEach(el => {
     el.innerText = "";
     el.style.display = "none";
   });
 
-  const name = document.getElementById("name").value.trim();
-  const state = document.getElementById("state").value;
-  const address = document.getElementById("ADDRESS").value.trim();
-  const street = document.getElementById("streetName").value.trim();
-  const city = document.getElementById("city").value;
-  const pincode = document.getElementById("pincode").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-
-  // Helper function to show error
-  function showError(id, message) {
+  function showError(id, message, inputId) {
     const el = document.getElementById(id);
+    if (!el) return;
+
     el.innerText = message;
     el.style.display = "block";
     isValid = false;
+
+    // Focus first invalid field
+    if (inputId && isValid === false) {
+      document.getElementById(inputId)?.focus();
+    }
   }
 
-  // Name validation
-  if (name === "") {
-    showError("nameError", "Name is required");
+  const name = fields.name.value.trim();
+  const state = fields.state.value;
+  const city = fields.city.value;
+  const street = fields.streetName.value.trim();
+  const address = fields.address.value.trim();
+  const phone = fields.phone.value.trim();
+  const pincode = fields.pincode.value.trim();
+
+  // =========================
+  // NAME VALIDATION
+  // =========================
+  if (!name) {
+    showError("nameError", "Name is required", "name");
+  } else if (!/^[A-Za-z\s]{3,40}$/.test(name)) {
+    showError("nameError", "Enter valid name (min 3 letters)", "name");
   }
 
-  // State validation
-  if (state === "") {
-    showError("stateError", "Please select a state");
+  // =========================
+  // STATE VALIDATION
+  // =========================
+  if (!state) {
+    showError("stateError", "Please select a state", "state");
   }
 
-  // Address validation
-  if (address === "") {
-    showError("addressError", "Address is required");
+  // =========================
+  // CITY VALIDATION
+  // =========================
+  if (!city) {
+    showError("cityError", "Please select a city", "city");
   }
 
-  // Street validation
-  if (street === "") {
-    showError("streetError", "Street name is required");
+  // =========================
+  // STREET VALIDATION
+  // =========================
+  if (!street) {
+    showError("streetError", "Street name is required", "streetName");
+  } else if (street.length < 3) {
+    showError("streetError", "Street name too short", "streetName");
   }
 
-  // City validation
-  if (city === "") {
-    showError("cityError", "Please select a city");
+  // =========================
+  // ADDRESS VALIDATION
+  // =========================
+  if (!address) {
+    showError("addressError", "Address is required", "ADDRESS");
+  } else if (address.length < 5) {
+    showError("addressError", "Address too short", "ADDRESS");
   }
 
-  // Pincode validation
-  if (!/^[0-9]{6}$/.test(pincode)) {
-    showError("pincodeError", "Enter valid 6-digit PIN code");
+  // =========================
+  // PINCODE VALIDATION
+  // =========================
+  if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+    showError("pincodeError", "Enter valid 6-digit PIN code", "pincode");
   }
 
-  // Email validation
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    showError("emailError", "Enter valid email");
+  // =========================
+  // PHONE VALIDATION (INDIA)
+  // =========================
+  if (!/^[6-9][0-9]{9}$/.test(phone)) {
+    showError("phoneError", "Enter valid 10-digit mobile number", "phone");
   }
 
-  // Phone validation
-  if (!/^[0-9]{10}$/.test(phone)) {
-    showError("phoneError", "Enter valid 10-digit phone number");
-  }
-
-  // Payment validation
+  // =========================
+  // PAYMENT VALIDATION
+  // =========================
   const paymentSelected = document.querySelector('input[name="pay"]:checked');
   if (!paymentSelected) {
     showError("paymentError", "Please select a payment option");
@@ -857,7 +990,11 @@ function showToast(message, type = "success") {
   return isValid;
 }
 
-async function handlePlaceOrder(gst, total) {
+  // =========================
+  // 🛒 PLACE ORDER
+  // =========================
+  window.placeOrderHandler = async function (gst, total) {
+
   if (!validateForm()) return;
 
   const paymentSelected = document.querySelector('input[name="pay"]:checked');
@@ -869,232 +1006,191 @@ async function handlePlaceOrder(gst, total) {
     city: fields.city.value,
     streetName: fields.streetName.value.trim(),
     house: fields.address.value.trim(),
-    email: fields.email.value.trim(),
     phone: fields.phone.value.trim(),
     pincode: fields.pincode.value.trim()
   };
 
   try {
 
-    //WALLET
-
-    if (paymentMethod === "WALLET") {
+    // ==============================
+    // 🟢 COD & WALLET
+    // ==============================
+    if (paymentMethod === "COD" || paymentMethod === "WALLET") {
 
       const res = await fetch("/user/place-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          paymentMethod: "WALLET",
+          paymentMethod,
           address: addressData,
-          status: "WALLET",
           gst,
           total,
-          isDefaultUsed: checkbox.checked
+          isDefaultUsed: checkbox ? checkbox.checked : false
         })
       });
 
       const data = await res.json();
 
-      if(!data.success){
-        showToast(data.message,"error")
-      }
-
-      if (data.success) {
-        window.location.href = `/user/order/${data.orderId}`;
-      }
-      if(res.status == 400){
-        showToast("Coupon already used","error")
-      }
-
-      return;
-    }
-
-    // ==============================
-    // 🟢 CASH ON DELIVERY FLOW
-    // ==============================
-    if (paymentMethod === "COD") {
-
-      const res = await fetch("/user/place-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentMethod: "COD",
-          address: addressData,
-          gst,
-          total,
-          isDefaultUsed: checkbox.checked
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        window.location.href = `/user/order/${data.orderId}`;
-      }
-      if(res.status == 400){
-        showToast("Coupon already used","error")
-      }
-
-      return;
-    }
-
-    if (paymentMethod === "RAZORPAY") {
-
-  // 1️⃣ FIRST create DB order as Pending
-  const createOrderRes = await fetch("/user/place-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      paymentMethod: "RAZORPAY",
-      paymentStatus: "Pending",
-      address: addressData,
-      gst,
-      total,
-      isDefaultUsed: checkbox.checked
-    })
-  });
-
-      if(createOrderRes.status == 400){
-        showToast("Coupon already used","error")
-      }
-
-  const createOrderData = await createOrderRes.json();
-
-  if (!createOrderData.success) {
-    showError("Unable to create order");
-    return;
-  }
-
-  const dbOrderId = createOrderData.orderId;
-
-  // 2️⃣ Create Razorpay Order
-  const razorRes = await fetch("/user/create-razorpay-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      amount: total,
-      dbOrderId
-    })
-  });
-
-  const razorData = await razorRes.json();
-
-  const options = {
-    key: "<%= process.env.RAZORPAY_KEY_ID %>",
-    amount: razorData.amount,
-    currency: "INR",
-    name: "Your Store",
-    description: "Order Payment",
-    order_id: razorData.id,
-
-    handler: async function (response) {
-
-      // 3️⃣ Verify payment
-      const verifyRes = await fetch("/user/verify-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(response)
-      });
-
-      const verifyData = await verifyRes.json();
-
-      if (!verifyData.success) {
-        window.location.href =
-          `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+      if (!data.success) {
+        showToast(data.message || "Something went wrong", "error");
         return;
       }
 
-      // 4️⃣ Update existing order
-      await fetch("/user/update-payment-status", {
+      window.location.href = `/user/order/${data.orderId}`;
+      return;
+    }
+
+    // ==============================
+    // 🟡 RAZORPAY (OLD FLOW RESTORED)
+    // ==============================
+    if (paymentMethod === "RAZORPAY") {
+
+      // 1️⃣ Create DB Order (Pending)
+      const createOrderRes = await fetch("/user/place-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          dbOrderId,
-          razorpayPaymentId: response.razorpay_payment_id,
-         
+          paymentMethod: "RAZORPAY",
+          paymentStatus: "Pending",
+          address: addressData,
+          gst,
+          total,
+          isDefaultUsed: checkbox ? checkbox.checked : false
         })
       });
 
-      window.location.href = `/user/order/${dbOrderId}`;
-    },
+      if (createOrderRes.status === 400) {
+        showToast("Coupon already used", "error");
+        return;
+      }
 
-    modal: {
-      ondismiss: function () {
+      const createOrderData = await createOrderRes.json();
+
+      if (!createOrderData.success) {
+        showToast("Unable to create order", "error");
+        return;
+      }
+
+      const dbOrderId = createOrderData.orderId;
+
+      // 2️⃣ Create Razorpay Order
+      const razorRes = await fetch("/user/create-razorpay-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          dbOrderId
+        })
+      });
+
+      const razorData = await razorRes.json();
+
+      const options = {
+        key: "<%= process.env.RAZORPAY_KEY_ID %>",
+        amount: razorData.amount,
+        currency: "INR",
+        name: "Your Store",
+        description: "Order Payment",
+        order_id: razorData.id,
+
+        // 3️⃣ Success Handler
+        handler: async function (response) {
+
+          const verifyRes = await fetch("/user/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({...response,dbOrderId})
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (!verifyData.success) {
+            window.location.href =
+              `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+            return;
+          }
+
+          // 4️⃣ Update Payment Status
+          await fetch("/user/update-payment-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              dbOrderId,
+              razorpayPaymentId: response.razorpay_payment_id
+            })
+          });
+
+          window.location.href = `/user/order/${dbOrderId}`;
+        },
+
+        // 5️⃣ If modal closed
+        modal: {
+          ondismiss: function () {
+            window.location.href =
+              `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+
+      // 6️⃣ If payment fails
+      rzp.on("payment.failed", function () {
         window.location.href =
           `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
-      }
+      });
+
+      rzp.open();
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast("Something went wrong", "error");
+  }
+};
+
+  // =========================
+  // 🎟 COUPONS
+  // =========================
+  window.toggleCoupons = function () {
+    const section = document.getElementById("availableCoupons");
+    if (section)
+      section.style.display =
+        section.style.display === "block" ? "none" : "block";
+  };
+
+  let cCode = "";
+
+  window.autoApplyCoupon = function (code) {
+    cCode = code;
+    const input = document.getElementById("couponCode");
+    if (input) input.value = code;
+  };
+
+  window.applyCoupon = async function () {
+    const res = await fetch("/user/coupon/applyCoupon", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cCode })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast("Coupon applied", "success");
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast(data.message || "Invalid coupon", "error");
     }
   };
 
-  const rzp = new Razorpay(options);
+  window.removeCoupon = async function () {
+    const res = await fetch("/user/coupon/removeCoupon", { method: "POST" });
+    const data = await res.json();
+    if (data.success) location.reload();
+  };
 
-  rzp.on('payment.failed', function (response) {
-    window.location.href =
-      `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
-  });
-
-  rzp.open();
-}
-
-
-  } catch (err) {
-    showError("Something went wrong");
-  }
-}
-
-function toggleCoupons() {
-  const section = document.getElementById("availableCoupons");
-  section.style.display =
-    section.style.display === "block" ? "none" : "block";
-}
-let cCode = ""
-function autoApplyCoupon(code) {
-  cCode = code
-  document.getElementById("couponCode").value = code;
-  
-}
-
-async function applyCoupon() {
-  
-  const res = await fetch("/user/coupon/applyCoupon",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({cCode})
-  })
-  const data = await res.json()
-
-  if(data.success && res.ok){
-    showToast("Coupon applied successfully","success")
-    setTimeout(()=>{
-      window.location.reload()
-    },1000)
-    
-  }
-  if(res.status==404){
-    showToast(data.message,"error")
-  }
-  if(res.status==409){
-    showToast("Coupon already applied","error")
-  }
-}
-async function removeCoupon() {
-  const response = await fetch('/user/coupon/removeCoupon', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-
-  const data = await response.json();
-
-  if (data.success) {
-    location.reload();
-  }
-}
-
-
+});
 </script>
 
 <%- include("../../views/partials/user/footer") %>
