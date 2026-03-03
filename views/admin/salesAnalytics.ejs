@@ -12,6 +12,42 @@ body{
     font-family: Arial, Helvetica, sans-serif;
     background:#f4f6f9;
 }
+/* ===== REPORT TYPE SELECT ===== */
+
+#reportType {
+  padding: 10px 36px 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+
+  /* Remove default arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Custom arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%236b7280' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px;
+}
+
+/* Hover */
+#reportType:hover {
+  border-color: #9ca3af;
+}
+
+/* Focus */
+#reportType:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
 
 /* ================= ADMIN LAYOUT ================= */
 /* Adjust according to your sidebar & header size */
@@ -317,8 +353,28 @@ No Orders Found
 </div>
 
 </body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
   <script>
+
+    function showToast(message, type = "error") {
+
+  let bgColor = "#dc3545"; // red default
+
+  if(type === "success") bgColor = "#28a745";
+  if(type === "warning") bgColor = "#ffc107";
+  if(type === "info") bgColor = "#007bff";
+
+  Toastify({
+    text: message,
+    duration: 3000,
+    gravity: "bottom",
+    position: "center",
+    backgroundColor: bgColor,
+    close: true
+  }).showToast();
+}
 
     let currentOrderType = "delivered";
     function exportExcel(){
@@ -376,15 +432,32 @@ function switchOrders(type) {
 
 async function applyFilter(){
 
-  const report =
-    document.getElementById("reportType").value;
+  const report = document.getElementById("reportType").value;
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
 
-  const from =
-    document.getElementById("fromDate").value;
+  if(report === "custom"){
 
-  const to =
-    document.getElementById("toDate").value;
+    if(!from || !to){
+      showToast("Please select both From and To dates", "warning");
+      return;
+    }
 
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    if(fromDate > toDate){
+      showToast("From date cannot be greater than To date", "error");
+      return;
+    }
+
+    if(toDate > today){
+      showToast("Future dates are not allowed", "error");
+      return;
+    }
+  }
   const response = await fetch(
      `/admin/analytics-data?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`
   );

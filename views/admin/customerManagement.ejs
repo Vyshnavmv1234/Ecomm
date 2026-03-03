@@ -248,47 +248,115 @@
     </div>
 
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
 
     async function blockUser(userId) {
 
-      const ok = confirm("Press OK to block the user");
-      if (!ok) return;
+      const result = await Swal.fire({
+        title: "Block this user?",
+        text: "User will not be able to login or place orders.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Block",
+        cancelButtonText: "Cancel"
+      });
 
-      const res = await fetch(`/admin/users/${userId}/block`,{
-        method: "PATCH"
-      })
-      const data = await res.json();
+      if (!result.isConfirmed) return;
 
-      if (data.success) {
+      Swal.fire({
+        title: "Blocking...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
-        window.location.href = "/admin/users"
-      
-    } else {
-      alert("Failed to block user");
-    }  
-  }
+      try {
+        const res = await fetch(`/admin/users/${userId}/block`, {
+          method: "PATCH"
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          await Swal.fire({
+            title: "Blocked!",
+            text: "User has been blocked successfully.",
+            icon: "success",
+            confirmButtonColor: "#111827"
+          });
+
+          window.location.reload();
+        } else {
+          throw new Error();
+        }
+
+      } catch (err) {
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to block user.",
+          icon: "error",
+          confirmButtonColor: "#dc2626"
+        });
+      }
+    }
   
    async function unblockUser(userId) {
-    const ok = confirm("Press OK to unblock the user");
-    if (!ok) return;
 
-    const res = await fetch(`/admin/users/${userId}/unblock`, {
-      method: "PATCH"
-    });
+      const result = await Swal.fire({
+        title: "Unblock this user?",
+        text: "User will regain full access.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#16a34a",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Unblock",
+        cancelButtonText: "Cancel"
+      });
 
-    const data = await res.json();
+      if (!result.isConfirmed) return;
 
-    if (data.success) {
+      Swal.fire({
+        title: "Unblocking...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
-      window.location.href = "/admin/users"
+      try {
+        const res = await fetch(`/admin/users/${userId}/unblock`, {
+          method: "PATCH"
+        });
 
-    } else {
-      alert("Failed to unblock user");
+        const data = await res.json();
+
+        if (data.success) {
+          await Swal.fire({
+            title: "Unblocked!",
+            text: "User has been unblocked successfully.",
+            icon: "success",
+            confirmButtonColor: "#111827"
+          });
+
+          window.location.reload();
+        } else {
+          throw new Error();
+        }
+
+      } catch (err) {
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to unblock user.",
+          icon: "error",
+          confirmButtonColor: "#dc2626"
+        });
+      }
     }
-  }
-
   </script>
 
 </body>

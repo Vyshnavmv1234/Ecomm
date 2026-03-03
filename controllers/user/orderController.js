@@ -246,6 +246,16 @@ const orderDetail = async (req,res)=>{
       }
 
     });
+    if (orderDetails.deliveredAt) {
+
+      const today = new Date();
+      const deliveredDate = new Date(orderDetails.deliveredAt);
+
+      const diffInDays =
+        (today - deliveredDate) / (1000 * 60 * 60 * 24);
+
+      orderDetails.returnExpired = diffInDays > 7;
+    }
 
     return res.render("user/orderDetail",{
       user:userData,
@@ -458,6 +468,17 @@ const requestReturn = async (req, res) => {
     order.returnRequested = true
     order.returnReason = reason
     order.returnStatus = "requested"
+
+    if(!order.deliveredAt){
+      throw new Error("Order not delivered yet")
+    }
+    const deliveredDate = new Date(order.deliveredAt)
+    const today = new Date()
+    const difference = (today-deliveredDate)/(1000*60*60*24)
+
+    if(difference>7){
+      throw new Error("Return window expired")
+    }
 
     await order.save()
     res.redirect(`/user/orderDetail/${orderId}`)

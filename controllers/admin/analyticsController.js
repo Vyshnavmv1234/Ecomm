@@ -17,10 +17,20 @@ const postAnalytics = async (req,res)=>{
   try{
 
   const { report, from, to } = req.query;
-  console.log(report,from,to)
+
+  const type = req.query.type;
+
+  let statusFilter = {};
+
+  if (type === "returned") {
+    statusFilter.status = "returned";
+  } else {
+    statusFilter.status = "delivered";
+  }
 
   let startDate;
   let endDate = new Date();
+  
 
   switch(report){
 
@@ -79,7 +89,7 @@ const postAnalytics = async (req,res)=>{
   ]);
 
   const orders = await Order.find({
-    status:"delivered",
+    status: statusFilter.status,
     createdAt:{
       $gte:startDate,
       $lte:endDate

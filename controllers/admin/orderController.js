@@ -111,7 +111,7 @@ const updateStatus = async (req, res) => {
       delivered: 5,
     };
 
-    if(currentStatus == "delivered" || currentStatus == "cancelled"){
+    if(currentStatus == "delivered" || currentStatus == "cancelled"|| currentStatus == "returned"){
       return res.json({
         success: false,
         message: "Cannot rollback order status"
@@ -126,6 +126,10 @@ const updateStatus = async (req, res) => {
     }
 
     order.status = status;
+
+    if(order.status =="delivered"){
+      order.deliveredAt = new Date()
+    }
 
     if (
       status === "delivered" &&

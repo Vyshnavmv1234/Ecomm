@@ -11,6 +11,124 @@
   body {
     background: #f6f6f6;
   }
+  /* ===== STATUS BADGES ===== */
+
+  /* ===== MODAL DROPDOWN ===== */
+
+.status-select {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+
+  /* Remove default arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Custom arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%236b7280' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+/* Hover */
+.status-select:hover {
+  border-color: #bbb;
+}
+/* ===== RETRY PAYMENT BUTTON ===== */
+
+.retry {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.retry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+  background: linear-gradient(135deg, #000000, #111827);
+}
+
+/* Click effect */
+.retry:active {
+  transform: scale(0.97);
+}
+
+/* Focus */
+.status-select:focus {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.1);
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: default;
+  display: inline-block;
+  text-align: center;
+  min-width: 90px;
+}
+
+/* Returned */
+.status-returned {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Cancelled */
+.status-cancelled {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Requested */
+.status-requested {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+/* Approved */
+.status-approved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Return Closed */
+.status-closed {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Action buttons hover */
+.return-btn:hover {
+  background: #e63e3e;
+  transition: 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #218838;
+  transition: 0.3s ease;
+}
 
   .return-btn {
   padding: 8px 16px;
@@ -296,12 +414,15 @@
          order.paymentStatus === "pending"
     ) { %>
 
-      <button onclick="retryPayment()">Retry Payment</button>
+      <button class="retry" onclick="retryPayment()">Retry Payment</button>
 
     <% } else if (
          order.status === "delivered" &&
-         order.orderItems.some(i => i.status === "delivered")
+         order.orderItems.some(i => i.status === "delivered")&&!order.returnExpired
     ) { %>
+      <% if (order.returnExpired) { %>
+  <p style="color: gray;">Return window closed</p>
+<% } %>
 
       <!-- Show return only if at least one item is delivered -->
       <button class="return-btn"
@@ -366,19 +487,25 @@
           <% if (item.status === "returned") { %>
 
               <div class="stat">
-                <button style="color:red;">Returned</button>
+                <span class="status-badge status-returned">
+                Returned
+              </span>
               </div>
 
           <% } else if (item.status === "cancelled") { %>
 
               <div class="stat">
-                <button style="color:red;">Cancelled</button>
+                <span class="status-badge status-cancelled">
+                Cancelled
+              </span>
               </div>
 
           <% } else if (item.returnRequested) { %>
 
               <div class="stat">
-                <button style="color:orange;">Requested</button>
+                <span class="status-badge status-requested">
+                Return Requested
+              </span>
               </div>
 
           <% } else if (
@@ -390,7 +517,7 @@
                 Cancel
               </button>
 
-          <% } else if (item.status === "delivered") { %>
+          <% } else if (item.status === "delivered"&&!order.returnExpired) { %>
 
               <button class="return-btn"
                       onclick="openReturnItemModal('<%=item._id%>','<%=order._id%>')">
