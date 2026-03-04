@@ -619,13 +619,33 @@ input[type="checkbox"] {
     <h3>Order Summary</h3>
 
 <% cartItems.forEach(item => { %>
-  <div class="product">
-    <img src="<%= item.productId.images[0].url %>" alt="">
-    <div>
-      <%= item.productId.name %><br>
-      <strong>₹<%= item.originalPrice %></strong> × <%= item.quantity %>
-    </div>
+
+<%
+  const variant = item.productId.variants.find(
+    v => v._id.toString() === item.variantId.toString()
+  );
+%>
+
+<div class="product">
+
+  <img src="<%= item.productId.images[0].url %>" alt="">
+
+  <div>
+
+    <strong><%= item.productId.name %></strong><br>
+
+    <% if(variant){ %>
+      <span style="font-size:13px;color:#666;">
+        Size: <%= variant.size %>
+      </span><br>
+    <% } %>
+
+    <strong>₹<%= item.originalPrice %></strong> × <%= item.quantity %>
+
   </div>
+
+</div>
+
 <% }) %>
 
 

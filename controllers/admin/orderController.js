@@ -200,31 +200,6 @@ const handleReturn = async (req, res) => {
 
           await wallet.save();
 
-          // const updatedOrder = await Order.findById(orderId)
-
-          // let newSubTotal = 0;
-          // let newDiscount = 0;
-
-          // updatedOrder.orderItems.forEach(i => {
-          //   if (i.status !== "returned") {
-          //     const itemSubTotal = i.originalPrice * i.quantity;
-          //     const itemDiscount =
-          //       (i.originalPrice - i.unitPrice) * i.quantity;
-
-          //     newSubTotal += itemSubTotal;
-          //     newDiscount += itemDiscount;
-          //   }
-          // });
-
-          // const newGST = Math.round((newSubTotal - newDiscount) * 0.05); 
-          // const newTotal = newSubTotal - newDiscount + newGST;
-
-          // updatedOrder.orderSummary.subTotal = newSubTotal;
-          // updatedOrder.orderSummary.discount = newDiscount;
-          // updatedOrder.orderSummary.GST = newGST;
-          // updatedOrder.orderSummary.total = newTotal;
-
-          // await updatedOrder.save()
       }
       if (action === "reject") {
         await Order.updateOne(

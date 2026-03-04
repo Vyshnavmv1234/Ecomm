@@ -453,6 +453,7 @@ tbody tr:hover {
     </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
@@ -566,13 +567,33 @@ offerForm.addEventListener("submit", async(e)=>{
         const result = await res.json();
 
         if(res.ok && result.success){
-            location.reload();
-        }else{
-            alert(result.message || "Failed");
-        }
+
+    Swal.fire({
+        icon: "success",
+        title: "Offer Created",
+        text: result.message || "Offer added successfully",
+        timer: 1500,
+        showConfirmButton: false
+    }).then(()=>{
+        location.reload();
+    });
+
+}else{
+
+    Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message || "Failed"
+    });
+
+}
 
     }catch(err){
-        alert("Server error");
+        Swal.fire({
+    icon: "error",
+    title: "Server Error",
+    text: "Something went wrong"
+});
     }
 
 });
@@ -582,11 +603,17 @@ async function toggleOffer(id,isActive){
       ? "unlist"
       : "list";
 
-  const ok = confirm(
-      `Do you want to ${action} this offer?`
-  );
+const confirmAction = await Swal.fire({
+    title: `Do you want to ${action} this offer?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#2B4257",
+    cancelButtonColor: "#d33"
+});
 
-  if(!ok) return;
+if(!confirmAction.isConfirmed) return;
 
   try{
 
@@ -598,13 +625,33 @@ async function toggleOffer(id,isActive){
     const result = await res.json();
 
     if(res.ok && result.success){
+
+    Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message || "Offer updated",
+        timer: 1500,
+        showConfirmButton: false
+    }).then(()=>{
         location.reload();
-    }else{
-        alert(result.message || "Failed");
-    }
+    });
+
+}else{
+
+    Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message || "Failed"
+    });
+
+}
 
   }catch(err){
-      alert("Server error");
+     Swal.fire({
+    icon: "error",
+    title: "Server Error",
+    text: "Something went wrong"
+});
   }
 }
 

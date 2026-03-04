@@ -477,64 +477,132 @@ tbody td {
      </div>
    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
-  async function blockProduct(productId){
-    
-    const ok = confirm("Do you want to block the product")
-    if(!ok){
-      return
-    }
-    try {
+async function blockProduct(productId){
 
-      const res = await fetch(`/admin/blockProduct/${productId}`,{
-        method: "PATCH",
-        headers:{
-          "Content-Type":"application/json"
-        },
-      })
-      const data = await res.json()
+  const confirmAction = await Swal.fire({
+    title: "Block this product?",
+    text: "Users will not be able to purchase it.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc2626",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, Block",
+    cancelButtonText: "Cancel"
+  });
 
-      if(data.success){
-        location.reload()
-      }else{
-        alert("Failed to block")
+  if(!confirmAction.isConfirmed) return;
+
+  try {
+
+    const res = await fetch(`/admin/blockProduct/${productId}`,{
+      method: "PATCH",
+      headers:{
+        "Content-Type":"application/json"
       }
-      
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+      await Swal.fire({
+        icon: "success",
+        title: "Blocked",
+        text: "Product has been blocked",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      location.reload();
+
+    }else{
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: data.message || "Failed to block product"
+      });
+
     }
+
+  } catch (error) {
+
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Something went wrong"
+    });
+
   }
+}
 
-  async function unblockProduct(productId){
-    
-    const ok = confirm("Do you want to unblock the product")
-    if(!ok){
-      return
-    }
-    try {
 
-      const res = await fetch(`/admin/unblockProduct/${productId}`,{
-        method: "PATCH",
-        headers:{
-          "Content-Type":"application/json"
-        },
-      })
-      const data = await res.json()
+async function unblockProduct(productId){
 
-      if(data.success){
-        location.reload()
-      }else{
-        alert("Failed to unblock")
+  const confirmAction = await Swal.fire({
+    title: "Unblock this product?",
+    text: "Users will be able to purchase it again.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#16a34a",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, Unblock",
+    cancelButtonText: "Cancel"
+  });
+
+  if(!confirmAction.isConfirmed) return;
+
+  try {
+
+    const res = await fetch(`/admin/unblockProduct/${productId}`,{
+      method: "PATCH",
+      headers:{
+        "Content-Type":"application/json"
       }
-      
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+      await Swal.fire({
+        icon: "success",
+        title: "Unblocked",
+        text: "Product has been unblocked",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      location.reload();
+
+    }else{
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: data.message || "Failed to unblock product"
+      });
+
     }
+
+  } catch (error) {
+
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Something went wrong"
+    });
+
   }
+}
 
 </script>
 

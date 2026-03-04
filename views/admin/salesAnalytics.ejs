@@ -389,7 +389,7 @@ No Orders Found
     document.getElementById("toDate").value;
 
   window.open(
-   `/admin/analytics/export-excel?report=${report}&from=${from}&to=${to}`
+   `/admin/analytics/export-excel?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`
   );
 }
 function switchOrders(type) {
@@ -425,7 +425,7 @@ function switchOrders(type) {
     document.getElementById("toDate").value;
 
   window.open(
-   `/admin/analytics/export-pdf?report=${report}&from=${from}&to=${to}`,
+   `/admin/analytics/export-pdf?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`,
    "_blank"
   );
 }

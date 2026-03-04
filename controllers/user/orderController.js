@@ -146,6 +146,8 @@ const placeOrder = async (req, res) => {
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         originalPrice: item.originalPrice,
+        couponShare: Math.round(itemCouponShare),
+        itemGST: Math.round(itemGST),
         finalPaidAmount  
       };
     });
@@ -332,7 +334,39 @@ const cancelProduct = async (req, res) => {
       order.status = "cancelled";
     }
 
-    await order.save();
+    // get active items
+   const activeItems = order.orderItems.filter(
+  item => item.status !== "cancelled"
+);
+
+let subTotal = 0;
+let productDiscount = 0;
+let couponDiscount = 0;
+let gst = 0;
+let total = 0;
+
+activeItems.forEach(item => {
+
+  subTotal += item.originalPrice * item.quantity;
+
+  productDiscount += (item.originalPrice - item.unitPrice) * item.quantity;
+
+  couponDiscount += item.couponShare || 0;
+
+  gst += item.itemGST || 0;
+
+  total += item.finalPaidAmount;
+
+});
+
+order.orderSummary.subTotal = subTotal;
+order.orderSummary.discount = Number(productDiscount.toFixed(2));
+order.orderSummary.coupon = Number(couponDiscount.toFixed(2));
+order.orderSummary.coupon = Number(couponDiscount.toFixed(2));
+order.orderSummary.GST = Number(gst.toFixed(2));
+order.orderSummary.total = Number(total.toFixed(2));
+
+await order.save();
 
     return res.json({ success:true });
 

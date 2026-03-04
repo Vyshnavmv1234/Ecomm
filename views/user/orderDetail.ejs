@@ -562,12 +562,20 @@
         </div>
 
         <div class="price-row">
-          <span>Discount</span>
-          <span class="discount">
-            -₹<%= (order.orderSummary.discount || 0) + 
-                  (order.orderSummary.coupon || 0) %>
-          </span>
-        </div>
+        <span>Product Discount</span>
+        <span class="discount">
+          -₹<%= order.orderSummary.discount || 0 %>
+        </span>
+      </div>
+
+      <% if(order.orderSummary.coupon > 0){ %>
+      <div class="price-row">
+        <span>Coupon Discount</span>
+        <span class="discount">
+          -₹<%= order.orderSummary.coupon %>
+        </span>
+      </div>
+      <% } %>
 
         <div class="price-row">
           <span>GST</span>

@@ -442,6 +442,7 @@ href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
@@ -603,7 +604,17 @@ window.onclick=function(event){
 =====================================================*/
 async function toggleCoupon(url,message){
 
-  if(!confirm(message)) return;
+  const result = await Swal.fire({
+    title: message,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2B4257",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes",
+    cancelButtonText: "Cancel"
+  });
+
+  if(!result.isConfirmed) return;
 
   try{
 
@@ -611,15 +622,35 @@ async function toggleCoupon(url,message){
     const data = await res.json();
 
     if(data.success){
-      showToast(data.message || "Updated successfully");
-      setTimeout(()=>location.reload(),1000);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: data.message || "Updated successfully",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      location.reload();
+
     }else{
-      showToast(data.message || "Operation failed","error");
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data.message || "Operation failed"
+      });
+
     }
 
   }catch(err){
     console.error(err);
-    showToast("Server error","error");
+
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Something went wrong"
+    });
   }
 }
 

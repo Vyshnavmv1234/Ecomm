@@ -32,6 +32,15 @@ const orderSchema = new Schema({
       default: 0,
       required: true
     },
+    couponShare: {
+    type: Number,
+    default: 0
+  },
+
+    itemGST: {
+    type: Number,
+    default: 0
+  },
     finalPaidAmount:{
     type:Number,
     required:true,

@@ -111,234 +111,15 @@ const postAnalytics = async (req,res)=>{
  }
 }
 
-const exportPDF = async (req,res)=>{
-
-  try{
-
-    const { report, from, to } = req.query;
-
-    let startDate;
-    let endDate = new Date();
-
-
-    switch(report){
-
-    case "daily":
-    startDate = new Date();
-    startDate.setHours(0,0,0,0);
-    break;
-
-    case "weekly":
-    startDate = new Date();
-    startDate.setDate(startDate.getDate()-7);
-    break;
-    
-    case "monthly":
-    startDate = new Date();
-    startDate.setDate(1);        
-    startDate.setHours(0,0,0,0);
-    break;
-
-    case "yearly":
-    startDate = new Date();
-    startDate.setFullYear(startDate.getFullYear()-1);
-    break;
-
-    case "custom":
-    startDate = new Date(from);
-    endDate = new Date(to);
-    break;
-
-    default:
-    startDate = new Date("2000-01-01");
-    }
-
-    const orders = await Order.find({ 
-    status:"delivered",
-    createdAt:{
-    $gte:startDate,
-    $lte:endDate
-    }
-    }).populate("userId");
-
-
-    let totalOrders = orders.length;
-    let grossSale = 0;
-    let couponDiscount = 0;
-    let overallDiscount = 0;
-
-    orders.forEach(order=>{
-    grossSale += order.orderSummary.total;
-    couponDiscount += order.orderSummary.coupon;
-
-    overallDiscount +=
-    order.orderSummary.coupon +
-    order.orderSummary.discount;
-    });
-
-    /* ========= PDF ========= */
-
-    const doc = new PDFDocument({margin:40});
-
-    res.setHeader("Content-Type","application/pdf");
-    res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=sales-report.pdf"
-    );
-
-    doc.pipe(res);
-
-    /* ========= TITLE ========= */
-
-    doc
-    .fontSize(18)
-    .text("Sales Analytics Report",{align:"center"});
-
-    doc.moveDown();
-
-    doc
-    .fontSize(12)
-    .text(
-    `Date: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
-    {align:"center"}
-    );
-
-    doc.moveDown(2);
-
-    /* ========= SUMMARY BOX ========= */
-
-    const summaryY = doc.y;
-
-    const boxWidth = 130;
-    const boxHeight = 50;
-    const startX = 40;
-
-    const summaryData = [
-    ["Total Orders", totalOrders],
-    ["Gross Sales", `₹${grossSale.toFixed(2)}`],
-    ["Coupon Discount", `₹${couponDiscount}`],
-    ["Overall Discount", `₹${overallDiscount}`]
-    ];
-
-    summaryData.forEach((item,i)=>{
-
-    const x = startX + i*(boxWidth+10);
-
-    doc.rect(x,summaryY,boxWidth,boxHeight).stroke();
-
-    doc
-    .fontSize(10)
-    .text(item[0],x+10,summaryY+8);
-
-    doc
-    .fontSize(14)
-    .text(item[1],x+10,summaryY+25);
-
-    });
-
-    doc.moveDown(4);
-
-    /* ========= TABLE ========= */
-
-    const tableTop = doc.y;
-
-    const colX = {
-    order:40,
-    customer:90,
-    payment:180,
-    amount:260,
-    discount:340,
-    total:430,
-    date:510
-    };
-
-    /* HEADER BORDER */
-    doc.rect(40,tableTop,520,20).stroke();
-
-    doc.fontSize(10);
-
-    doc.text("Order",colX.order,tableTop+5);
-    doc.text("Customer",colX.customer,tableTop+5);
-    doc.text("Payment",colX.payment,tableTop+5);
-    doc.text("Amount",colX.amount,tableTop+5);
-    doc.text("Discount",colX.discount,tableTop+5);
-    doc.text("Total",colX.total,tableTop+5);
-    doc.text("Date",colX.date,tableTop+5);
-
-    let rowY = tableTop + 20;
-
-    /* ========= TABLE ROWS ========= */
-
-    orders.forEach(order=>{
-
-    const discount =
-    order.orderSummary.discount +
-    order.orderSummary.coupon;
-
-    /* row border */
-    doc.rect(40,rowY,520,20).stroke();
-
-    doc.text(
-    order._id.toString().slice(-6),
-    colX.order,rowY+5
-    );
-
-    doc.text(
-    order.userId?.name || "User",
-    colX.customer,rowY+5
-    );
-
-    doc.text(
-    order.paymentMethod,
-    colX.payment,rowY+5
-    );
-
-    doc.text(
-    `₹${order.orderSummary.subTotal}`,
-    colX.amount,rowY+5
-    );
-
-    doc.text(
-    `₹${discount}`,
-    colX.discount,rowY+5
-    );
-
-    doc.text(
-    `₹${order.orderSummary.total}`,
-    colX.total,rowY+5
-    );
-
-    doc.text(
-    new Date(order.createdAt)
-    .toLocaleDateString(),
-    colX.date,rowY+5
-    );
-
-    rowY += 20;
-
-    /* PAGE BREAK */
-    if(rowY > 750){
-    doc.addPage();
-    rowY = 40;
-    }
-
-    });
-
-    doc.end();
-
-    }catch(err){
-      console.log(err);
-    }
-
-    };
-
-const exportExcel = async (req, res) => {
+const exportPDF = async (req, res) => {
   try {
 
-    const { report, from, to } = req.query;
+    const { report, from, to, type } = req.query;
 
     let startDate;
     let endDate = new Date();
+
+    /* ===== DATE FILTER ===== */
 
     switch (report) {
 
@@ -352,78 +133,355 @@ const exportExcel = async (req, res) => {
         startDate.setDate(startDate.getDate() - 7);
         break;
 
+      case "monthly":
+        startDate = new Date();
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+
       case "yearly":
         startDate = new Date();
-        startDate.setFullYear(
-          startDate.getFullYear() - 1
-        );
+        startDate.setFullYear(startDate.getFullYear() - 1);
         break;
 
       case "custom":
         startDate = new Date(from);
         endDate = new Date(to);
+        endDate.setHours(23, 59, 59, 999);
         break;
 
       default:
         startDate = new Date("2000-01-01");
     }
 
+    /* ===== STATUS FILTER ===== */
+
+    let statusFilter = {};
+
+    if (type === "returned") {
+      statusFilter.status = "returned";
+    } else {
+      statusFilter.status = "delivered";
+    }
+
+    /* ===== FETCH ORDERS ===== */
 
     const orders = await Order.find({
-      status: "delivered",
+      ...statusFilter,
       createdAt: {
         $gte: startDate,
         $lte: endDate
       }
     }).populate("userId");
 
+    /* ===== CALCULATIONS ===== */
+
+    let totalOrders = orders.length;
+    let grossSale = 0;
+    let couponDiscount = 0;
+    let overallDiscount = 0;
+
+    orders.forEach(order => {
+
+      grossSale += order.orderSummary.total || 0;
+
+      couponDiscount += order.orderSummary.coupon || 0;
+
+      overallDiscount +=
+        (order.orderSummary.discount || 0) +
+        (order.orderSummary.coupon || 0);
+
+    });
+
+    /* ===== PDF SETUP ===== */
+
+    const doc = new PDFDocument({ margin: 40 });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales-report.pdf"
+    );
+
+    doc.pipe(res);
+
+    /* ===== TITLE ===== */
+
+    doc
+      .fontSize(18)
+      .text("Sales Analytics Report", { align: "center" });
+
+    doc.moveDown();
+
+    doc
+      .fontSize(12)
+      .text(
+        `Date: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
+        { align: "center" }
+      );
+
+    doc.moveDown(2);
+
+    /* ===== SUMMARY BOX ===== */
+
+    const summaryY = doc.y;
+
+    const boxWidth = 130;
+    const boxHeight = 50;
+    const startX = 40;
+
+    const summaryData = [
+      ["Total Orders", totalOrders],
+      ["Gross Sales", `₹${grossSale.toFixed(2)}`],
+      ["Coupon Discount", `₹${couponDiscount.toFixed(2)}`],
+      ["Overall Discount", `₹${overallDiscount.toFixed(2)}`]
+    ];
+
+    summaryData.forEach((item, i) => {
+
+      const x = startX + i * (boxWidth + 10);
+
+      doc.rect(x, summaryY, boxWidth, boxHeight).stroke();
+
+      doc
+        .fontSize(10)
+        .text(item[0], x + 10, summaryY + 8);
+
+      doc
+        .fontSize(14)
+        .text(item[1], x + 10, summaryY + 25);
+
+    });
+
+    doc.moveDown(4);
+
+    /* ===== TABLE HEADER ===== */
+
+    const drawHeader = (y) => {
+
+      const colX = {
+        order: 40,
+        customer: 90,
+        payment: 180,
+        amount: 260,
+        discount: 340,
+        total: 430,
+        date: 510
+      };
+
+      doc.rect(40, y, 520, 20).stroke();
+
+      doc.fontSize(10);
+
+      doc.text("Order", colX.order, y + 5);
+      doc.text("Customer", colX.customer, y + 5);
+      doc.text("Payment", colX.payment, y + 5);
+      doc.text("Amount", colX.amount, y + 5);
+      doc.text("Discount", colX.discount, y + 5);
+      doc.text("Total", colX.total, y + 5);
+      doc.text("Date", colX.date, y + 5);
+
+      return colX;
+    };
+
+    let tableTop = doc.y;
+    let colX = drawHeader(tableTop);
+
+    let rowY = tableTop + 20;
+
+    /* ===== TABLE ROWS ===== */
+
+    orders.forEach(order => {
+
+      const discount =
+        (order.orderSummary.discount || 0) +
+        (order.orderSummary.coupon || 0);
+
+      /* PAGE BREAK */
+      if (rowY > 750) {
+
+        doc.addPage();
+
+        rowY = 40;
+
+        colX = drawHeader(rowY);
+
+        rowY += 20;
+      }
+
+      doc.rect(40, rowY, 520, 20).stroke();
+
+      doc.text(
+        order._id.toString().slice(-6),
+        colX.order,
+        rowY + 5
+      );
+
+      doc.text(
+        order.userId?.name || "User",
+        colX.customer,
+        rowY + 5
+      );
+
+      doc.text(
+        order.paymentMethod,
+        colX.payment,
+        rowY + 5
+      );
+
+      doc.text(
+        `₹${order.orderSummary.subTotal || 0}`,
+        colX.amount,
+        rowY + 5
+      );
+
+      doc.text(
+        `₹${discount}`,
+        colX.discount,
+        rowY + 5
+      );
+
+      doc.text(
+        `₹${order.orderSummary.total || 0}`,
+        colX.total,
+        rowY + 5
+      );
+
+      doc.text(
+        new Date(order.createdAt).toLocaleDateString(),
+        colX.date,
+        rowY + 5
+      );
+
+      rowY += 20;
+
+    });
+
+    doc.end();
+
+  } catch (err) {
+
+    console.log(err);
+    res.status(500).send("PDF generation failed");
+
+  }
+};
+
+const exportExcel = async (req, res) => {
+  try {
+
+    const { report, from, to, type } = req.query;
+
+    let startDate;
+    let endDate = new Date();
+
+    /* ===== DATE FILTER ===== */
+
+    switch (report) {
+
+      case "daily":
+        startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        break;
+
+      case "weekly":
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+
+      case "monthly":
+        startDate = new Date();
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+
+      case "yearly":
+        startDate = new Date();
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+
+      case "custom":
+        startDate = new Date(from);
+        endDate = new Date(to);
+        endDate.setHours(23,59,59,999);
+        break;
+
+      default:
+        startDate = new Date("2000-01-01");
+    }
+
+    /* ===== STATUS FILTER ===== */
+
+    let statusFilter = {};
+
+    if (type === "returned") {
+      statusFilter.status = "returned";
+    } else {
+      statusFilter.status = "delivered";
+    }
+
+    /* ===== FETCH ORDERS ===== */
+
+    const orders = await Order.find({
+      ...statusFilter,
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate
+      }
+    }).populate("userId");
+
+    /* ===== CALCULATIONS ===== */
 
     let grossSale = 0;
     let couponDiscount = 0;
     let overallDiscount = 0;
 
     orders.forEach(order => {
-      grossSale += order.orderSummary.total;
-      couponDiscount += order.orderSummary.coupon;
+
+      grossSale += order.orderSummary.total || 0;
+
+      couponDiscount += order.orderSummary.coupon || 0;
 
       overallDiscount +=
-        order.orderSummary.discount +
-        order.orderSummary.coupon;
+        (order.orderSummary.discount || 0) +
+        (order.orderSummary.coupon || 0);
+
     });
 
-    /* ================= EXCEL WORKBOOK ================= */
+    /* ===== CREATE EXCEL ===== */
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("Sales Report");
 
-    /* ================= TITLE ================= */
+    /* ===== TITLE ===== */
 
     sheet.mergeCells("A1:G1");
 
-    sheet.getCell("A1").value =
-      "Sales Analytics Report";
+    sheet.getCell("A1").value = "Sales Analytics Report";
 
-    sheet.getCell("A1").font = {
-      size: 16,
-      bold: true
-    };
+    sheet.getCell("A1").font = { size: 16, bold: true };
 
-    sheet.getCell("A1").alignment = {
-      horizontal: "center"
-    };
+    sheet.getCell("A1").alignment = { horizontal: "center" };
 
-    /* ================= DATE RANGE ================= */
+    /* ===== REPORT TYPE ===== */
 
     sheet.mergeCells("A2:G2");
 
     sheet.getCell("A2").value =
+      `Report Type: ${type === "returned" ? "Returned Orders" : "Delivered Orders"}`;
+
+    sheet.getCell("A2").alignment = { horizontal: "center" };
+
+    /* ===== DATE RANGE ===== */
+
+    sheet.mergeCells("A3:G3");
+
+    sheet.getCell("A3").value =
       `Date: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
 
-    sheet.getCell("A2").alignment = {
-      horizontal: "center"
-    };
+    sheet.getCell("A3").alignment = { horizontal: "center" };
 
-    /* ================= SUMMARY SECTION ================= */
+    /* ===== SUMMARY ===== */
 
     sheet.addRow([]);
 
@@ -443,7 +501,7 @@ const exportExcel = async (req, res) => {
       overallDiscount
     ]);
 
-    /* ================= TABLE HEADER ================= */
+    /* ===== TABLE HEADER ===== */
 
     sheet.addRow([]);
 
@@ -461,46 +519,49 @@ const exportExcel = async (req, res) => {
 
     headerRow.eachCell(cell => {
       cell.border = {
-        top:    { style: "thin" },
-        left:   { style: "thin" },
+        top: { style: "thin" },
+        left: { style: "thin" },
         bottom: { style: "thin" },
-        right:  { style: "thin" }
+        right: { style: "thin" }
       };
     });
+
+    /* ===== TABLE DATA ===== */
 
     orders.forEach(order => {
 
       const discount =
-        order.orderSummary.discount +
-        order.orderSummary.coupon;
+        (order.orderSummary.discount || 0) +
+        (order.orderSummary.coupon || 0);
 
       const row = sheet.addRow([
         order._id.toString().slice(-6),
         order.userId?.name || "User",
         order.paymentMethod,
-        order.orderSummary.subTotal,
+        order.orderSummary.subTotal || 0,
         discount,
-        order.orderSummary.total,
-        new Date(order.createdAt)
-          .toLocaleDateString()
+        order.orderSummary.total || 0,
+        new Date(order.createdAt).toLocaleDateString()
       ]);
 
       row.eachCell(cell => {
         cell.border = {
-          top:    { style: "thin" },
-          left:   { style: "thin" },
+          top: { style: "thin" },
+          left: { style: "thin" },
           bottom: { style: "thin" },
-          right:  { style: "thin" }
+          right: { style: "thin" }
         };
       });
 
     });
 
+    /* ===== COLUMN WIDTH ===== */
 
     sheet.columns.forEach(column => {
       column.width = 18;
     });
 
+    /* ===== RESPONSE HEADERS ===== */
 
     res.setHeader(
       "Content-Type",

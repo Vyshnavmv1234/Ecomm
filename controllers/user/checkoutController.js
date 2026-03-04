@@ -180,7 +180,7 @@ const createRazorpayOrder = async (req, res) => {
     const { amount ,dbOrderId} = req.body;
 
     const options = {
-      amount: amount * 100,
+      amount: Math.round(amount*100),
       currency: "INR",
       receipt: "receipt_" + Date.now()
     };
