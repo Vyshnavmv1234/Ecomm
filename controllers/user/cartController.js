@@ -24,7 +24,7 @@ const loadAddToCart = async(req,res)=>{
         user: userData,
         subTotal: 0,
         discount: 0,
-        total: 0,
+        total: 0, 
         cartItems: [],
         defaultAddress: userAddress,
         emptyMessage: "Your cart is empty "

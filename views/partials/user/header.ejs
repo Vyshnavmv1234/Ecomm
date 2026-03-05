@@ -176,12 +176,22 @@
     </div>
 
     <nav>
-      <a href="/user/productList">All</a>
-      <a href="#">shirt</a>
-      <a href="#">Pants</a>
-      <a href="#">Old Money</a>
-      <a href="#">OverSized</a>
-    </nav>
+
+<a href="/user/productList">All</a>
+
+<% if(category && category.length > 0){ %>
+
+  <% category.forEach(cat => { %>
+
+    <a href="/user/productList?category=<%= cat._id %>">
+      <%= cat.name %>
+    </a>
+
+  <% }) %>
+
+<% } %>
+
+</nav>
   </header>
 
   <script>

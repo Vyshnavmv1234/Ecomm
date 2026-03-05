@@ -1,20 +1,40 @@
 import user from "../../models/userSchema.js"
 import Coupon from "../../models/couponSchema.js"
 
-const loadCoupons = async (req,res)=>{
+const loadCoupons = async (req, res) => {
   try {
 
-    const admin = await user.findOne({isAdmin:true})
-    const coupon = await Coupon.find().sort({createdAt:-1})
+    const admin = await user.findOne({ isAdmin: true });
 
-    return res.render("admin/couponManagement",{admin:admin.name,coupons:coupon})
-    
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    const searchQuery = {
+      code: { $regex: search, $options: "i" }
+    };
+
+    const coupons = await Coupon.find(searchQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCoupons = await Coupon.countDocuments(searchQuery);
+    const totalPages = Math.ceil(totalCoupons / limit);
+
+    res.render("admin/couponManagement", {
+      admin: admin.name,
+      coupons,
+      currentPage: page,
+      totalPages,
+      search
+    });
+
   } catch (error) {
-
-    console.error("Error while loading coupons",error)
-    
+    console.error("Error while loading coupons", error);
   }
-}
+};
 
 const createCoupon = async (req,res)=>{
   try {

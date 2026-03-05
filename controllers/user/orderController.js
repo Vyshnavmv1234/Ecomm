@@ -57,6 +57,12 @@ const placeOrder = async (req, res) => {
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
 
+    console.log(coupon)
+
+    if(coupon?.isActive == false){
+      return res.json({success:false,message:"Coupon is blocked by admin"})
+    }
+
     if (!cart || cart.items.length === 0)
       return res.json({ success:false });
 

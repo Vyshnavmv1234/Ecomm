@@ -96,28 +96,47 @@
     }
 
     /* ===== FILTERS ===== */
-    .filters {
-      display: flex;
-      gap: 12px;
-      margin-left: 210px;
-      margin-bottom: 20px;
-    }
+    /* ===== FILTER BAR ===== */
 
-    .filter-btn {
-      padding: 8px 14px;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      background: #fff;
-      font-size: 13px;
-      cursor: pointer;
-    }
+.filters {
+  margin-left: 210px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-    .filter-btn.active {
-      background: #eef2ff;
-      color: #4f46e5;
-      border-color: #c7d2fe;
-      font-weight: 600;
-    }
+/* FILTER BUTTON */
+
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 13px;
+  text-decoration: none;
+  color: #374151;
+  transition: all 0.25s ease;
+  font-weight: 500;
+}
+
+/* HOVER */
+
+.filter-btn:hover {
+  background: #eef2ff;
+  border-color: #b9a4a4;
+  color: #b9a4a4;
+}
+
+/* ACTIVE FILTER */
+
+.filter-btn.active {
+  background: #b9a4a4;
+  border-color: #b9a4a4;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
 
     /* ===== TABLE ===== */
     .table-wrapper {

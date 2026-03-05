@@ -13,6 +13,18 @@
   font-weight: 600;
   color: #000;
 }
+.variants{
+  margin-top:6px;
+}
+
+.variant-size{
+  display:inline-block;
+  padding:3px 8px;
+  border:1px solid #ddd;
+  font-size:12px;
+  margin-right:4px;
+  border-radius:4px;
+}
 
 .original-price {
   font-size: 14px;
@@ -328,6 +340,12 @@
        <div class="brand"><%=product.name%></div>
        <p class="title"><%=product.title%></p>
 
+<div class="variants">
+  <% product.variants.forEach(v => { %>
+    <span class="variant-size"><%= v.size %></span>
+  <% }) %>
+</div>
+
 <%
 const originalPrice = product.variants[0].price;
 
@@ -354,8 +372,7 @@ const hasOffer = finalPrice < originalPrice;
   <% } %>
 
 </div>
-
-       
+   
        <div class="rating">★ 4.8 Ratings</div>
 
       </div>

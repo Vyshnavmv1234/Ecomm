@@ -8,6 +8,7 @@ import userRouter from "./routes/userRouter.js"
 import adminRouter from "./routes/adminRouter.js"
 import passport from "./config/passport.js"
 import { loadCartCount } from "./middlewares/cartCount.js"
+import { category } from "./middlewares/Categories.js"
 
 dotenv.config()
 
@@ -44,6 +45,7 @@ app.set("views", path.join(__dirname, "views"));
    
 app.use(express.static(path.join(__dirname,"public")))
 app.use(loadCartCount)
+app.use(category)
 
 db() 
 
