@@ -1,4 +1,5 @@
 import Cart from "../models/cartSchema.js"
+import Wishlist from "../models/wishlistSchema.js"
 
 const loadCartCount = async (req, res, next) => {
   try {
@@ -23,4 +24,28 @@ const loadCartCount = async (req, res, next) => {
   }
 };
 
-export{loadCartCount}
+const loadWishlistCount = async (req, res, next) => {
+  try {
+    if (req.session.user) {
+      const wishlist = await Wishlist.findOne({ userId: req.session.user });
+      let count =0
+
+      if (wishlist && wishlist.items.length > 0) {
+
+        res.locals.wishlistCount = wishlist.items.length
+        
+      } else {
+        res.locals.wishlistCount = 0;
+      }
+    } else {
+      res.locals.wishlistCount = 0;
+    }
+
+    next();
+  } catch (error) {
+    res.locals.wishlistCount = 0;
+    next();
+  }
+};
+
+export default {loadCartCount,loadWishlistCount}

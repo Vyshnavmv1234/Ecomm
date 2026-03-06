@@ -8,22 +8,42 @@ const loadOffer = async (req,res)=>{
   try {
 
     const type = req.query.type || "product";
-    const offers = await Offer.find({type}).populate("product")
+    const search = req.query.search || ""
+    const page = parseInt(req.query.page) || 1
+    const limit = 1
+    const skip = (page - 1) * limit
+
     const admin = await User.findOne({isAdmin:true})
     const products = await Product.find({isBlocked:false})
     const categories = await Category.find({isBlocked:false});
+
+    let match = { type }
+
+    if(search){
+      match.title = { $regex: search, $options: "i" }
+    }
+
+    const offers = await Offer.find(match)
+    .populate("product")
+    .skip(skip)
+    .limit(limit)
   
+    const totalOffers = await Offer.countDocuments(match)
+    const totalPages = Math.ceil(totalOffers / limit)
 
     return res.render('admin/offer',{
       admin:admin.name,
       products,
       offers,
       categories,
-      offerType:type
+      offerType:type,
+      currentPage:page,
+      totalPages,
+      search
     })
     
   } catch (error) {
-    
+    console.log(error)
   }
 }
 const loadAddOffer = async (req,res)=>{

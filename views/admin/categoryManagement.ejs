@@ -17,6 +17,14 @@
   align-items: center;
   gap: 12px;
 }
+.main input{
+  position:relative;
+  z-index:10;
+}
+.layout{
+  display:flex;
+  min-height:100vh;
+}
 
 .cat-img img {
   width: 42px;
@@ -278,11 +286,11 @@ tbody td {
 }
 </style>
 </head>
-  <%- include("../../views/partials/admin/header") %>
 
 
 <body>
-
+  
+  <%- include("../../views/partials/admin/header") %>
 <div class="layout">
 
   <!-- SIDEBAR -->

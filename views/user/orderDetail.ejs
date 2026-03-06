@@ -7,6 +7,11 @@
     box-sizing: border-box;
     font-family: "Segoe UI", sans-serif;
   }
+  /* Rejected */
+.status-rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
 
   body {
     background: #f6f6f6;
@@ -402,46 +407,55 @@
 <div class="order-container">
 
   <!-- ================= HEADER ================= -->
-  <div class="order-header">
-    <h3>← ORDER DETAILS</h3>
+<div class="order-header">
+  <h3>← ORDER DETAILS</h3>
 
-    <% if (order.status === "cancelled") { %>
+<%
+const canReturn =
+  order.status === "delivered" &&
+  order.orderItems.some(i => i.status === "delivered" && !i.returnStatus) &&
+  !order.returnExpired;
+%>
 
-      <p style="color: red;">Cancelled</p>
+<% if (order.returnStatus === "rejected") { %>
 
-    <% } else if (
-         order.paymentMethod === "RAZORPAY" &&
-         order.paymentStatus === "pending"
-    ) { %>
+  <p style="color:#b91c1c;">Return Rejected</p>
 
-      <button class="retry" onclick="retryPayment()">Retry Payment</button>
+<% } else if (order.status === "cancelled") { %>
 
-    <% } else if (
-         order.status === "delivered" &&
-         order.orderItems.some(i => i.status === "delivered")&&!order.returnExpired
-    ) { %>
-      <% if (order.returnExpired) { %>
-  <p style="color: gray;">Return window closed</p>
+  <p style="color:red;">Cancelled</p>
+
+<% } else if (
+  order.paymentMethod === "RAZORPAY" &&
+  order.paymentStatus === "pending"
+) { %>
+
+  <button class="retry" onclick="retryPayment()">Retry Payment</button>
+
+<% } else if (order.returnExpired) { %>
+
+  <p style="color:gray;">Return window closed</p>
+
+<% } else if (canReturn) { %>
+
+  <button class="return-btn"
+          onclick="openReturnModal('<%= order._id %>')">
+    Return Order
+  </button>
+
+<% } else if (
+  order.status !== "returned" &&
+  order.status !== "cancelled" &&
+  order.status !== "delivered"
+) { %>
+
+  <button onclick="openCancelModal('<%= orderId %>', null)">
+    Cancel Order
+  </button>
+
 <% } %>
 
-      <!-- Show return only if at least one item is delivered -->
-      <button class="return-btn"
-              onclick="openReturnModal('<%= order._id %>')">
-        Return Order
-      </button>
-
-    <% } else if (
-         order.status !== "returned" &&
-         order.status !== "cancelled" &&
-         order.status !== "delivered"
-    ) { %>
-
-      <button onclick="openCancelModal('<%=orderId%>', null)">
-        Cancel Order
-      </button>
-
-    <% } %>
-  </div>
+</div>
 
 
   <!-- ================= SUMMARY ================= -->
@@ -482,9 +496,15 @@
           <div class="product-price">
             ₹<%= item.originalPrice * item.quantity %>
           </div>
+<% if (item.returnStatus === "rejected") { %>
 
+  <div class="stat">
+    <span class="status-badge status-rejected">
+      Return Rejected
+    </span>
+  </div>
 
-          <% if (item.status === "returned") { %>
+<% } else if (item.status === "returned") { %>
 
               <div class="stat">
                 <span class="status-badge status-returned">

@@ -14,24 +14,26 @@ const order = async (req,res)=>{
     const search = req.query.search || ""
     const status = req.query.status || ""
 
-    let query = {} 
+    let query = {}
 
-    if (status) {
-      query.status = status
-    }
-    
-    if (search && mongoose.Types.ObjectId.isValid(search)) {
-      query = { _id: search }
-    }
+if (status) {
+  query.status = status
+}
+
+if (search) {
+  if (mongoose.Types.ObjectId.isValid(search)) {
+    query._id = new mongoose.Types.ObjectId(search)
+  }
+}
     
     const totalOrders = await Order.countDocuments(query)
 
      const returnOrders = await Order.find({
       $or: [
         { returnStatus: "requested" },
-        { orderItems: { $elemMatch: { returnStatus: "requested" } } }
+        { "orderItems.returnStatus": "requested" }
       ]
-    });
+    }).populate("userId");
     
     const ordersData = await Order.find(query)
       .populate("orderItems.product")
@@ -207,7 +209,7 @@ const handleReturn = async (req, res) => {
           {
             $set: {
               "orderItems.$.returnStatus": "rejected",
-              "orderItems.$.returnRequested": true
+              "orderItems.$.returnRequested": false
             }
           }
         );
@@ -276,10 +278,15 @@ else {
   }
 
   if (action === "reject") {
-    await Order.findByIdAndUpdate(orderId, {
-      returnStatus: "rejected",
-      returnRequested: true
-    });
+      order.returnStatus = "rejected";
+      order.returnRequested = false;
+
+      for (const item of order.orderItems) {
+        item.returnStatus = "rejected";
+        item.returnRequested = false;
+      }
+
+      await order.save();
   }
 }
       const updatedOrder = await Order.findById(orderId);

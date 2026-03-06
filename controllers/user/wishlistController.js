@@ -35,7 +35,10 @@ const postWishlist = async (req,res)=>{
       })
 
       await wishlistData.save()
-      return res.json({ success: true, action: "added" })
+      return res.json({ 
+         success: true,
+         action: "added",
+         wishlistCount: wishlistData.items.length })
     }
     const index = wishlistData.items.findIndex(val=>{
       return val.productId.toString() === productId && val.variantId.toString() ===variantId
@@ -44,11 +47,14 @@ const postWishlist = async (req,res)=>{
     if(index>-1){
       wishlistData.items.splice(index,1)
       await wishlistData.save()
-      return res.json({ success: true, action: "removed" })
-    }
+      return res.json({ success: true,
+        action: "removed",
+        wishlistCount: wishlistData.items.length
+       })
+    }   
     wishlistData.items.push({productId,variantId})
     await wishlistData.save()
-    return res.json({ success: true, action: "added" })
+    return res.json({ success: true, action: "added",wishlistCount: wishlistData.items.length })
      
   } catch (error) {
 

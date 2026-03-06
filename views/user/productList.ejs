@@ -508,6 +508,20 @@ const hasOffer = finalPrice < originalPrice;
     }
   }).showToast();
 }
+function updateWishlistBadge(count){
+
+  const badge = document.getElementById("wishlistBadge");
+
+  if(!badge) return;
+
+  if(count > 0){
+    badge.style.display = "block";
+    badge.textContent = count;
+  }else{
+    badge.style.display = "none";
+  }
+
+}
 
   document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search)
@@ -579,25 +593,22 @@ document.querySelectorAll(".wishlist")
 
       if(data.success){
 
-        if(data.action === "added"){
-          icon.classList.add("active");
+  if(data.action === "added"){
+    icon.classList.add("active");
 
-          showToast(
-            "Added to Wishlist ❤️",
-            "success"
-          );
+    showToast("Added to Wishlist ❤️","success");
 
-        }else{
+  }else{
 
-          icon.classList.remove("active");
+    icon.classList.remove("active");
 
-          showToast(
-            "Removed from Wishlist 💔",
-            "error"
-          );
-        }
+    showToast("Removed from Wishlist 💔","error");
 
-      }
+  }
+
+  updateWishlistBadge(data.wishlistCount);
+
+}
 
     }catch(err){
       console.error(err);

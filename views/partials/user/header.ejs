@@ -161,7 +161,17 @@
 
         <% } %>
 
-        <a href="/user/wishlist">♡</a>
+        <div style="position: relative; display:inline-block;">
+      <a href="/user/wishlist">
+        <i class="fa fa-heart"></i>
+      </a>
+
+      <span id="wishlistBadge" class="cart-badge"
+            style="<%= wishlistCount > 0 ? '' : 'display:none' %>">
+            <%= wishlistCount %>
+      </span>
+    </div>
+
         <div style="position: relative; display:inline-block;">
         <a href="/user/cart">
           <i class="fa fa-shopping-cart"></i>
@@ -174,7 +184,6 @@
         <span>☰</span>
       </div>
     </div>
-
     <nav>
 
 <a href="/user/productList">All</a>
@@ -198,20 +207,55 @@
   const toggle = document.getElementById("userToggle");
   const menu = document.getElementById("userMenu");
 
-  let isOpenByClick = false;
+  if (toggle) {
 
-  // Click toggle
-  toggle.addEventListener("click", function (e) {
-    e.stopPropagation();
-    isOpenByClick = !isOpenByClick;
-    menu.style.display = isOpenByClick ? "block" : "none";
+    let isOpenByClick = false;
+
+    toggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      isOpenByClick = !isOpenByClick;
+      menu.style.display = isOpenByClick ? "block" : "none";
+    });
+
+    document.addEventListener("click", function () {
+      isOpenByClick = false;
+      menu.style.display = "none";
+    });
+
+  }
+
+  async function addToWishlist(productId, variantId) {
+
+  const res = await fetch("/user/wishlist", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ productId, variantId })
   });
 
-  // Close when clicking outside
-  document.addEventListener("click", function () {
-    isOpenByClick = false;
-    menu.style.display = "none";
-  });
+  const data = await res.json();
+
+  if (data.success) {
+    updateWishlistBadge(data.wishlistCount);
+  }
+
+}
+
+  function updateWishlistBadge(count) {
+
+  const badge = document.getElementById("wishlistBadge");
+
+  if (!badge) return;
+
+  if (count > 0) {
+    badge.style.display = "block";
+    badge.textContent = count;
+  } else {
+    badge.style.display = "none";
+  }
+
+}
 </script>
 
 
