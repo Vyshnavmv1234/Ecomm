@@ -92,6 +92,35 @@ canvas{
   background:#4a5cff;
   border-radius:10px;
 }
+.chart-filter{
+  padding:8px 14px;
+  border:1px solid #ddd;
+  border-radius:6px;
+  font-size:14px;
+  background:#fff;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.2s ease;
+  margin-bottom:15px;
+}
+
+/* Hover */
+.chart-filter:hover{
+  border-color:#999;
+}
+
+/* Focus */
+.chart-filter:focus{
+  border-color:#000;
+}
+
+/* Card spacing */
+.card{
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
 
 </style>
 </head>
@@ -135,7 +164,7 @@ canvas{
 
 <div class="card">
 
-<select id="frequency">
+<select id="frequency" class="chart-filter">
 <option value="daily">Daily</option>
 <option value="weekly">Weekly</option>
 <option value="monthly" selected>Monthly</option>

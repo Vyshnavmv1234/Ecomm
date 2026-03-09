@@ -71,6 +71,7 @@ router.patch("/coupon/updateCoupon/:id",adminAuth,couponController.updateCoupon)
 router.get("/offers",adminAuth,offerController.loadOffer)
 router.post("/offer/addOffer",adminAuth,offerController.loadAddOffer)
 router.patch("/offer/toggle/:id",adminAuth,offerController.toggleOfferStatus)
+router.put("/offer/edit/:id",adminAuth,offerController.editOffer);
 
 //ANALYTICS
 

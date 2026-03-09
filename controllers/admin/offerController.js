@@ -25,6 +25,7 @@ const loadOffer = async (req,res)=>{
 
     const offers = await Offer.find(match)
     .populate("product")
+    .populate("category")
     .skip(skip)
     .limit(limit)
   
@@ -221,4 +222,38 @@ const toggleOfferStatus = async (req,res)=>{
   }
 };
 
-export default {loadOffer,loadAddOffer,toggleOfferStatus}
+const editOffer = async (req, res) => {
+  try {
+
+    const { title, product, category, discountType, discountValue, startDate, endDate } = req.body;
+
+    await Offer.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        product,
+        category,
+        discountType,
+        discountValue,
+        startDate,
+        endDate
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Offer updated successfully"
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+};
+
+export default {loadOffer,loadAddOffer,toggleOfferStatus,editOffer}

@@ -432,7 +432,10 @@ const canReturn =
 
   <button class="retry" onclick="retryPayment()">Retry Payment</button>
 
-<% } else if (order.returnExpired) { %>
+<% }else if (order.returnStatus === "requested") { %>
+
+  <p style="color:#f59e0b;">Return Requested</p>
+<%}else if (order.returnExpired) { %>
 
   <p style="color:gray;">Return window closed</p>
 
@@ -520,7 +523,7 @@ const canReturn =
               </span>
               </div>
 
-          <% } else if (item.returnRequested) { %>
+          <% } else if (item.returnRequested || order.returnStatus == "requested") { %>
 
               <div class="stat">
                 <span class="status-badge status-requested">

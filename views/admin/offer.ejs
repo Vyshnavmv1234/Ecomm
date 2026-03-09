@@ -18,6 +18,21 @@ body {
     font-size:16px;
     margin-right:8px;
 }
+.edit-btn{
+  background:#9db9f1;
+  color:#7772da;
+  border: 1px solid #c7d2fe;
+  padding:6px 14px;
+  border-radius:10px;
+  font-size:13px;
+  cursor:pointer;
+  margin-right:6px;
+  transition:0.2s;
+}
+
+.edit-btn:hover{
+  background:#d1d5db;
+}
 .search-box{
   display:flex;
   align-items:center;
@@ -392,16 +407,30 @@ tbody tr:hover {
                             <td>
 
                             <button
-                              onclick="toggleOffer('<%=offer._id%>', '<%=offer.isActive%>')"
-                              class="action-btn">
-
-                              <% if(offer.isActive){ %>
-                                  🚫 Unlist
-                              <% } else { %>
-                                  ✅ List
-                              <% } %>
-
+                                class="edit-btn"
+                                onclick='openEditModal(
+                                "<%=offer._id%>",
+                                "<%=offer.title%>",
+                                "<%=offer.discountValue%>",
+                                "<%=offer.startDate.toISOString().split("T")[0]%>",
+                                "<%=offer.endDate.toISOString().split("T")[0]%>",
+                                "<%=offer.product?._id || ""%>",
+                                "<%=offer.category?._id || ""%>"
+                            )'>
+                            Edit
                             </button>
+
+                            <button
+                                onclick="toggleOffer('<%=offer._id%>', '<%=offer.isActive%>')"
+                                class="action-btn">
+
+                            <% if(offer.isActive){ %>
+                                🚫 Unlist
+                                <% } else { %>
+                                ✅ List
+                            <% } %>
+
+                             </button>
 
                             </td>
 
@@ -469,7 +498,7 @@ tbody tr:hover {
     <div class="modal-content">
 
         <div class="modal-header">
-            <h3>Add Offer</h3>
+            <h3 id="modalTitle">Add Offer</h3>
             <span onclick="closeOfferModal()">×</span>
         </div>
 
@@ -561,6 +590,7 @@ function closeOfferModal() {
     offerModal.style.display = "none";
     offerForm.reset();
     clearErrors();
+    delete offerForm.dataset.editId;
 }
 
 function clearErrors(){
@@ -649,8 +679,16 @@ offerForm.addEventListener("submit", async(e)=>{
 
     try{
 
-        const res = await fetch("/admin/offer/addOffer",{
-            method:"POST",
+        let url = "/admin/offer/addOffer";
+        let method = "POST";
+
+        if(offerForm.dataset.editId){
+            url = `/admin/offer/edit/${offerForm.dataset.editId}`;
+            method = "PUT";
+        }
+
+        const res = await fetch(url,{
+            method,
             headers:{
                 "Content-Type":"application/json"
             },
@@ -690,6 +728,29 @@ offerForm.addEventListener("submit", async(e)=>{
     }
 
 });
+
+function openEditModal(id,title,discount,start,end,product,category){
+
+        offerModal.style.display = "flex";
+
+        document.getElementById("modalTitle").innerText = "Edit Offer";
+
+            offerForm.title.value = title;
+            offerForm.discountValue.value = discount;
+            offerForm.startDate.value = start;
+            offerForm.endDate.value = end;
+
+        if(product && offerForm.product){
+        offerForm.product.value = product;
+        }
+
+        if(category && offerForm.category){
+        offerForm.category.value = category;
+        }
+
+        offerForm.dataset.editId = id;
+
+        }
 async function toggleOffer(id,isActive){
 
   const action = isActive

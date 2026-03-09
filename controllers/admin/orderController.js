@@ -219,6 +219,8 @@ else {
 
   if (action === "approve") {
 
+    await Order.updateOne({_id:orderId},{$set:{returnRequested:false,returnStatus:"approved"}})
+
     let wallet = await Wallet.findOne({
       userId: order.userId
     });

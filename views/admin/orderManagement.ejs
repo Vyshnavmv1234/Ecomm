@@ -480,78 +480,89 @@
     <h3>Return Requests</h3>
 
     <% if (returnOrders.length === 0) { %>
-      <p>No return requests found.</p>
-    <% } else if(returnOrders.returnStatus !== "approved") { %>
-      <table class="return-table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>User</th>
-            <th>Reason</th>
-            <th>Action</th>
-          </tr> 
-        </thead>
+
+  <p>No return requests found.</p>
+
+<% } else { %>
+
+<table class="return-table">
+  <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>User</th>
+      <th>Reason</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
 <tbody>
 
-  <% returnOrders.forEach(order => { %>
+<% returnOrders.forEach(order => { %>
 
-    <!-- 🔹 FULL ORDER RETURN -->
-    <% if (order.returnStatus === "requested") { %>
+  <!-- FULL ORDER RETURN -->
+  <% if (order.returnStatus === "requested") { %>
 
-      <tr>
-        <td><%= order._id %></td>
-        <td><%= order.userId.name %></td>
-        <td><%= order.returnReason %></td>
-        <td>
-          <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
-            <input type="hidden" name="orderId" value="<%= order._id %>">
+  <tr>
+    <td><%= order._id %></td>
+    <td><%= order.userId.name %></td>
+    <td><%= order.returnReason %></td>
+    <td>
+      <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
+        <input type="hidden" name="orderId" value="<%= order._id %>">
 
-            <button class="approve-btn" name="action" value="approve">
-              Approve
-            </button>
+        <button class="approve-btn" name="action" value="approve">
+          Approve
+        </button>
 
-            <button class="reject-btn" name="action" value="reject">
-              Reject
-            </button>
-          </form>
-        </td>
-      </tr>
+        <button class="reject-btn" name="action" value="reject">
+          Reject
+        </button>
+      </form>
+    </td>
+  </tr>
+
+  <% } %>
+
+
+  <!-- SINGLE ITEM RETURN -->
+  <% order.orderItems.forEach(item => { %>
+
+    <% if (item.returnStatus === "requested") { %>
+
+    <tr>
+      <td><%= order._id %></td>
+      <td><%= order.userId.name %></td>
+      <td><%= item.returnReason %></td>
+
+      <td>
+        <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
+
+          <input type="hidden" name="orderId" value="<%= order._id %>">
+          <input type="hidden" name="itemId" value="<%= item._id %>">
+
+          <button class="approve-btn" name="action" value="approve">
+            Approve
+          </button>
+
+          <button class="reject-btn" name="action" value="reject">
+            Reject
+          </button>
+
+        </form>
+      </td>
+
+    </tr>
 
     <% } %>
-
-
-    <!-- 🔹 SINGLE ITEM RETURN -->
-    <% order.orderItems.forEach(item => { %>
-      <% if (item.returnStatus === "requested") { %>
-
-        <tr>
-          <td><%= order._id %></td>
-          <td><%= order.userId.name %></td>
-          <td><%= item.returnReason %></td>
-          <td>
-            <form action="/admin/handle-return" method="POST" style="display:flex; gap:8px;">
-              <input type="hidden" name="orderId" value="<%= order._id %>">
-              <input type="hidden" name="itemId" value="<%= item._id %>">
-
-              <button class="approve-btn" name="action" value="approve">
-                Approve
-              </button>
-
-              <button class="reject-btn" name="action" value="reject">
-                Reject
-              </button>
-            </form>
-          </td>
-        </tr>
-
-      <% } %>
-    <% }) %>
 
   <% }) %>
 
+<% }) %>
+
 </tbody>
-      </table>
-    <% } %>
+</table>
+
+<% } %>
   </div>
 </div>
 
