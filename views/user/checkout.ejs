@@ -1021,6 +1021,15 @@ if (placeOrderBtn) {
 
   if (!validateForm()) return;
 
+  const submitBtn =
+    document.getElementById("placeOrderBtn");
+
+  /* Prevent multiple submit */
+  if (submitBtn.disabled) return false;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Placing...";
+
   const paymentSelected = document.querySelector('input[name="pay"]:checked');
   const paymentMethod = paymentSelected.value;
 

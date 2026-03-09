@@ -32,7 +32,7 @@ const orderSuccess = async (req,res)=>{
       for(const item of order[0].orderItems){
         await Product.updateOne({_id : item.product,"variants._id" : item.variant},{$inc:{"variants.$.stock" : -item.quantity}})
       }
-      await cart.deleteOne({userId:user})
+      await cart?.deleteOne({userId:user})
       return res.render("user/orderSuccess",{user:userData,orderId})
     
     

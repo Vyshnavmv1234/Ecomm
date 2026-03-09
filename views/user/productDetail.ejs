@@ -552,7 +552,7 @@ body {
 
     <div class="action">
       <%if(user){%>
-        <a><button onclick="return eFun('<%=productData.id%>')" class="add-btn">+ ADD TO BASKET</button></a>
+        <a><button id="Basket" onclick="return eFun('<%=productData.id%>')" class="add-btn">+ ADD TO BASKET</button></a>
       <%}else{%>
         <a href="/user/login"><button type="button"  class="add-btn">+ ADD TO BASKET</button></a>
       <%}%>
@@ -775,6 +775,14 @@ function selectSize(el, id) {
       addError.style.color = "red"
       return
     }
+
+    const submitBtn =
+    document.getElementById("Basket");
+
+  if (submitBtn.disabled) return false;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Adding...";
 
     const res = await fetch("/user/cart",{
       

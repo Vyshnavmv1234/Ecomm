@@ -114,7 +114,7 @@ const calculateTotal = (cart,couponValue =0)=>{
     let subTotal = 0
     let productDiscount = 0 
 
-    cart.items.forEach(item => {
+    cart?.items.forEach(item => {
       subTotal += item.originalPrice * item.quantity
       productDiscount += (item.originalPrice - item.unitPrice) * item.quantity
     })
