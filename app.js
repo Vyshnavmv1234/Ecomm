@@ -62,7 +62,6 @@ app.use("/admin",adminRouter)
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error("GLOBAL ERROR:", err.message);
     const isApiRequest = req.xhr || 
                          (req.headers.accept && req.headers.accept.includes('json')) || 
                          req.path.startsWith('/admin/') || 
@@ -76,7 +75,7 @@ app.use((err, req, res, next) => {
     } else {
         return res.status(err.status || 500).render("admin/error", { 
             message: err.message || "Something went wrong",
-            admin: req.session.adminData ? req.session.adminData.name : null 
+            admin: req.session && req.session.adminData ? req.session.adminData.name : null 
         });
     }
 });
