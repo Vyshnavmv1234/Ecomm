@@ -389,16 +389,12 @@ tbody tr:hover {
                             <td>
 
                                 <%
-                                   const start = new Date(offer.startDate);
-                                const end = new Date(offer.endDate);
-
-                                start.setHours(0,0,0,0);
-                                end.setHours(23,59,59,999);
-
-                                const active =
-                                offer.isActive &&
-                                today >= start &&
-                                today <= end;
+                                    const today = new Date();
+                                    today.setHours(0,0,0,0);
+                                    const active =
+                                        offer.isActive &&
+                                        today >= offer.startDate &&
+                                        today <= offer.endDate;
                                 %>
 
                                 <span class="badge
