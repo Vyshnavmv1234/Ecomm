@@ -578,7 +578,7 @@ function removeVariant(index) {
         if (currentIndex < selectedFiles.length) {
           openCropper();
         }
-      });
+      }, 'image/jpeg', 0.8); // 80% quality JPEG reduces file size significantly
     }
 
 
