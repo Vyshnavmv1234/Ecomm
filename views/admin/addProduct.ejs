@@ -754,7 +754,16 @@ function validateForm() {
       }
     );
 
-    const data = await res.json();
+    const contentType = res.headers.get("content-type");
+    let data;
+    if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+    } else {
+        const text = await res.text();
+        console.error("Non-JSON response received:", text);
+        // If it's HTML, the first bit will show what's wrong (e.g. 404, Request Entity Too Large, etc)
+        throw new Error(`Server returned HTML (Status ${res.status}). This often means a 404 or a server error. Check console for details.`);
+    }
 
     if(res.ok && data.success){
 
@@ -777,7 +786,13 @@ function validateForm() {
     }
 
   } catch(err){
+    console.error("Submit Error:", err);
     showToast(err.message,"error");
+    
+    // Attempt to show more info if it's the specific JSON error
+    if (err.message.includes("is not valid JSON") || err.message.includes("Unexpected token")) {
+        showToast("Server returned an invalid response. Check if you are still logged in.", "error");
+    }
 
     /* enable again if failed */
     submitBtn.disabled = false;
