@@ -56,7 +56,20 @@ router.post("/verify-change-password-otp",userAuth,profileController.verifyChang
 router.post("/verify-resend-change-password-otp",userAuth,profileController.resendChangePassword)
 router.get("/reset-change-password",profileController.loadChangeResetPassword)
 router.post("/reset-change-password",profileController.newChangePassword)
-router.post("/upload",userAuth,uploadUser.single("image"),uploadController.uploadProfile)
+
+router.post("/upload", userAuth, (req, res) => {
+
+  uploadUser.single("image")(req, res, function (err) {
+
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    uploadController.uploadProfile(req, res);
+  });
+});
 router.get("/account", userAuth,uploadController.red)
  
 //ADDRESS MANAGEMENT

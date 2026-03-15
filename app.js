@@ -8,6 +8,7 @@ import userRouter from "./routes/userRouter.js"
 import adminRouter from "./routes/adminRouter.js"
 import passport from "./config/passport.js"
 import cartMiddleware from "./middlewares/cartCount.js"
+import {multerErrorHandler } from "./middlewares/multerError.js"
 import { category } from "./middlewares/Categories.js"
 
 dotenv.config()
@@ -34,6 +35,7 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(multerErrorHandler )
 
 app.use((req,res,next)=>{
   res.set("cache-control","no-store")
