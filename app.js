@@ -17,8 +17,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express()
-app.use(express.json())
-app.use(express.urlencoded({extended:true})) 
+app.set("trust proxy", 1);
+app.use(express.json({limit: '50mb'}))
+app.use(express.urlencoded({extended:true, limit: '50mb'})) 
 
 app.use(session({
   
@@ -55,20 +56,28 @@ db()
 const PORT = process.env.PORT
 
  
-app.set("trust proxy", 1);
+ 
 app.use("/user",userRouter)
 app.use("/admin",adminRouter)   
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    if (req.xhr || req.headers.accept.indexOf('json') > -1 || req.path.startsWith('/admin/') || req.path.startsWith('/user/')) {
-        res.status(err.status || 500).json({
+    console.error("GLOBAL ERROR:", err.message);
+    const isApiRequest = req.xhr || 
+                         (req.headers.accept && req.headers.accept.includes('json')) || 
+                         req.path.startsWith('/admin/') || 
+                         req.path.startsWith('/user/');
+
+    if (isApiRequest) {
+        return res.status(err.status || 500).json({
             success: false,
             message: err.message || "Internal Server Error"
         });
     } else {
-        res.status(err.status || 500).render("admin/pageNotFound"); // Fallback to HTML for regular page requests
+        return res.status(err.status || 500).render("admin/error", { 
+            message: err.message || "Something went wrong",
+            admin: req.session.adminData ? req.session.adminData.name : null 
+        });
     }
 });
    

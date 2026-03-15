@@ -30,27 +30,32 @@ const userAuth = async (req, res, next) => {
 
 const adminAuth = async (req, res, next) => {
   try {
-
     if(!req.session.admin){
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(401).json({ success: false, message: "Session expired. Please login again." });
+      // If it's a POST/PATCH/PUT/DELETE OR an AJAX request, return JSON
+      if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Session expired or unauthorized. Please login again." 
+        });
       }
       return res.redirect("/admin/adminLogin")
     }
-    const admin = await User.findOne({isAdmin:true})
+    
+    // Check if admin actually exists (optional but good for safety)
+    const admin = await User.findById(req.session.adminData?._id);
 
-    if(!admin){
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(401).json({ success: false, message: "Admin account not found." });
+    if(!admin || !admin.isAdmin){
+      if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+        return res.status(401).json({ success: false, message: "Admin privileges required." });
       }
       return res.redirect("/admin/adminLogin")
     }
     next()
     
   } catch (error) {
-    console.log("error in adminauth mw", error);
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(500).json({ success: false, message: "Authentication error." });
+    console.error("error in adminauth mw", error);
+    if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
+      return res.status(500).json({ success: false, message: "Authentication server error." });
     }
     return res.redirect("/admin/adminLogin");
   }
