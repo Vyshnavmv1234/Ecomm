@@ -561,9 +561,10 @@ function removeVariant(index) {
 
     function cropCurrentImage() {
       cropper.getCroppedCanvas({
+        width: 1000, // Constrain width to 1000px
+        height: 1000, // Constrain height to 1000px
         imageSmoothingEnabled: true,
         imageSmoothingQuality: "high"
-        
       }).toBlob(blob => {
         croppedImages.push(blob);
 
@@ -578,7 +579,7 @@ function removeVariant(index) {
         if (currentIndex < selectedFiles.length) {
           openCropper();
         }
-      }, 'image/jpeg', 0.8); // 80% quality JPEG reduces file size significantly
+      }, 'image/jpeg', 0.7); // 70% quality is a good balance for web
     }
 
 
