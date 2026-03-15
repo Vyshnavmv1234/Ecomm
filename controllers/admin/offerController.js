@@ -156,12 +156,17 @@ const loadAddOffer = async (req,res)=>{
     }
 
     return res.status(200).json({
-      success:true
+      success:true,message:"Offer created successfully"
     });
     
   } catch (error) {
-    
-  }
+  console.error(error);
+
+  return res.status(500).json({
+    success: false,
+    message: "Server error while adding offer"
+  });
+}
 }
 const toggleOfferStatus = async (req,res)=>{
   try{
