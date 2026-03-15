@@ -767,6 +767,7 @@ function validateForm() {
 
     }else{
       throw new Error(
+        data.message ||
         data.error ||
         "Failed to add product"
       );

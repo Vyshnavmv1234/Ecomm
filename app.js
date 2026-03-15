@@ -55,8 +55,22 @@ db()
 const PORT = process.env.PORT
 
  
+app.set("trust proxy", 1);
 app.use("/user",userRouter)
 app.use("/admin",adminRouter)   
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    if (req.xhr || req.headers.accept.indexOf('json') > -1 || req.path.startsWith('/admin/') || req.path.startsWith('/user/')) {
+        res.status(err.status || 500).json({
+            success: false,
+            message: err.message || "Internal Server Error"
+        });
+    } else {
+        res.status(err.status || 500).render("admin/pageNotFound"); // Fallback to HTML for regular page requests
+    }
+});
    
 app.listen(PORT,()=>console.log("Server running..."))
       

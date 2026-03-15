@@ -32,17 +32,26 @@ const adminAuth = async (req, res, next) => {
   try {
 
     if(!req.session.admin){
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(401).json({ success: false, message: "Session expired. Please login again." });
+      }
       return res.redirect("/admin/adminLogin")
     }
     const admin = await User.findOne({isAdmin:true})
 
     if(!admin){
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(401).json({ success: false, message: "Admin account not found." });
+      }
       return res.redirect("/admin/adminLogin")
     }
     next()
     
   } catch (error) {
     console.log("error in adminauth mw", error);
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(500).json({ success: false, message: "Authentication error." });
+    }
     return res.redirect("/admin/adminLogin");
   }
 }

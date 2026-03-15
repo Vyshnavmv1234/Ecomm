@@ -100,14 +100,18 @@ const postAddProducts = async(req,res)=>{
       return res.status(STATUS_CODES.CREATED).json({ success: true,message: "Product added successfully"});
 
     }else{
-  return res.status(401).json({
-    success:false,
-    message:"Unauthorized admin access"
-  });
-}
+      return res.status(401).json({
+        success:false,
+        message:"Unauthorized admin access"
+      });
+    }
     
   } catch (error) {
      console.error("error in adding products",error)
+     return res.status(500).json({
+       success:false,
+       message: error.message || "Internal server error"
+     })
   }
 }
 
