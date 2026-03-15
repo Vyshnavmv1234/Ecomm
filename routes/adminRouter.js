@@ -32,7 +32,7 @@ router.patch("/users/:id/unblock",adminAuth,customerController.customerUnBlock)
 
 router.get("/products",adminAuth,productController.loadProducts)
 router.get("/addProducts",adminAuth,productController.loadAddProducts)
-router.post("/addProduct",uploadProduct.array("images", 5),adminAuth,productController.postAddProducts)
+router.post("/addProduct",adminAuth,uploadProduct.array("images", 5),productController.postAddProducts)
 
 router.get("/editProduct/:id",adminAuth,productController.loadEditProduct)
 router.patch("/blockProduct/:id",adminAuth,productController.blockProduct)
