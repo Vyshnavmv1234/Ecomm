@@ -24,7 +24,7 @@ const productDetail = async(req,res)=>{
       return res.redirect("/user/productList?blockedCategory=true")
     }
     const similarProduct = await Product.find({category:productData.category,_id:{$ne:productId},isBlocked:false})
-    const userData = await User.findById(userId)
+    const userData = req.user || null;
   
     return res.render("user/productDetail",{
       user:userData,

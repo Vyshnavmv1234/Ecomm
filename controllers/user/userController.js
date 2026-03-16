@@ -187,19 +187,7 @@ const pageNotFound = async (req,res)=>{
 
 const loadHomepage = async (req, res) => {
   try {
-    let userData = null;
-
-    if (req.session.user) {
-
-      const user = await User.findById(req.session.user);
-
-      if (user && !user.isBlocked) {
-        userData = user;
-      } else {
-        req.session.user = null
-      }
-    }
-
+    const userData = req.user || null;
     res.render("user/userHome", { user: userData });
 
   } catch (error) {
@@ -476,7 +464,7 @@ const loadProductList = async(req,res)=>{
       const totalProduct = countResult[0]?.total ||0
       const totalPages = Math.ceil(totalProduct/limit)
 
-      const userData = await User.findById(req.session.user)
+      const userData = req.user || null;
       const categoryData = await Category.find({isBlocked:false})
       const productData = await Product.aggregate(pipeline) 
 
