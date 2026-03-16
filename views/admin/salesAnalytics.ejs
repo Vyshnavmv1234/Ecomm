@@ -183,6 +183,46 @@ th{
     background:#fafafa;
 }
 
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.page-btn.active {
+  background-color: #cab3b3;
+  color: #ffffff;
+  border-color: #bdabab;
+  cursor: default;
+}
+
+.page-btn.arrow {
+  font-size: 14px;
+  font-weight: bold;
+}
 </style>
 </head>
 
@@ -348,6 +388,9 @@ No Orders Found
 </tbody>
 </table>
 
+<div id="paginationContainer" class="pagination-wrapper"></div>
+
+
 </div>
 
 </div>
@@ -430,7 +473,7 @@ function switchOrders(type) {
   );
 }
 
-async function applyFilter(){
+async function applyFilter(page = 1){
 
   const report = document.getElementById("reportType").value;
   const from = document.getElementById("fromDate").value;
@@ -459,7 +502,7 @@ async function applyFilter(){
     }
   }
   const response = await fetch(
-     `/admin/analytics-data?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`
+     `/admin/analytics-data?report=${report}&from=${from}&to=${to}&type=${currentOrderType}&page=${page}`
   );
 
   const data = await response.json();
@@ -484,27 +527,73 @@ async function applyFilter(){
 
   table.innerHTML = "";
 
-  data.orders.forEach(order => {
+  if (data.orders && data.orders.length > 0) {
+    data.orders.forEach(order => {
+      table.innerHTML += `
+        <tr>
+          <td>#${order._id.slice(-6).toUpperCase()}</td>
+          <td>${order.userId?.name || "User"}</td>
+          <td>${order.paymentMethod}</td>
+          <td>₹${order.orderSummary.subTotal + (order.orderSummary.GST || 0)}</td>
+          <td class="discount">
+            -₹${order.orderSummary.discount +
+                order.orderSummary.coupon}
+          </td>
+          <td>₹${order.orderSummary.total}</td>
+          <td>
+            ${new Date(order.createdAt)
+              .toLocaleDateString("en-IN")}
+          </td>
+        </tr>
+      `;
+    });
+  } else {
+    table.innerHTML = `<tr><td colspan="7" style="text-align:center;">No Orders Found</td></tr>`;
+  }
 
-    table.innerHTML += `
-      <tr>
-        <td>#${order._id.slice(-6)}</td>
-        <td>${order.userId?.name || "User"}</td>
-        <td>${order.paymentMethod}</td>
-        <td>₹${order.orderSummary.subTotal}</td>
-        <td class="discount">
-          -₹${order.orderSummary.discount +
-              order.orderSummary.coupon}
-        </td>
-        <td>₹${order.orderSummary.total}</td>
-        <td>
-          ${new Date(order.createdAt)
-            .toLocaleDateString("en-IN")}
-        </td>
-      </tr>
-    `;
-  });
+  renderPagination(data.totalPages, data.currentPage);
 
+}
+
+function renderPagination(totalPages, currentPage) {
+  const container = document.getElementById("paginationContainer");
+  container.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  // Previous Button
+  if (currentPage > 1) {
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "page-btn arrow";
+    prevBtn.innerHTML = "&#8592;";
+    prevBtn.onclick = () => applyFilter(currentPage - 1);
+    container.appendChild(prevBtn);
+  }
+
+  // Page Numbers
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === currentPage) {
+      const span = document.createElement("span");
+      span.className = "page-btn active";
+      span.innerText = i;
+      container.appendChild(span);
+    } else {
+      const pageBtn = document.createElement("button");
+      pageBtn.className = "page-btn";
+      pageBtn.innerText = i;
+      pageBtn.onclick = () => applyFilter(i);
+      container.appendChild(pageBtn);
+    }
+  }
+
+  // Next Button
+  if (currentPage < totalPages) {
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "page-btn arrow";
+    nextBtn.innerHTML = "&#8594;";
+    nextBtn.onclick = () => applyFilter(currentPage + 1);
+    container.appendChild(nextBtn);
+  }
 }
 
 </script>

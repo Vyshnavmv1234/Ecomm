@@ -571,43 +571,6 @@ body {
   </div>
 </div>
 
-<!-- TABS -->
-<div class="tabs">
-  <div class="tab-header">
-    <span class="active">REVIEW</span>
-  </div>
-  
-
-  <!-- REVIEW -->
-  <div class="review-container">
-    <div class="review-top">
-      <div class="rating-box">
-        <h1>4.7</h1>
-        ⭐⭐⭐⭐⭐
-        <p>Customer Rating</p>
-      </div>
-
-      <div class="rating-bars">
-        <div>5★ <div class="bar"><span style="width:63%"></span></div> 63%</div>
-        <div>4★ <div class="bar"><span style="width:24%"></span></div> 24%</div>
-        <div>3★ <div class="bar"><span style="width:9%"></span></div> 9%</div>
-        <div>2★ <div class="bar"><span style="width:1%"></span></div> 1%</div>
-        <div>1★ <div class="bar"><span style="width:7%"></span></div> 7%</div>
-      </div>
-    </div>
-
-    <div class="customer-review">
-      <h4>Dianne Russell ⭐⭐⭐⭐⭐</h4>
-      <p>Excellent quality and very comfortable.</p>
-    </div>
-
-    <div class="customer-review">
-      <h4>Courtney Henry ⭐⭐⭐⭐</h4>
-      <p>Nice fabric and great fit.</p>
-    </div>
-  </div>
-</div>
-
 <!-- SIMILAR PRODUCTS -->
 
 <div class="similar-section">
@@ -620,7 +583,7 @@ body {
       <div class="similar-wrapper" id="slider">
         <% similarProduct.forEach(product => { %>
           <div class="similar-card">
-            <img src="<%= product.images[0].url %>" alt="product">
+            <a href="/user/productDetail?id=<%=product._id%>"><img src="<%= product.images[0].url %>" alt="product"></a>
             <div class="similar-info">
               <p class="similar-brand"><%= product.name %></p>
               <p class="similar-title"><%= product.title %></p>
