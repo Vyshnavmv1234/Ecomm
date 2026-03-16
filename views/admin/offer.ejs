@@ -561,12 +561,12 @@ today <= end;
 
 <div class="form-group">
     <label>Start Date</label>
-    <input type="date" name="startDate">
+    <input type="date" name="startDate" id="startDate">
 </div>
 
 <div class="form-group">
     <label>End Date</label>
-    <input type="date" name="endDate">
+    <input type="date" name="endDate" id="endDate">
     <div class="error" id="dateError"></div>
 </div>
 
@@ -645,21 +645,34 @@ function validateForm(f){
     }
 
     /* DATE VALIDATION */
-    if(!startDate || !endDate){
-        dateError.innerText =
-            "Select both dates";
+    const today = new Date().toISOString().split("T")[0];
+
+document.querySelector('input[name="startDate"]').setAttribute("min", today);
+document.querySelector('input[name="endDate"]').setAttribute("min", today);
+
+if (!startDate || !endDate) {
+    dateError.innerText = "Select both start and end date";
+    valid = false;
+} else {
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    start.setHours(0,0,0,0);
+    end.setHours(0,0,0,0);
+
+    if (start < today) {
+        dateError.innerText = "Start date cannot be in the past";
         valid = false;
     }
-    else{
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        if(start >= end){
-            dateError.innerText =
-                "End date must be after start date";
-            valid = false;
-        }
+    else if (end <= start) {
+        dateError.innerText = "End date must be after start date";
+        valid = false;
     }
+}
 
     return valid;
 }

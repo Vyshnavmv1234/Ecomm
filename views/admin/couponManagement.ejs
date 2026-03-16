@@ -544,27 +544,51 @@ function showToast(message, type = "success") {
   }).showToast();
 }
 
-
+//
 /* =====================================================
    COMMON VALIDATION
 =====================================================*/
-function validateCoupon(discount, minOrder){
+function validateCoupon(formData) {
+  const { code, discountValue, minOrderAmount, expireDate, usageLimit } = formData;
 
-  if(isNaN(discount) || isNaN(minOrder)){
-    showToast("Invalid numeric values","error");
+  // 1. Code validation
+  if (!code || code.trim().length < 3) {
+    showToast("Coupon code must be at least 3 characters long", "error");
+    return false;
+  }
+  
+  // 2. Numeric validations for positive values
+  if (isNaN(discountValue) || discountValue <= 0) {
+    showToast("Discount value must be a positive number", "error");
+    return false;
+  }
+  if (isNaN(minOrderAmount) || minOrderAmount <= 0) {
+    showToast("Minimum order amount must be a positive number", "error");
     return false;
   }
 
-  if(discount <= 0 || minOrder <= 0){
-    showToast("Values must be greater than zero","warning");
+  // 3. Discount vs Min Order (Matching backend: discount < minOrder/2)
+  if (discountValue >= minOrderAmount / 2) {
+    showToast("Discount must be less than half of minimum order amount", "warning");
     return false;
   }
 
-  if(discount >= (minOrder * 2)){
-    showToast(
-      "Discount must be less than twice minimum order",
-      "warning"
-    );
+  // 4. Expiry Date validation
+  if (!expireDate) {
+    showToast("Please select an expiry date", "error");
+    return false;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const selectedDate = new Date(expireDate);
+  if (selectedDate < today) {
+    showToast("Expiry date cannot be in the past", "error");
+    return false;
+  }
+
+  // 5. Usage Limit validation
+  if (usageLimit !== "" && (isNaN(usageLimit) || usageLimit <= 0)) {
+    showToast("Usage limit must be a positive number", "error");
     return false;
   }
 
@@ -583,26 +607,22 @@ addForm.addEventListener("submit", async function(e){
 
   e.preventDefault();
 
-  const discount =
-    Number(addForm.discountValue.value);
+  const formData = {
+    code: addForm.code.value.trim().toUpperCase(),
+    discountValue: Number(addForm.discountValue.value),
+    minOrderAmount: Number(addForm.minOrderAmount.value),
+    expireDate: addForm.expireDate.value,
+    usageLimit: addForm.usageLimit.value
+  };
 
-  const minOrder =
-    Number(addForm.minOrderAmount.value);
-
-  if(!validateCoupon(discount,minOrder)){
+  if(!validateCoupon(formData)){
     return;
   }
 
-  const formData = {
-    code:addForm.code.value
-          .trim()
-          .toUpperCase(),
-
-    discountValue:discount,
-    minOrderAmount:minOrder,
-    expireDate:addForm.expireDate.value,
-    usageLimit:
-      Number(addForm.usageLimit.value)||1
+  // Prepare data for submission
+  const submissionData = {
+    ...formData,
+    usageLimit: Number(formData.usageLimit) || 1
   };
 
   try{
@@ -614,7 +634,7 @@ addForm.addEventListener("submit", async function(e){
         headers:{
           "Content-Type":"application/json"
         },
-        body:JSON.stringify(formData)
+        body:JSON.stringify(submissionData)
       }
     );
 
@@ -776,33 +796,27 @@ const editForm =
 
 if(editForm){
 
-editForm.addEventListener("submit",
-async function(e){
-
+editForm.addEventListener("submit", async function(e){
   e.preventDefault();
 
   const id = editForm.dataset.id;
 
-  const discount =
-    Number(editForm.discountValue.value);
+  const formData = {
+    code: editForm.code.value.trim().toUpperCase(),
+    discountValue: Number(editForm.discountValue.value),
+    minOrderAmount: Number(editForm.minOrderAmount.value),
+    expireDate: editForm.expireDate.value,
+    usageLimit: editForm.usageLimit.value
+  };
 
-  const minOrder =
-    Number(editForm.minOrderAmount.value);
-
-  if(!validateCoupon(discount,minOrder)){
+  if(!validateCoupon(formData)){
     return;
   }
 
-  const formData={
-    code:editForm.code.value
-          .trim()
-          .toUpperCase(),
-
-    discountValue:discount,
-    minOrderAmount:minOrder,
-    expireDate:editForm.expireDate.value,
-    usageLimit:
-      Number(editForm.usageLimit.value)||0
+  // Prepare data for submission
+  const submissionData = {
+    ...formData,
+    usageLimit: Number(formData.usageLimit) || 0
   };
 
   try{
@@ -814,7 +828,7 @@ async function(e){
         headers:{
           "Content-Type":"application/json"
         },
-        body:JSON.stringify(formData)
+        body:JSON.stringify(submissionData)
       }
     );
 
