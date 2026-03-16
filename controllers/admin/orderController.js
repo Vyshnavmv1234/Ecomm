@@ -96,6 +96,11 @@ const updateStatus = async (req, res) => {
         message: "Order not found"
       });
     }
+    if(order.paymentMethod!=="COD" && order.paymentStatus!=="Paid"){
+      return res.json({
+        success:false,message:"User have'nt Paid yet"
+      })
+    }
 
     for(let val of order.orderItems){
       if(val.status!=="delivered" && val.status!=="cancelled"){
