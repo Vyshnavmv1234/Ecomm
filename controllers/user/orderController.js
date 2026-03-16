@@ -78,10 +78,10 @@ const placeOrder = async (req, res) => {
     const gstValue = Number(gst);
     const totalValue = Number(total);
 
-    if (status === "WALLET") {
+    if (paymentMethod === "WALLET") {
 
       if (!wallet || wallet.balance < totalValue) {
-        return res.json({
+        return res.status(STATUS_CODES.NOT_FOUND).json({
           success:false,
           message:"Insufficient balance"
         });

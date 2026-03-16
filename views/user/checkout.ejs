@@ -1042,6 +1042,10 @@ if (placeOrderBtn) {
     phone: fields.phone.value.trim(),
     pincode: fields.pincode.value.trim()
   };
+  function resetButton() {
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Place Order";
+}
 
   try {
 
@@ -1065,9 +1069,10 @@ if (placeOrderBtn) {
       const data = await res.json();
 
       if (!data.success) {
-        showToast(data.message || "Something went wrong", "error");
-        return;
-      }
+      showToast(data.message || "Something went wrong", "error");
+      resetButton();
+      return;
+    }
 
       window.location.href = `/user/order/${data.orderId}`;
       return;
@@ -1177,9 +1182,10 @@ if (placeOrderBtn) {
     }
 
   } catch (err) {
-    console.error(err);
-    showToast("Something went wrong", "error");
-  }
+  console.error(err);
+  showToast("Something went wrong", "error");
+  resetButton();
+}
 };
 
   // =========================
@@ -1201,21 +1207,30 @@ if (placeOrderBtn) {
   };
 
   window.applyCoupon = async function () {
-    const res = await fetch("/user/coupon/applyCoupon", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cCode })
-    });
 
-    const data = await res.json();
+  const input = document.getElementById("couponCode");
+  const code = input.value.trim();
 
-    if (data.success) {
-      showToast("Coupon applied", "success");
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      showToast(data.message || "Invalid coupon", "error");
-    }
-  };
+  if (!code) {
+    showToast("Enter a coupon code", "error");
+    return;
+  }
+
+  const res = await fetch("/user/coupon/applyCoupon", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cCode: code })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    showToast("Coupon applied", "success");
+    setTimeout(() => location.reload(), 1000);
+  } else {
+    showToast(data.message || "Invalid coupon", "error");
+  }
+};
 
   window.removeCoupon = async function () {
     const res = await fetch("/user/coupon/removeCoupon", { method: "POST" });
