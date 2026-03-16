@@ -1,7 +1,7 @@
 import passport from "passport"
 import userController from "../controllers/user/userController.js"
 import profileController from "../controllers/user/profileController.js"
-import {userAuth} from "../middlewares/auth.js"
+import {userAuth, checkBlockedUser} from "../middlewares/auth.js"
 import uploadController from "../controllers/routeUpload.js";
 import express from "express"
 import {uploadUser} from "../middlewares/multer.js";
@@ -17,12 +17,12 @@ import walletController from "../controllers/user/walletController.js";
 const router = express.Router()
 
 //AUTHENTICATION
-router.get("/login",userController.loadLogin)
+router.get("/login", checkBlockedUser, userController.loadLogin)
 router.post("/login",userController.login)
 router.get("/userOtp",userController.loadOTP)
-router.get("/homepage",userController.loadHomepage)
+router.get("/homepage", checkBlockedUser, userController.loadHomepage)
 router.get("/pageNotFound",userController.pageNotFound)
-router.get("/signup",userController.loadSignup)
+router.get("/signup", checkBlockedUser, userController.loadSignup)
 router.post("/signup",userController.signup)
 router.post("/verify-otp",userController.verifyOtp)
 router.post("/resent-otp",userController.resentOtp) 
@@ -84,8 +84,8 @@ router.patch("/address/set-default",userAuth,profileController.setDefaultAddress
 
 //PRODUCT LISTINGS + Details
 
-router.get("/productList",userController.loadProductList)
-router.get("/productDetail",productController.productDetail)
+router.get("/productList", checkBlockedUser, userController.loadProductList)
+router.get("/productDetail", checkBlockedUser, productController.productDetail)
 
 //CART MANAGEMENT
 

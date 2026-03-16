@@ -31,7 +31,6 @@ const userAuth = async (req, res, next) => {
 const adminAuth = async (req, res, next) => {
   try {
     if(!req.session.admin){
-      // If it's a POST/PATCH/PUT/DELETE OR an AJAX request, return JSON
       if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         return res.status(401).json({ 
           success: false, 
@@ -41,7 +40,6 @@ const adminAuth = async (req, res, next) => {
       return res.redirect("/admin/adminLogin")
     }
     
-    // Check if admin actually exists (optional but good for safety)
     const admin = await User.findById(req.session.adminData?._id);
 
     if(!admin || !admin.isAdmin){
@@ -61,5 +59,22 @@ const adminAuth = async (req, res, next) => {
   }
 }
 
+const checkBlockedUser = async (req, res, next) => {
+  try {
+    if (req.session.user) {
+      const user = await User.findById(req.session.user);
+      if (!user || user.isBlocked) {
+        delete req.session.user;
+        return res.redirect("/user/login?error=Your account has been blocked");
+      }
+      req.user = user;
+    }
+    next();
+  } catch (error) {
+    console.error("Error in checkBlockedUser middleware:", error);
+    next();
+  }
+};
 
-export {userAuth,adminAuth};
+
+export {userAuth,adminAuth, checkBlockedUser};
