@@ -17,8 +17,10 @@ const postAnalytics = async (req,res)=>{
   try{
 
   const { report, from, to } = req.query;
-
   const type = req.query.type;
+  const page = parseInt(req.query.page || 1);
+  const limit = 10;
+  const skip = (page - 1) * limit;
 
   let statusFilter = {};
 
@@ -44,6 +46,11 @@ const postAnalytics = async (req,res)=>{
       startDate.setDate(startDate.getDate()-7);
       break;
 
+    case "monthly":
+        startDate = new Date();
+        startDate.setMonth(startDate.getMonth()-1);
+        break;
+
     case "yearly":
       startDate = new Date();
       startDate.setFullYear(
@@ -54,6 +61,7 @@ const postAnalytics = async (req,res)=>{
     case "custom":
       startDate = new Date(from);
       endDate = new Date(to);
+      endDate.setHours(23, 59, 59, 999);
       break;
 
     default:
@@ -88,22 +96,37 @@ const postAnalytics = async (req,res)=>{
     }
   ]);
 
+  const ordersCountResult = await Order.countDocuments({
+    status: statusFilter.status,
+    createdAt: {
+      $gte: startDate,
+      $lte: endDate
+    }
+  });
+
   const orders = await Order.find({
     status: statusFilter.status,
     createdAt:{
       $gte:startDate,
       $lte:endDate
     }
-  }).populate("userId");
+  })
+  .populate("userId")
+  .sort({ createdAt: -1 })
+  .skip(skip)
+  .limit(limit);
 
   const data = analytics[0] || {};
+  const totalPages = Math.ceil(ordersCountResult / limit);
 
   res.json({
-    orderCount:data.orderCount || 0,
-    grossSale:data.grossSale || 0,
-    couponDiscount:data.couponDiscount || 0,
-    overallDiscount:data.overallDiscount || 0,
-    orders
+    orderCount: data.orderCount || 0,
+    grossSale: data.grossSale || 0,
+    couponDiscount: data.couponDiscount || 0,
+    overallDiscount: data.overallDiscount || 0,
+    orders,
+    totalPages,
+    currentPage: page
   });
 
  }catch(err){
