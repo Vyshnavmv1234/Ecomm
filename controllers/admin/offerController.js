@@ -47,50 +47,59 @@ const loadOffer = async (req,res)=>{
     console.log(error)
   }
 }
-const loadAddOffer = async (req,res)=>{
+const loadAddOffer = async (req, res) => {
   try {
-    
-    const {title,type,product,discountValue,category,startDate,endDate} = req.body
 
-    console.log(product)
+    const { title, type, product, discountValue, category, startDate, endDate } = req.body;
 
-    if(type === "product"){
+    // ---------------- PRODUCT OFFER ----------------
+    if (type === "product") {
 
       const pdt = await Product.findById(product);
 
-      if((pdt.variants[0].price)/2<discountValue){
-        return res.json({success:false,message:"Discount value should be less than half the product value"})
+      if (!pdt) {
+        return res.json({ success: false, message: "Product not found" });
       }
-      const offers =  new Offer({
-      title,
-      type,
-      product,
-      category,
-      discountValue,
-      startDate,
-      endDate
-    })
-    await offers.save(); 
+
+      if ((pdt.variants[0].price) / 2 < discountValue) {
+        return res.json({
+          success: false,
+          message: "Discount value should be less than half the product value"
+        });
+      }
+
+      const offer = new Offer({
+        title,
+        type,
+        product,
+        category,
+        discountValue,
+        startDate,
+        endDate
+      });
+
+      await offer.save();
 
       const pdtDiscount = pdt.discount || 0;
 
-      pdt.variants.forEach(v=>{
+      pdt.variants.forEach(v => {
 
         const productPrice = v.price - (v.price * pdtDiscount / 100);
         const offerPrice = v.price - discountValue;
-        
+
         const bestPrice = Math.min(productPrice, offerPrice);
 
-        v.finalPrice = v.finalPrice
-          ? Math.min(v.finalPrice, bestPrice)
-          : bestPrice;
-        });
+        v.finalPrice = bestPrice;
 
-      pdt.offer = offers._id;
+      });
+
+      pdt.offer = offer._id;
 
       await pdt.save();
     }
 
+
+    // ---------------- CATEGORY OFFER ----------------
     if (type === "category") {
 
       const products = await Product.find({
@@ -100,10 +109,11 @@ const loadAddOffer = async (req,res)=>{
 
       let validProducts = [];
 
+      // IMPORTANT: hasValidVariant check
       for (const pdt of products) {
 
         const hasValidVariant = pdt.variants.some(v =>
-          (v.price / 2) > discountValue
+          discountValue < (v.price / 2)
         );
 
         if (hasValidVariant) {
@@ -118,17 +128,17 @@ const loadAddOffer = async (req,res)=>{
         });
       }
 
-      const offers = new Offer({
+      const offer = new Offer({
         title,
         type,
-        product,
         category,
         discountValue,
         startDate,
         endDate
       });
 
-      await offers.save();
+      await offer.save();
+
 
       for (const pdt of validProducts) {
 
@@ -136,49 +146,56 @@ const loadAddOffer = async (req,res)=>{
 
         pdt.variants.forEach(v => {
 
-          if ((v.price / 2) > discountValue) {
+          if (discountValue >= v.price / 2) return;
 
-            const productPrice = v.price - (v.price * pdtDiscount / 100);
-            const offerPrice = v.price - discountValue;
+          const productPrice = v.price - (v.price * pdtDiscount / 100);
+          const offerPrice = v.price - discountValue;
 
-            const bestPrice = Math.min(productPrice, offerPrice);
+          const bestPrice = Math.min(productPrice, offerPrice);
 
-            v.finalPrice = v.finalPrice
-              ? Math.min(v.finalPrice, bestPrice)
-              : bestPrice;
+          // apply category offer only if it is better
+          if (!v.finalPrice || bestPrice < v.finalPrice) {
+
+            v.finalPrice = bestPrice;
+            pdt.offer = offer._id;
+
           }
-        });
 
-        pdt.offer = offers._id;
+        });
 
         await pdt.save();
       }
     }
 
-    return res.status(200).json({
-      success:true,message:"Offer created successfully"
-    });
-    
-  } catch (error) {
-  console.error(error);
 
-  return res.status(500).json({
-    success: false,
-    message: "Server error while adding offer"
-  });
-}
-}
-const toggleOfferStatus = async (req,res)=>{
-  try{
+    return res.status(200).json({
+      success: true,
+      message: "Offer created successfully"
+    });
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while adding offer"
+    });
+
+  }
+};
+const toggleOfferStatus = async (req, res) => {
+  try {
 
     const id = req.params.id;
 
     const offer = await Offer.findById(id);
 
-    if(!offer){
+    if (!offer) {
       return res.status(404).json({
-        success:false,
-        message:"Offer not found"
+        success: false,
+        message: "Offer not found"
       });
     }
 
@@ -186,103 +203,118 @@ const toggleOfferStatus = async (req,res)=>{
     await offer.save();
 
 
+    // ---------------- PRODUCT OFFER ----------------
     if (offer.type === "product") {
 
-  const product = await Product.findById(offer.product);
+      const product = await Product.findById(offer.product);
 
-  if (product) {
+      if (product) {
 
-    const pdtDiscount = product.discount || 0;
+        const pdtDiscount = product.discount || 0;
 
-    product.variants.forEach(v => {
+        for (const v of product.variants) {
 
-      const productPrice = v.price - (v.price * pdtDiscount / 100);
+          const productPrice = v.price - (v.price * pdtDiscount / 100);
 
-      if (offer.isActive) {
-
-        if ((v.price / 2) > offer.discountValue) {
-
-          const offerPrice = v.price - offer.discountValue;
-
-          v.finalPrice = Math.min(productPrice, offerPrice);
-
-          product.offer = offer._id;
-
-        } else {
-
-          v.finalPrice = productPrice;
-
-        }
-
-      } else {
-
-        v.finalPrice = productPrice;
-
-        product.offer = null;
-
-      }
-
-    });
-
-    await product.save();
-  }
-}
-
-    if(offer.type === "category"){
-
-      const products =
-        await Product.find({
-          category:offer.category,
-          isBlocked:false
-        });
-
-      for(const product of products){
-
-      const pdtDiscount = product.discount || 0;
-
-      product.variants.forEach(v=>{
-
-        const productPrice = v.price - (v.price * pdtDiscount / 100);
-
-        if(offer.isActive){
-
-          if((v.price)/2 > offer.discountValue){
+          if (offer.isActive && offer.discountValue < v.price / 2) {
 
             const offerPrice = v.price - offer.discountValue;
-            v.finalPrice = Math.min(productPrice, offerPrice);
+
+            const bestPrice = Math.min(productPrice, offerPrice);
+
+            v.finalPrice = bestPrice;
             product.offer = offer._id;
 
-          }else{
+          } else {
+
             v.finalPrice = productPrice;
+            product.offer = null;
+
           }
-
-        }else{
-
-          v.finalPrice = productPrice;
-          product.offer = null;
 
         }
 
+        await product.save();
+      }
+    }
+
+
+    // ---------------- CATEGORY OFFER ----------------
+    if (offer.type === "category") {
+
+      const products = await Product.find({
+        category: offer.category,
+        isBlocked: false
       });
 
-      await product.save();
-    }
+      for (const product of products) {
+
+        const pdtDiscount = product.discount || 0;
+
+        // check if product offer exists
+        const productOffer = await Offer.findOne({
+          product: product._id,
+          type: "product",
+          isActive: true
+        });
+
+        for (const v of product.variants) {
+
+          const productPrice = v.price - (v.price * pdtDiscount / 100);
+
+          if (offer.isActive && offer.discountValue < v.price / 2) {
+
+            const offerPrice = v.price - offer.discountValue;
+
+            const bestPrice = Math.min(productPrice, offerPrice);
+
+            if (!v.finalPrice || bestPrice < v.finalPrice) {
+              v.finalPrice = bestPrice;
+              product.offer = offer._id;
+            }
+
+          } else {
+
+            // restore product offer if exists
+            if (productOffer && productOffer.discountValue < v.price / 2) {
+
+              const offerPrice = v.price - productOffer.discountValue;
+
+              const bestPrice = Math.min(productPrice, offerPrice);
+
+              v.finalPrice = bestPrice;
+              product.offer = productOffer._id;
+
+            } else {
+
+              v.finalPrice = productPrice;
+              product.offer = null;
+
+            }
+
+          }
+
+        }
+
+        await product.save();
+      }
     }
 
     return res.status(200).json({
-      success:true
+      success: true
     });
 
-  }catch(error){
+  } catch (error) {
 
     console.log(error);
 
-    res.status(500).json({
-      success:false,
-      message:"Server error"
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
     });
+
   }
-};
+}; 
 
 const editOffer = async (req, res) => {
   try {
