@@ -616,10 +616,10 @@ function validateForm() {
      else if (name.length < 3 || name.length > 50) {
       pNameError.innerText = "Product name must be 3–50 characters";
       isValid = false;
-    } else if (!/^[a-zA-Z0-9\s\-]+$/.test(name)) {
-      pNameError.innerText = "Only letters, numbers, spaces allowed";
-      isValid = false;
-    }
+    }else if (!/^[a-zA-Z0-9\s-]+$/.test(name) || !/[a-zA-Z]/.test(name)) {
+  pNameError.innerText = "Product name must contain at least one letter";
+  isValid = false;
+}
 
       if (!title) {
       pTitleError.innerText = "Product title is required";
