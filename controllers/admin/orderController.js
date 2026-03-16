@@ -284,8 +284,10 @@ else {
       order.returnRequested = false;
 
       for (const item of order.orderItems) {
-        item.returnStatus = "rejected";
-        item.returnRequested = false;
+        if(item.status !=="cancelled"){
+          item.returnStatus = "rejected";
+          item.returnRequested = false;
+        }
       }
 
       await order.save();
