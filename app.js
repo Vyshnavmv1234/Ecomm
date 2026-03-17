@@ -55,7 +55,12 @@ db()
 
 const PORT = process.env.PORT
 
- 
+app.use("/", (req, res, next) => {
+  if (req.originalUrl === "/") {
+    return res.redirect("/user/login");
+  }
+  next();
+}); 
  
 app.use("/user",userRouter)
 app.use("/admin",adminRouter)   
