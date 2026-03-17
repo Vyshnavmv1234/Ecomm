@@ -304,6 +304,17 @@ const cancelProduct = async (req, res) => {
         transactions:[]
       })
     }
+    
+    const pdtId = item.product
+    let neededVariant
+    const pdtDetailss = await Product.findById(pdtId)
+    console.log(pdtDetailss)
+
+    for(let pdt of pdtDetails.variants){
+
+      console.log(pdt)
+       
+    }
 
     item.status = "cancelled";
     item.cancelReason = reason;
