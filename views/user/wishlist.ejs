@@ -1,280 +1,204 @@
-  <%-include("../../views/partials/user/header")%>
+<%- include("../../views/partials/user/header") %>
 
+<% activePage = "wishlist"; %>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      color: #333;
-    }
+<style>
+  /* ==== WISHLIST SPECIFIC ==== */
+  .wishlist-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-    /* ===== LAYOUT ===== */
-    .container {
-      display: flex;
-      gap: 30px;
-      padding: 40px 60px;
-    }
-    .add-btn:hover {
-  background: #b89f9a;   /* slightly darker */
-  transition: background 0.3s ease;
-}
+  .wishlist-table th {
+    text-align: left;
+    font-size: 13px;
+    color: #777;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+  }
 
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: 260px;
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
+  .wishlist-table td {
+    padding: 18px 0;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
 
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+  .product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
 
-    .sidebar li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      color: #777;
-      font-size: 14px;
-    }
+  .product img {
+    width: 70px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
 
-    .sidebar li.active {
-      background: #c9b6b2;
-      color: #fff;
-    }
+  .price del { color: #aaa; margin-right: 6px; font-size: 13px; }
+  .price strong { font-size: 15px; }
 
-    .sidebar li:hover {
-      background: #eee;
-    }
+  .add-btn {
+    background: #beaaa6;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.3s ease;
+  }
 
-    /* ===== CONTENT ===== */
-    .content {
-      flex: 1;
-      background: #fff;
-      border-radius: 8px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
+  .add-btn:hover { background: #b89f9a; }
 
-    .content h2 {
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
+  .remove {
+    font-size: 14px;
+    color: #282626;
+    cursor: pointer;
+    font-weight: 500;
+    margin-left: 12px;
+  }
 
-    /* ===== TABLE ===== */
-    .wishlist-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+  .remove:hover { color: red; }
 
-    .wishlist-table th {
-      text-align: left;
-      font-size: 13px;
-      color: #777;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #ddd;
-    }
+  /* Responsive table */
+  @media (max-width: 600px) {
+    .wishlist-table th:nth-child(2),
+    .wishlist-table td:nth-child(2) { display: none; }
 
-    .wishlist-table td {
-      padding: 18px 0;
-      border-bottom: 1px solid #eee;
-      vertical-align: middle;
-    }
+    .product img { width: 50px; height: 65px; }
 
-    .product {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+    .add-btn { padding: 8px 12px; font-size: 12px; }
 
-    .product img {
-      width: 70px;
-      height: 90px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
+    td { padding: 12px 0; }
+  }
+</style>
 
-    .price del {
-      color: #aaa;
-      margin-right: 6px;
-      font-size: 13px;
-    }
+<!-- MAIN LAYOUT -->
+<div class="user-layout">
 
-    .price strong {
-      font-size: 15px;
-    }
+  <%- include("../../views/partials/user/sidebar") %>
 
-    /* ===== ACTIONS ===== */
-    .add-btn {
-  background: #beaaa6;
-  color: #fff;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 13px;
-}
+  <!-- CONTENT -->
+  <div class="user-content">
+    <div style="background:#fff; border-radius:8px; padding:24px; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+      <h2 style="margin-bottom:20px; font-size:20px;">Wishlist</h2>
 
-    .remove {
-      font-size: 14px;
-      color: #282626;
-      cursor: pointer;
-      font-weight: 500;
-      margin-left: 12px;
-    }
+      <div style="overflow-x:auto;">
+        <table class="wishlist-table">
+          <thead>
+            <tr>
+              <th>Products</th>
+              <th>Price</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-    .remove:hover {
-      color: red;
-    }
-  </style>
-</head>
+          <tbody>
+            <% if (wishlist.length === 0) { %>
+              <tr>
+                <td colspan="3" style="text-align:center; padding:20px;">
+                  Wishlist is empty
+                </td>
+              </tr>
+            <% } else { %>
 
-<body>
+              <% wishlist.forEach(item => { %>
+                <tr>
+                  <td>
+                    <div class="product">
+                      <img src="<%= item.productId.images[0].url %>" alt="">
+                      <div>
+                        <span><%= item.productId.name %></span><br>
+                        <small>(Size: <%= item.productId.variants.id(item.variantId).size %>)</small>
+                      </div>
+                    </div>
+                  </td>
 
-  <div class="container">
+                  <td class="price">
+                    ₹<%= item.productId.variants.id(item.variantId).finalPrice || item.productId.variants.id(item.variantId).price %>
+                  </td>
 
+                  <td>
+                    <div class="wishlist-actions">
+                      <button
+                        class="add-btn"
+                        onclick="moveToCart('<%= item.productId._id %>', '<%= item.variantId %>')">
+                        Add to Cart
+                      </button>
 
-    <!-- CONTENT -->
-    <div class="content">
-      <h2>Wishlist</h2>
+                      <span
+                        class="remove"
+                        onclick="removeFromWishlist('<%= item.productId._id %>', '<%= item.variantId %>')">
+                        REMOVE
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
 
-      <table class="wishlist-table">
-  <thead>
-    <tr>
-      <th>Products</th>
-      <th>Price</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% if (wishlist.length === 0) { %>
-      <tr>
-        <td colspan="3" style="text-align:center; padding:20px;">
-          Wishlist is empty
-        </td>
-      </tr>
-    <% } else { %>
-
-      <% wishlist.forEach(item => { %>
-        <tr>
-          <td>
-            <div class="product">
-              <img src="<%= item.productId.images[0].url %>" alt="">
-              <span><%= item.productId.name %></span>
-              <small>
-                (Size:
-                <%= item.productId.variants.id(item.variantId).size %>)
-              </small>
-            </div>
-          </td>
-
-          <td class="price">
-            ₹<%= item.productId.variants.id(item.variantId).finalPrice||item.productId.variants.id(item.variantId).price %>
-          </td>
-
-          <td>
-            <button
-              class="add-btn"
-              onclick="moveToCart('<%= item.productId._id %>', '<%= item.variantId %>')">
-              Add to Cart
-            </button>
-
-            <span
-              class="remove"
-              onclick="removeFromWishlist('<%= item.productId._id %>', '<%= item.variantId %>')">
-              REMOVE
-            </span>
-          </td>
-        </tr>
-      <% }) %>
-
-    <% } %>
-  </tbody>
-</table>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
 
     </div>
-
   </div>
 
-  <script>
+</div>
 
-     function showToast(message, type = "success") {
-        Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "bottom",       
-        position: "center",    
-        close: true,
-        stopOnFocus: true,
-        style: {
-          background:
-            type === "success"
-              ? "linear-gradient(to right, #16a34a, #22c55e)"
-              : "linear-gradient(to right, #dc2626, #ef4444)",
-        }
-      }).showToast();
+<script>
+  function showToast(message, type = "success") {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      close: true,
+      stopOnFocus: true,
+      style: {
+        background: type === "success"
+          ? "linear-gradient(to right, #16a34a, #22c55e)"
+          : "linear-gradient(to right, #dc2626, #ef4444)",
+      }
+    }).showToast();
+  }
+
+  async function moveToCart(productId, variantId) {
+    const res = await fetch("/user/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, variantId })
+    });
+
+    const data = await res.json();
+
+    if (data.success && res.ok) {
+      setTimeout(() => { window.location.reload(); }, 1000);
+      showToast("Item added to cart", "success");
     }
+    if (res.status == 403) { showToast("This item is blocked by admin", "error"); }
+    if (res.status == 401) { showToast("This item is out of stock", "error"); return; }
+    if (res.status == 400) { showToast("Limit Exceeded", "error"); return; }
+  }
 
-    async function moveToCart(productId,variantId) {
-      const res = await fetch("/user/cart",{
-        method: "POST",
-        headers: {
-          "Content-Type":"application/json"
-        },
-        body: JSON.stringify({productId,variantId})
-      })
+  async function removeFromWishlist(productId, variantId) {
+    const res = await fetch("/user/remove/wishlist", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, variantId })
+    });
 
-      const data = await res.json()
+    const data = await res.json();
 
-      if(data.success && res.ok){
-
-        setTimeout(()=>{
-          window.location.reload()
-        },1000)
-        showToast("Item added to cart","success")
-      }
-      if(res.status ==403){
-        showToast("This item is blocked by admin","error")
-        
-      }
-      if(res.status ==401){
-        showToast("This item is out of stock","error")
-        return 
-      }
-      if(res.status ==400){
-        showToast("Limit Exceeded","error")
-        return 
-      }
+    if (data.success && res.ok) {
+      window.location.reload();
+      showToast("Item removed from wishlist", "success");
+      return;
     }
+  }
+</script>
 
-    async function removeFromWishlist(productId,variantId) {
-      const res = await fetch("/user/remove/wishlist",{
-        method: "DELETE",
-        headers: {
-          "Content-Type":"application/json"
-        },
-        body: JSON.stringify({productId,variantId})
-      })
-
-      const data = await res.json()
-
-      if(data.success && res.ok){
-
-        window.location.reload()
-        showToast("Item removed from wishlist","success")
-        return 
-      }
-    }
-
-  </script>
-  <%-include("../../views/partials/user/footer")%>
-
+<%- include("../../views/partials/user/footer") %>

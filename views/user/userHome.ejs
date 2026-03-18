@@ -1,202 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>WestLane</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%- include("../../views/partials/user/header") %>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+  /* ===== HOME PAGE SPECIFIC ===== */
 
-    body {
-      font-family: Arial, sans-serif;
-      color: #222;
-      background: #fff;
-    }
+  /* ---- HERO BANNER: Full-bleed, tall, visually distinct ---- */
+  .hero-banner {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+  .hero-banner img {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
 
-    img {
-      width: 100%;
-      display: block;
-    }
+  /* ---- Secondary hero (Celebrity section) ---- */
+  .hero-secondary {
+    width: 100%;
+    overflow: hidden;
+    margin: 0;
+  }
 
-    /* ================= HEADER ================= */
-    header {
-      border-bottom: 1px solid #eee;
-      padding: 18px 60px;
-    }
+  .hero-secondary img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    display: block;
+  }
 
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+  /* ---- Section labels ---- */
+  .section-title {
+    padding: 36px 40px 14px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #888;
+    text-transform: uppercase;
+  }
 
-    .logo {
-      font-size: 26px;
-      font-weight: bold;
-    }
+  /* ---- Explore link ---- */
+  .explore {
+    text-align: center;
+    margin: 32px 0 20px;
+    font-size: 15px; /* larger feel */
+    letter-spacing: 1.5px;
+    font-weight: 500;
+  }
 
-    .search {
-      flex: 1;
-      margin: 0 40px;
-    }
+  /* ---- Product grid ---- */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+    padding: 20px 40px 60px; /* refined padding */
+  }
 
-    .search input {
-      width: 100%;
-      padding: 10px 14px;
-      background: #f2f2f2;
-      border: none;
-      border-radius: 4px;
-    }
+  .product-card {
+    font-size: 13px;
+  }
 
-    .header-icons {
-      display: flex;
-      gap: 18px;
-      font-size: 14px;
-    }
+  /* Consistent image container — aspect-ratio enforced */
+  .product-card .card-img-wrap {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
 
-    nav {
-      margin-top: 16px;
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      font-size: 14px;
-    }
+  .product-card .card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* fill the box completely to fix "zoomed out" feel */
+    display: block;
+    transition: transform 0.3s ease;
+  }
 
-    /* ================= HERO ================= */
-    .hero {
-      padding: 40px 60px;
-    }
+  .product-card .card-img-wrap img:hover {
+    transform: scale(1.05); /* more impactful hover */
+  }
 
-    .hero img {
-      max-height: 650px;
-      object-fit: cover;
-    }
+  .product-card p {
+    margin-top: 10px;
+    color: #555;
+    font-size: 13px;
+  }
 
-    /* ================= EXPLORE ================= */
-    .explore {
-      text-align: center;
-      margin: 40px 0;
-      font-size: 14px;
-    }
+  /* ---- Info strip ---- */
+  .info {
+    background: #f7f7f7;
+    padding: 60px 40px;
+    text-align: center;
+  }
 
-    /* ================= PRODUCT GRID ================= */
+  .info h3 {
+    font-size: 22px;
+    margin-bottom: 14px;
+    font-weight: normal;
+  }
+
+  .info > p {
+    max-width: 600px;
+    margin: 0 auto 36px;
+    font-size: 16px; /* larger text */
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
+    font-size: 13px;
+    color: #555;
+  }
+
+  /* ---- Mobile overrides (responsive.css handles breakpoints,
+          these are home-page-specific fine-tuning) ---- */
+  @media (max-width: 768px) {
+    .hero-banner img { height: 220px; }
+    .hero-secondary img { height: 160px; }
+    .section-title { padding: 20px 14px 10px; font-size: 12px; }
+    .explore { margin: 20px 0 8px; }
+    .product-grid { padding: 0 10px 28px; gap: 12px; }
+    .info { padding: 32px 14px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-banner img { height: 180px; }
+    .hero-secondary img { height: 130px; }
     .product-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
-      padding: 0 60px 60px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 0 10px 20px;
     }
-
-    .product-card {
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .product-card p {
-      margin-top: 10px;
-      color: #555;
-    }
-
-    /* ================= SECTION TITLE ================= */
-    .section-title {
-      padding: 60px 60px 20px;
-      font-size: 14px;
-      letter-spacing: 1px;
-      color: #777;
-    }
-
-    /* ================= INFO SECTION ================= */
-    .info {
-      background: #f7f7f7;
-      padding: 80px 60px;
-      text-align: center;
-    }
-
-    .info h3 {
-      font-size: 22px;
-      margin-bottom: 14px;
-      font-weight: normal;
-    }
-
-    .info p {
-      max-width: 600px;
-      margin: 0 auto 40px;
-      font-size: 14px;
-      color: #666;
-    }
-
     .info-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 30px;
-      font-size: 13px;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
+  }
+</style>
 
-    /* ================= FOOTER ================= */
-    footer {
-      padding: 60px;
-      border-top: 1px solid #eee;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 40px;
-      font-size: 13px;
-    }
 
-    footer h4 {
-      margin-bottom: 14px;
-      font-weight: 500;
-    }
-
-    footer p {
-      margin-bottom: 8px;
-      color: #555;
-    }
-
-    .store-buttons img {
-      height: 36px;
-      margin-right: 10px;
-    }
-
-    /* ================= RESPONSIVE ================= */
-    @media (max-width: 900px) {
-      .product-grid,
-      .info-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      footer {
-        grid-template-columns: 1fr;
-      }
-
-      header,
-      .hero,
-      .section-title,
-      .product-grid,
-      .info {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <%-include("../../views/partials/user/header")%>
-
-<!-- HERO -->
-<section class="hero">
-  <img  src="/images/default-hero.jpg"></section>
+<!-- HERO BANNER -->
+<section class="hero-banner">
+  <img src="/images/default-hero.jpg" alt="WestLane Collection">
 </section>
 
 <!-- EXPLORE -->
@@ -205,46 +155,62 @@
 <!-- PRODUCT GRID -->
 <div class="product-grid">
   <div class="product-card">
-      <img src="/images/Rectangle 325.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/Rectangle 325.jpg" alt="Angora cardigan">
+    </div>
     <p>23FW reversible angora cardigan</p>
   </div>
   <div class="product-card">
-      <img src="/images/expm2.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/expm2.jpg" alt="Oblong bag">
+    </div>
     <p>Oblong bag</p>
   </div>
   <div class="product-card">
-      <img src="/images/expm3.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/expm3.jpg" alt="Cardigan">
+    </div>
     <p>23FW reversible angora cardigan</p>
   </div>
   <div class="product-card">
-      <img src="/images/expm4.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/expm4.jpg" alt="Cardigan">
+    </div>
     <p>23FW reversible angora cardigan</p>
   </div>
 </div>
 
 <!-- CELEBRITY -->
 <div class="section-title">Celebrity Approved Styles</div>
-<section class="hero">
-    <img src="/images/pexels-aksioart-1926769.jpg">
+<section class="hero-secondary">
+  <img src="/images/pexels-aksioart-1926769.jpg" alt="Celebrity styles">
 </section>
 
 <!-- OLD MONEY -->
-<div class="section-title">OLD MONEY</div>
+<div class="section-title">Old Money</div>
 <div class="product-grid">
   <div class="product-card">
-      <img src="/images/Rectangle 325.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/Rectangle 325.jpg" alt="Cardigan">
+    </div>
     <p>23FW reversible angora cardigan</p>
   </div>
   <div class="product-card">
-      <img src="/images/expm2.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/expm2.jpg" alt="Bag">
+    </div>
     <p>Oblong bag</p>
   </div>
   <div class="product-card">
-      <img src="/images/expm3.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/expm3.jpg" alt="Cardigan">
+    </div>
     <p>23FW reversible angora cardigan</p>
   </div>
   <div class="product-card">
-      <img src="/images/expm4.jpg">
+    <div class="card-img-wrap">
+      <img src="/images/expm4.jpg" alt="Cardigan">
+    </div>
     <p>23FW reversible angora cardigan</p>
   </div>
 </div>
@@ -255,11 +221,11 @@
   <p>Making a luxurious lifestyle accessible for a generous group of women in our daily drive.</p>
 
   <div class="info-grid">
-    <div>Fast shipping<br>Free on orders over $25</div>
-    <div>Sustainable process<br>from start to finish</div>
-    <div>Unique designs<br>and high-quality materials</div>
-    <div>Fast shipping<br>Free on orders over $25</div>
+    <div>Fast shipping<br><span style="color:#aaa;">Free on orders over ₹999</span></div>
+    <div>Sustainable process<br><span style="color:#aaa;">from start to finish</span></div>
+    <div>Unique designs<br><span style="color:#aaa;">and high-quality materials</span></div>
+    <div>Easy returns<br><span style="color:#aaa;">hassle-free 7-day policy</span></div>
   </div>
 </section>
 
-  <%-include("../../views/partials/user/footer")%>
+<%- include("../../views/partials/user/footer") %>

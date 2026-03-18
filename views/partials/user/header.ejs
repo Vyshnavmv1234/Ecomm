@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/css/auth.css">
   <link rel="stylesheet" href="/css/login.css" />
   <link rel="stylesheet" href="/css/userLayout.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
        
   <style>
     /* ===== CSS DROPDOWN ===== */
@@ -68,7 +69,7 @@ body{
   width: 100%;
   background: #fff;
   border-bottom: 1px solid #eee;
-  padding: 18px 60px;
+  padding: 18px 4%; /* More fluid padding */
   z-index: 1000;
 }
     .cart-badge {
@@ -87,11 +88,13 @@ body{
       display: flex;
       align-items: center;
       justify-content: space-between;
+      max-width: 1800px; /* Wider container */
+      margin: 0 auto;
     }
 
     .logo {
       font-family: 'Playfair Display', serif;
-      font-size: 22px;
+      font-size: 26px; /* Slightly larger logo */
       font-weight: 500;
     }
 
@@ -109,11 +112,12 @@ body{
       padding: 10px 14px;
       border: 1px solid #ddd;
       font-size: 14px;
+      border-radius: 4px;
     }
 
     .header-icons {
       display: flex;
-      gap: 18px;
+      gap: 22px; /* standard desktop spacing */
       font-size: 14px;
     }
 
@@ -123,10 +127,9 @@ body{
       justify-content: center;
       gap: 28px;
       font-size: 14px;
+      max-width: 1800px;
+      margin: 16px auto 0;
     }
-
-   
-  
 
   </style>
 </head>
@@ -135,6 +138,8 @@ body{
   <!-- HEADER -->
   <header>
     <div class="header-top">
+      <!-- Hamburger: visible only on mobile via CSS -->
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">☰</button>
       <div class="logo"><a href="/user/homepage">WestLane</a></div>
       
       <div class="search">
@@ -211,6 +216,39 @@ body{
 </nav>
   </header>
 
+  <!-- Mobile search sub-bar: shown only on ≤768px via CSS -->
+  <div class="mobile-search-bar">
+    <form method="get" action="/user/productList">
+      <input
+        name="pSearch"
+        value="<%= typeof search !== 'undefined' ? search : '' %>"
+        type="text"
+        placeholder="Search products…"
+      />
+    </form>
+  </div>
+
+  <!-- Mobile Nav Drawer -->
+  <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+  <div class="mobile-nav-drawer" id="mobileDrawer">
+    <button class="mobile-nav-close" id="mobileClose">✕</button>
+    <a href="/user/homepage">Home</a>
+    <a href="/user/productList">All Products</a>
+    <% if(category && category.length > 0){ %>
+      <% category.forEach(cat => { %>
+        <a href="/user/productList?category=<%= cat._id %>"><%= cat.name %></a>
+      <% }) %>
+    <% } %>
+    <hr style="margin:12px 0;border:none;border-top:1px solid #eee;">
+    <% if (user) { %>
+      <a href="/user/userDashboard">My Profile</a>
+      <a href="/user/logout">Logout</a>
+    <% } else { %>
+      <a href="/user/login">Log in</a>
+      <a href="/user/signup">Sign up</a>
+    <% } %>
+  </div>
+
   <script>
   const toggle = document.getElementById("userToggle");
   const menu = document.getElementById("userMenu");
@@ -231,6 +269,28 @@ body{
     });
 
   }
+
+  /* ===== MOBILE HAMBURGER ===== */
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const mobileOverlay = document.getElementById("mobileOverlay");
+  const mobileDrawer = document.getElementById("mobileDrawer");
+  const mobileClose = document.getElementById("mobileClose");
+
+  function openMobileNav() {
+    mobileDrawer.classList.add("open");
+    mobileOverlay.style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMobileNav() {
+    mobileDrawer.classList.remove("open");
+    mobileOverlay.style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  if (hamburgerBtn) hamburgerBtn.addEventListener("click", openMobileNav);
+  if (mobileClose)  mobileClose.addEventListener("click", closeMobileNav);
+  if (mobileOverlay) mobileOverlay.addEventListener("click", closeMobileNav);
 
   async function addToWishlist(productId, variantId) {
 
