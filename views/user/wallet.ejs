@@ -1,53 +1,42 @@
-  <%-include("../../views/partials/user/header")%>
+<%- include("../../views/partials/user/header") %>
 
-    <title>Wallet</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-        }
+<% activePage = "wallet"; %>
 
-        .container {
-            width: 90%;
-            margin: 40px auto;
-            display: flex;
-            gap: 30px;
-        }
-        .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 25px 0;
-    }
+<style>
+  /* ===== PAGINATION ===== */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 25px 0;
+  }
 
-    .page-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 1px solid #c8bcbc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      color: #555;
-      cursor: pointer;
-      background: #fff;
-    }
+  .page-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid #c8bcbc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    background: #fff;
+    text-decoration: none;
+  }
 
-    .page-btn.active {
-      background: #cfc0bc;
-      color: #fff;
-      border-color: #cfc0bc;
-      font-weight: 600;
-    }
+  .page-btn.active {
+    background: #cfc0bc;
+    color: #fff;
+    border-color: #cfc0bc;
+    font-weight: 600;
+  }
 
-    .page-btn:hover {
-      background: #eee;
-    }
-        /* ================= MODAL ================= */
+  .page-btn:hover { background: #eee; }
 
-.modal-overlay {
+  /* ================= MODAL ================= */
+  .modal-overlay {
     display: none;
     position: fixed;
     z-index: 2000;
@@ -58,29 +47,30 @@
     background: rgba(0,0,0,0.6);
     justify-content: center;
     align-items: center;
-}
+  }
 
-.modal-box {
+  .modal-box {
     background: #f1f1f1;
     width: 500px;
+    max-width: 90vw;
     border-radius: 30px;
     padding: 40px;
     text-align: center;
     position: relative;
     animation: scaleIn 0.25s ease;
-}
+  }
 
-@keyframes scaleIn {
+  @keyframes scaleIn {
     from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
+    to   { transform: scale(1);   opacity: 1; }
+  }
 
-.modal-box h2 {
+  .modal-box h2 {
     margin-bottom: 25px;
     font-weight: 500;
-}
+  }
 
-.amount-input {
+  .amount-input {
     width: 70%;
     padding: 15px;
     border-radius: 12px;
@@ -89,9 +79,9 @@
     font-size: 18px;
     margin-bottom: 30px;
     outline: none;
-}
+  }
 
-.pay-btn {
+  .pay-btn {
     background: #3b5bdb;
     color: white;
     padding: 14px 40px;
@@ -99,169 +89,132 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
-}
+  }
 
-.pay-btn:hover {
-    background: #2f4ac8;
-}
+  .pay-btn:hover { background: #2f4ac8; }
 
-.close-modal {
+  .close-modal {
     position: absolute;
     top: 15px;
     right: 20px;
     font-size: 22px;
     cursor: pointer;
-}
+  }
 
+  /* Wallet Content */
+  .wallet-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
 
+  .wallet-balance {
+    font-size: 32px;
+    font-weight: bold;
+  }
 
-        /* Wallet Content */
-        .wallet-content {
-            flex: 1;
-        }
+  .wallet-text { color: #777; }
 
-        .wallet-card {
-            background: #fff;
-            padding: 25px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+  .add-money-btn {
+    background-color: #4ea7a6;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
 
-        .wallet-balance {
-            font-size: 32px;
-            font-weight: bold;
-        }
+  .add-money-btn:hover { background-color: #3d8f8e; }
 
-        .wallet-text {
-            color: #777;
-        }
+  /* Transaction Table */
+  .transaction-box {
+    margin-top: 30px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow-x: auto;           /* horizontal scroll on small screens */
+  }
 
-        .add-money-btn {
-            background-color: #4ea7a6;
-            color: #fff;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+  .transaction-box h3 { margin-bottom: 15px; }
 
-        .add-money-btn:hover {
-            background-color: #3d8f8e;
-        }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-        /* Transaction Table */
-        .transaction-box {
-            margin-top: 30px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
 
-        .transaction-box h3 {
-            margin-bottom: 15px;
-        }
+  th { background: #f8f8f8; }
+</style>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+<!-- MAIN LAYOUT -->
+<div class="user-layout">
 
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+  <!-- Sidebar -->
+  <%- include("../../views/partials/user/sidebar") %>
 
-        th {
-            background: #f8f8f8;
-        }
+  <!-- Wallet Content -->
+  <div class="user-content">
 
-        .pagination {
-            text-align: center;
-            margin-top: 20px;
-        }
+    <!-- Wallet Balance Card -->
+    <div class="wallet-card">
+      <div>
+        <div class="wallet-balance">₹ <%= wallet ? wallet.balance : 0 %></div>
+        <div class="wallet-text">My Wallet Balance</div>
+      </div>
+      <button class="add-money-btn" onclick="openWalletModal()">Add Money</button>
+    </div>
 
-        .pagination button {
-            padding: 6px 10px;
-            margin: 0 5px;
-            border-radius: 50%;
-            border: 1px solid #ccc;
-            background: #fff;
-            cursor: pointer;
-        }
+    <!-- Transactions -->
+    <div class="transaction-box">
+      <h3>TRANSACTION DETAILS</h3>
 
-        .pagination button.active {
-            background: #d9c6c6;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <!-- Sidebar -->
-  <%-include("../../views/partials/user/sidebar")%>
-
-
-    <!-- Wallet Content -->
-    <div class="wallet-content">
-
-        <!-- Wallet Balance Card -->
-        <div class="wallet-card">
-            <div>
-                <div class="wallet-balance">₹ <%= wallet ? wallet.balance : 0 %></div>
-                <div class="wallet-text">My Wallet Balance</div>
-            </div>
-            <button class="add-money-btn" onclick="openWalletModal()">Add Money</button>
-        </div>
-
-        <!-- Transactions -->
-        <div class="transaction-box">
-            <h3>TRANSACTION DETAILS</h3>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Transaction ID</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                        <th>Amount</th>
-                       
-                    </tr>
-                </thead>
-<tbody>
+      <table>
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
 <% if (walletDetails && walletDetails.length > 0) { %>
-    <% walletDetails.forEach((txn) => { %>
-        <tr>
-            <td>#<%= txn._id %></td>
-            <td><%= txn.description %></td>
-            <td><%= new Date(txn.date).toDateString() %></td>
+  <% walletDetails.forEach((txn) => { %>
+      <tr>
+          <td>#<%= txn._id %></td>
+          <td><%= txn.description %></td>
+          <td><%= new Date(txn.date).toDateString() %></td>
 
-            <td>
-                <% if (txn.description === "Paid using wallet") { %>
-                    <span style="color:red;">- ₹ <%= txn.amount %></span>
-                <% } else { %>
-                    <span style="color:green;">+ ₹ <%= txn.amount %></span>
-                <% } %>
-            </td>
-        </tr>
-    <% }) %>
+          <td>
+              <% if (txn.description === "Paid using wallet") { %>
+                  <span style="color:red;">- ₹ <%= txn.amount %></span>
+              <% } else { %>
+                  <span style="color:green;">+ ₹ <%= txn.amount %></span>
+              <% } %>
+          </td>
+      </tr>
+  <% }) %>
 <% } else { %>
-    <tr>
-        <td colspan="4" style="text-align:center;">No Transactions Found</td>
-    </tr>
+  <tr>
+      <td colspan="4" style="text-align:center;">No Transactions Found</td>
+  </tr>
 <% } %>
-</tbody>
+        </tbody>
+      </table>
 
-
-            </table>
-
-            <% if (totalPages > 1) { %>
+      <% if (totalPages > 1) { %>
   <div class="pagination">
 
     <!-- Previous Arrow -->
@@ -271,8 +224,8 @@
 
     <!-- Page Numbers -->
     <% for (let i = 1; i <= totalPages; i++) { %>
-      <a 
-        href="?page=<%= i %>" 
+      <a
+        href="?page=<%= i %>"
         class="page-btn <%= currentPage === i ? 'active' : '' %>">
         <%= i %>
       </a>
@@ -286,127 +239,121 @@
   </div>
 <% } %>
 
-
-        </div>
-
     </div>
 
+  </div>
+
 </div>
+
 <!-- Wallet Modal -->
 <div id="walletModal" class="modal-overlay">
-    <div class="modal-box">
-        <span class="close-modal" onclick="closeWalletModal()">&times;</span>
-        <h2>Enter the amount</h2>
-        <input type="number" id="walletAmount" class="amount-input" placeholder="Enter amount">
-        <br>
-        <button onclick="payment()" class="pay-btn">Pay with Razorpay</button>
-    </div>
+  <div class="modal-box">
+    <span class="close-modal" onclick="closeWalletModal()">&times;</span>
+    <h2>Enter the amount</h2>
+    <input type="number" id="walletAmount" class="amount-input" placeholder="Enter amount">
+    <br>
+    <button onclick="payment()" class="pay-btn">Pay with Razorpay</button>
+  </div>
 </div>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
   function showToast(message, type = "success") {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "bottom",
+      position: "center",
+      close: true,
+      stopOnFocus: true,
+      style: {
+        background: type === "success"
+          ? "linear-gradient(to right, #00b09b, #96c93d)"
+          : "linear-gradient(to right, #ff5f6d, #ffc371)"
+      }
+    }).showToast();
+  }
 
-  Toastify({
-    text: message,
-    duration: 3000,
-    gravity: "bottom",        // top or bottom
-    position: "center",     // left, center or right
-    close: true,
-    stopOnFocus: true,
-    style: {
-      background: type === "success"
-        ? "linear-gradient(to right, #00b09b, #96c93d)"
-        : "linear-gradient(to right, #ff5f6d, #ffc371)"
+  const walletModal = document.getElementById("walletModal");
+
+  function openWalletModal() {
+    walletModal.style.display = "flex";
+  }
+
+  function closeWalletModal() {
+    walletModal.style.display = "none";
+  }
+
+  // Close when clicking outside modal
+  window.onclick = function(event) {
+    if (event.target === walletModal) {
+      walletModal.style.display = "none";
     }
-  }).showToast();
+  }
 
-}
-    const walletModal = document.getElementById("walletModal");
-
-    function openWalletModal() {
-        walletModal.style.display = "flex";
-    }
-
-    function closeWalletModal() {
-        walletModal.style.display = "none";
-    }
-
-    // Close when clicking outside modal
-    window.onclick = function(event) {
-        if (event.target === walletModal) {
-            walletModal.style.display = "none";
-        }
-    }
-
-    async function payment() {
+  async function payment() {
 
     const amount = document.getElementById("walletAmount").value;
 
     if (!amount || amount < 100) {
-        showToast("Minimum amount is ₹100","error");
-        return;
+      showToast("Minimum amount is ₹100","error");
+      return;
     }
 
     const response = await fetch("/user/wallet/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount })
     });
 
     const data = await response.json();
 
     if (!data.success) {
-        showToast("Something went wrong","error");
-        return;
+      showToast("Something went wrong","error");
+      return;
     }
 
     const options = {
-        key: "<%= process.env.RAZORPAY_KEY_ID %>", 
-        amount: data.order.amount,
-        currency: "INR",
-        name: "WestLane",
-        description: "Wallet Top-up",
-        order_id: data.order.id,
+      key: "<%= process.env.RAZORPAY_KEY_ID %>",
+      amount: data.order.amount,
+      currency: "INR",
+      name: "WestLane",
+      description: "Wallet Top-up",
+      order_id: data.order.id,
 
-        handler: async function (response) {
+      handler: async function (response) {
 
-            const verifyRes = await fetch("/user/wallet/verify-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature,
-                    amount
-                })
-            });
+        const verifyRes = await fetch("/user/wallet/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            amount
+          })
+        });
 
-            const verifyData = await verifyRes.json();
+        const verifyData = await verifyRes.json();
 
-            if (verifyData.success) {
-                closeWalletModal();
-                setTimeout(()=>{
-                    location.reload();
-                },1500)
-                showToast("Wallet updated successfully","success");
-            } else {
-                showToast("Payment verification failed","error");
-            }
-        },
-
-        theme: {
-            color: "#3b5bdb"
+        if (verifyData.success) {
+          closeWalletModal();
+          setTimeout(()=>{
+            location.reload();
+          },1500);
+          showToast("Wallet updated successfully","success");
+        } else {
+          showToast("Payment verification failed","error");
         }
+      },
+
+      theme: { color: "#3b5bdb" }
     };
 
     const rzp = new Razorpay(options);
     rzp.open();
-}
-
+  }
 </script>
 
-
-  <%-include("../../views/partials/user/footer")%>
-
+<%- include("../../views/partials/user/footer") %>

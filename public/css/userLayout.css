@@ -1,0 +1,107 @@
+/* ===========================================
+   USER ACCOUNT LAYOUT — Shared Sidebar System
+   Used by: Dashboard, Profile, Orders, Address, Wallet
+   =========================================== */
+
+/* ---- Page wrapper ---- */
+.user-layout {
+  display: flex;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 24px 60px;
+  align-items: flex-start;
+}
+
+/* ---- Sidebar ---- */
+.user-sidebar {
+  width: 240px;
+  flex-shrink: 0;               /* never squish the sidebar */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  overflow: hidden;
+  position: sticky;
+  top: 130px;                   /* stay visible while scrolling (below fixed header) */
+}
+
+.user-sidebar .menu {
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+}
+
+.user-sidebar .menu-item {
+  padding: 0;
+}
+
+.user-sidebar .menu-item a {
+  display: block;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.user-sidebar .menu-item a:hover {
+  background: #f5f0ef;
+  color: #2b4257;
+  border-left-color: #c5b0ac;
+}
+
+.user-sidebar .menu-item.active a {
+  background: #f0e8e6;
+  color: #2b4257;
+  font-weight: 600;
+  border-left-color: #b09080;
+}
+
+/* ---- Main content area ---- */
+.user-content {
+  flex: 1;
+  min-width: 0;               /* prevent flex overflow */
+}
+
+/* ---- Responsive: collapse sidebar on small screens ---- */
+@media (max-width: 768px) {
+  .user-layout {
+    flex-direction: column;
+    padding: 0 16px 40px;
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .user-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .user-sidebar .menu {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 4px 8px;
+  }
+
+  .user-sidebar .menu-item a {
+    padding: 10px 14px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    font-size: 13px;
+  }
+
+  .user-sidebar .menu-item a:hover,
+  .user-sidebar .menu-item.active a {
+    border-left-color: transparent;
+    border-bottom-color: #b09080;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-sidebar .menu-item a {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
