@@ -1219,7 +1219,7 @@ if (placeOrderBtn) {
   const res = await fetch("/user/coupon/applyCoupon", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cCode: code })
+    body: JSON.stringify({ couponCode: code })
   });
 
   const data = await res.json();
