@@ -1,32 +1,21 @@
 <%- include("../../views/partials/user/header") %>
 
-<style>
-.dashboard-layout {
-  display: flex;
-  gap: 40px;
-  padding: 40px;
-  align-items: stretch; /* FIXES SIDEBAR HEIGHT */
-}
-
-.dashboard-content {
-  flex: 1;
-}
-</style>
+<% activePage = "account"; %>
 
 <!-- MAIN DASHBOARD LAYOUT -->
-<div class="dashboard-layout">
+<div class="user-layout">
 
-  <!-- ========== SIDEBAR ========== -->
+  <!-- SIDEBAR -->
   <%- include("../../views/partials/user/sidebar") %>
 
-  <!-- ========== CONTENT ========== -->
-  <main class="dashboard-content">
+  <!-- CONTENT -->
+  <main class="user-content">
 
     <!-- ACCOUNT SETTINGS -->
     <section style="background:#fff; padding:25px; border-radius:8px;">
       <h5 style="margin-bottom:20px;">ACCOUNT SETTING</h5>
 
-      <div style="display:flex; gap:30px;">
+      <div style="display:flex; gap:30px; flex-wrap:wrap;">
 
         <!-- PROFILE PHOTO -->
         <div style="text-align:center;">
@@ -73,9 +62,9 @@
         </div>
 
         <!-- FORM -->
-        <div style="flex:1;">
-          <div style="display:flex; gap:20px;">
-            <div style="flex:1;">
+        <div style="flex:1; min-width:240px;">
+          <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px;">
               <label>Name</label>
               <input
                 type="text"
@@ -85,7 +74,7 @@
               />
             </div>
 
-            <div style="flex:1;">
+            <div style="flex:1; min-width:180px;">
               <label>Email</label>
               <input
                 type="email"
@@ -140,14 +129,17 @@
         </button>
       </div>
     </section>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
 const form = document.getElementById("uploadForm");
 const fileInput = document.getElementById("profileImage");
 const preview = document.getElementById("avatarPreview");
-
 
 // image preview
 fileInput.addEventListener("change", function () {
@@ -156,7 +148,6 @@ fileInput.addEventListener("change", function () {
     preview.src = URL.createObjectURL(file);
   }
 });
-
 
 // submit form with fetch
 form.addEventListener("submit", async function(e){
@@ -209,8 +200,5 @@ form.addEventListener("submit", async function(e){
 });
 
 </script>
-
-  </main>
-</div>
 
 <%- include("../../views/partials/user/footer") %>

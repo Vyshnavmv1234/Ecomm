@@ -1,7 +1,8 @@
 <%- include("../../views/partials/user/header") %>
 
-<style>
+<% activePage = "address"; %>
 
+<style>
 /* ADDRESS CARD */
 .address-card{
   padding:20px;
@@ -38,83 +39,82 @@
   color:red;
   border-radius:6px;
   cursor:pointer;
+  background:none;
 }
-
 </style>
 
 <!-- ================= MAIN ================= -->
-<main style="padding:50px 60px;">
+<div class="user-layout">
 
-<div style="display:flex; gap:40px; align-items:flex-start;">
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/user/sidebar") %>
 
-<!-- SIDEBAR -->
-<%- include("../../views/partials/user/sidebar") %>
+  <!-- CONTENT -->
+  <div class="user-content">
+    <div style="background:#fff; border-radius:8px; padding:25px; border:1px solid #e5e5e5;">
 
+      <h4 style="margin-bottom:20px;">ADDRESS</h4>
 
-<div style="flex:1; background:#fff; border-radius:8px;
-            padding:25px; border:1px solid #e5e5e5;">
+      <% if(userAddress && userAddress.address.length > 0){ %>
 
-<h4 style="margin-bottom:20px;">ADDRESS</h4>
+        <% userAddress.address.forEach(address => { %>
 
-<% if(userAddress && userAddress.address.length > 0){ %>
+        <!-- ADDRESS CARD -->
+        <div
+          class="address-card <%= address.isDefault ? 'active-address' : '' %>"
+          onclick="setDefaultAddress('<%= address._id %>', this)"
+        >
 
-  <% userAddress.address.forEach(address => { %>
+          <p><%= address.name %></p>
+          <p><%= address.house %></p>
+          <p><%= address.streetName %></p>
+          <p><%= address.city %></p>
+          <p><%= address.state %></p>
+          <p><%= address.pincode %></p>
+          <p><%= address.phone %></p>
 
-  <!-- ADDRESS CARD -->
-  <div
-    class="address-card <%= address.isDefault ? 'active-address' : '' %>"
-    onclick="setDefaultAddress('<%= address._id %>', this)"
-  >
+          <!-- ACTION BUTTONS -->
+          <div style="display:flex; gap:12px; margin-top:10px;">
 
-    <p><%= address.name %></p>
-    <p><%= address.house %></p>
-    <p><%= address.streetName %></p>
-    <p><%= address.city %></p>
-    <p><%= address.state %></p>
-    <p><%= address.pincode %></p>
-    <p><%= address.phone %></p>
+            <a href="/user/edit-address?id=<%= address._id %>"
+               onclick="event.stopPropagation()"
+               class="edit-btn">
+              Edit address
+            </a>
 
-    <!-- ACTION BUTTONS -->
-    <div style="display:flex; gap:12px; margin-top:10px;">
+            <button
+              onclick="event.stopPropagation();
+                       deleteAddress('<%= address._id %>')"
+              class="delete-btn">
+              Delete address
+            </button>
 
-      <a href="/user/edit-address?id=<%= address._id %>"
-         onclick="event.stopPropagation()"
-         class="edit-btn">
-        Edit address
-      </a>
+          </div>
 
-      <button
-        onclick="event.stopPropagation();
-                 deleteAddress('<%= address._id %>')"
-        class="delete-btn">
-        Delete address
-      </button>
+        </div>
+
+        <hr>
+
+        <% }) %>
+
+      <% } %>
+
+      <!-- ADD ADDRESS -->
+      <div style="display:flex; justify-content:center; margin-top:20px;">
+        <a href="/user/add-address"
+           style="padding:8px 18px;
+                  border:1px solid #2bb0c0;
+                  color:#2bb0c0;
+                  border-radius:6px;
+                  text-decoration:none;">
+          Add address
+        </a>
+      </div>
 
     </div>
-
   </div>
 
-  <hr>
-
-  <% }) %>
-
-<% } %>
-
-<!-- ADD ADDRESS -->
-<div style="display:flex; justify-content:center; margin-top:20px;">
-  <a href="/user/add-address"
-     style="padding:8px 18px;
-            border:1px solid #2bb0c0;
-            color:#2bb0c0;
-            border-radius:6px;
-            text-decoration:none;">
-    Add address
-  </a>
 </div>
-
-</div>
-</div>
-</main>
 
 <!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
