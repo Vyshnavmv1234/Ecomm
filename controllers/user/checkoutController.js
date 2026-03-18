@@ -140,7 +140,7 @@ const calculateTotal = (cart,couponValue =0)=>{
 const applyCoupon = async(req,res)=>{
   try {
 
-    const couponCode = req.body.cCode
+    const couponCode = req.body.couponCode
     const coupon = await Coupons.findOne({code:couponCode})
     
     if(!coupon){
