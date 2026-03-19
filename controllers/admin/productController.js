@@ -121,7 +121,7 @@ const loadEditProduct = async (req,res)=>{
     if(req.session.admin){
 
       const productId = req.params.id
-      const findProduct = await Product.findById(productId)
+      const findProduct = await Product.findById(productId).populate("category")
       
       if(findProduct){
         return res.render("admin/editProduct",{admin:req.session.adminData.name,product:findProduct})
@@ -141,12 +141,28 @@ const postEditProduct = async (req, res) => {
     }
 
     const productId = req.params.id;
-    const { name, description, discount, title } = req.body;
-    const variants = JSON.parse(req.body.variants || "[]");
+    const { name, description, discount, title, category } = req.body;
 
+    const variants = JSON.parse(req.body.variants || "[]");
+    const removedImages = JSON.parse(req.body.removedImages || "[]"); 
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    if (removedImages.length > 0) {
+
+      const imagesToDelete = product.images.filter(img =>
+        removedImages.includes(img._id.toString())
+      );
+
+      for (let img of imagesToDelete) {
+        await cloudinary.uploader.destroy(img.public_id);
+      }
+
+      product.images = product.images.filter(
+        img => !removedImages.includes(img._id.toString())
+      );
     }
 
     if (req.files && req.files.length > 0) {
@@ -162,37 +178,38 @@ const postEditProduct = async (req, res) => {
     if (description) product.description = description;
     if (discount) product.discount = discount;
     if (title) product.title = title;
+    if (category) product.category = category;
 
     if (variants.length) {
 
-  const updatedIds = variants
-    .filter(v => v._id)
-    .map(v => v._id.toString());
+      const updatedIds = variants
+        .filter(v => v._id)
+        .map(v => v._id.toString());
 
-    product.variants =
-    product.variants.filter(v =>
-      updatedIds.includes(v._id.toString())
-    );
+      product.variants =
+        product.variants.filter(v =>
+          updatedIds.includes(v._id.toString())
+        );
 
-  variants.forEach(updatedVariant => {
+      variants.forEach(updatedVariant => {
 
-    if (updatedVariant._id) {
+        if (updatedVariant._id) {
 
-      const existing =
-        product.variants.id(updatedVariant._id);
+          const existing =
+            product.variants.id(updatedVariant._id);
 
-      if (existing) {
-        existing.size = updatedVariant.size;
-        existing.price = updatedVariant.price;
-        existing.stock = updatedVariant.stock;
-      }
+          if (existing) {
+            existing.size = updatedVariant.size;
+            existing.price = updatedVariant.price;
+            existing.stock = updatedVariant.stock;
+          }
 
-    } else {
+        } else {
 
-      product.variants.push(updatedVariant);
+          product.variants.push(updatedVariant);
+        }
+      });
     }
-  });
-}
 
     if (product.images.length < 3) {
       return res.status(400).json({
@@ -200,7 +217,9 @@ const postEditProduct = async (req, res) => {
         message: "Minimum 3 images are required"
       });
     }
+
     await product.save();
+
     return res.json({ success: true });
 
   } catch (error) {
@@ -209,39 +228,6 @@ const postEditProduct = async (req, res) => {
       success: false,
       message: "Failed to update product"
     });
-  }
-};
-
-
-const removeProductImage = async (req, res) => {
-  try {
-    const { productId, imageId } = req.body;
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false });
-    }
-
-    const image = product.images.find(
-      img => img._id.toString() === imageId
-    );
-
-    if (!image) {
-      return res.status(404).json({ success: false });
-    }
-
-    // delete from cloudinary
-    await cloudinary.uploader.destroy(image.public_id);
-
-    await Product.findByIdAndUpdate(productId, {
-      $pull: { images: { _id: imageId } }
-    });
-
-    return res.json({ success: true });
-
-  } catch (error) {
-    console.error("remove image error", error);
-    return res.status(500).json({ success: false });
   }
 };
 
@@ -285,4 +271,4 @@ const unblockProduct = async (req,res)=>{
   }
 }
 
-export default {loadProducts,loadAddProducts,loadEditProduct,postAddProducts,postEditProduct,blockProduct,unblockProduct,removeProductImage}
+export default {loadProducts,loadAddProducts,loadEditProduct,postAddProducts,postEditProduct,blockProduct,unblockProduct}
