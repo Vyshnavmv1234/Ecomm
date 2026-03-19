@@ -692,29 +692,29 @@ const getTopProducts = async (req,res)=>{
 
   try{
 
-    const { frequency="monthly" } = req.query;
+    const { frequency="monthly", type="product" } = req.query;
 
     let startDate = new Date();
 
-
     switch(frequency){
-
       case "daily":
         startDate.setHours(0,0,0,0);
         break;
-
       case "weekly":
         startDate.setDate(startDate.getDate()-7);
         break;
-
       case "monthly":
         startDate.setMonth(startDate.getMonth()-1);
         break;
-
       case "yearly":
         startDate.setFullYear(startDate.getFullYear()-1);
         break;
     }
+
+    const groupField =
+      type === "category"
+        ? "$productData.category"
+        : "$productData.name";
 
     const products = await Order.aggregate([
 
@@ -739,8 +739,22 @@ const getTopProducts = async (req,res)=>{
       { $unwind:"$productData" },
 
       {
+        $lookup: {
+          from: "categories",
+          localField: "productData.category",
+          foreignField: "_id",
+          as: "categoryData"
+        }
+      },
+
+      { $unwind: { path: "$categoryData", preserveNullAndEmptyArrays: true } },
+
+      {
         $group:{
-          _id:"$productData.name",
+          _id: type === "category"
+            ? "$categoryData.name"
+            : "$productData.name",
+
           totalSold:{
             $sum:"$orderItems.quantity"
           }
@@ -748,24 +762,19 @@ const getTopProducts = async (req,res)=>{
       },
 
       { $sort:{ totalSold:-1 } },
-
       { $limit:5 }
 
     ]);
-    
+
     const totalQty =
-      products.reduce(
-        (sum,p)=>sum+p.totalSold,0
-      );
+      products.reduce((sum,p)=>sum+p.totalSold,0);
 
     const result = products.map(p=>({
       name:p._id,
       percentage:
-        ((p.totalSold/totalQty)*100)
-        .toFixed(2)
+        ((p.totalSold/totalQty)*100).toFixed(2)
     }));
 
-    console.log(result)
     res.json(result);
 
   }catch(err){

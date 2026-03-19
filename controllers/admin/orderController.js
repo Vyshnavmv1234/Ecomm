@@ -21,9 +21,7 @@ if (status) {
 }
 
 if (search) {
-  if (mongoose.Types.ObjectId.isValid(search)) {
-    query._id = new mongoose.Types.ObjectId(search)
-  }
+  query.orderId = search
 }
     
     const totalOrders = await Order.countDocuments(query)

@@ -1,196 +1,241 @@
-<div
-  class="sidebar"
-  style="
+<aside class="admin-sidebar">
+  <div class="sidebar-header">
+    <div class="header-logo">
+      <span class="logo-text">WestLane</span>
+      <span class="logo-badge">Admin</span>
+    </div>
+  </div>
+  <div class="sidebar-content">
+    
+    <div class="sidebar-section">
+      <p class="section-title">Main Menu</p>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="/admin/adminDashboard" data-path="/admin/adminDashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/analytics" data-path="/admin/analytics">
+            <i class="fas fa-chart-pie"></i>
+            <span>Analytics</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/products" data-path="/admin/products">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/category" data-path="/admin/category">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/order" data-path="/admin/order">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="section-title">Promotions</p>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="/admin/offers" data-path="/admin/offers">
+            <i class="fas fa-percentage"></i>
+            <span>Offers</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/coupon/couponManagement" data-path="/admin/coupon/couponManagement">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Coupons</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="section-title">User Management</p>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="/admin/users" data-path="/admin/users">
+            <i class="fas fa-user-friends"></i>
+            <span>Customers</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="/admin/logout" class="logout-link">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Sign Out</span>
+      </a>
+    </div>
+
+  </div>
+</aside>
+
+<style>
+  .admin-sidebar {
     position: fixed;
-    top: 70px; /* height of header */
+    top: 0;
     left: 0;
     width: 240px;
-    height: calc(100vh - 70px);
-    background: #ffffff;
-    border-right: 1px solid #e5e5e5;
-    padding: 20px;
-    font-family: Arial, sans-serif;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+    z-index: 900;
+    transition: all 0.3s ease;
     overflow-y: auto;
-  "
->
+  }
 
-  <!-- MENU -->
-  <div
-    class="section"
-    style="
-      font-size: 11px;
-      color: #9aa0b4;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    "
-  >
-    MENU
-  </div>
+  .sidebar-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    border-bottom: 1px solid #f1f5f9;
+  }
 
-  <ul class="menu" style="list-style: none; padding: 0; margin: 0;">
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/adminDashboard"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        
-        "
-      >
-        Dashboard
-      </a>
-    </li>
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/analytics"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Analytics
-      </a>
-    </li>
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/products"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Products
-      </a>
-    </li>
+  .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -1px;
+  }
 
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/category"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Category
-      </a>
-    </li>
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/offers"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Offers
-      </a>
-    </li>
+  .logo-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: var(--primary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
 
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/order"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Orders
-      </a>
-    </li>
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/coupon/couponManagement"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Coupon
-      </a>
-    </li>
+  .sidebar-content {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
 
-  
-  </ul>
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    padding-left: 12px;
+  }
 
-  <!-- USER MANAGEMENT -->
-  <div
-    class="section"
-    style="
-      font-size: 11px;
-      color: #9aa0b4;
-      margin: 24px 0 10px;
-      letter-spacing: 1px;
-    "
-  >
-    USER MANAGEMENT
-  </div>
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-  <ul class="menu" style="list-style: none; padding: 0; margin: 0;">
-    <li style="margin-bottom: 6px;">
-      <a
-        href="/admin/users"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Customers
-      </a>
-    </li>
-  </ul>
+  .sidebar-menu li {
+    margin-bottom: 4px;
+  }
 
-  <!-- OTHERS -->
-  <div
-    class="section"
-    style="
-      font-size: 11px;
-      color: #9aa0b4;
-      margin: 24px 0 10px;
-      letter-spacing: 1px;
-    "
-  >
-    OTHERS
-  </div>
+  .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-  <ul class="menu" style="list-style: none; padding: 0; margin: 0;">
-    <li>
-      <a
-        href="/admin/logout"
-        style="
-          display: block;
-          padding: 10px 12px;
-          border-radius: 8px;
-          text-decoration: none;
-          color: #555;
-        "
-      >
-        Logout
-      </a>
-    </li>
-  </ul>
-</div>
+  .sidebar-menu a i {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-menu a:hover {
+    background: #f8fafc;
+    color: #4361ee;
+  }
+
+  .sidebar-menu a:hover i {
+    color: #4361ee;
+  }
+
+  .sidebar-menu a.active {
+    background: linear-gradient(90deg, #eef2ff 0%, #f8fafc 100%);
+    color: #4361ee;
+    font-weight: 600;
+  }
+
+  .sidebar-menu a.active i {
+    color: #4361ee;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .logout-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #ef4444;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .logout-link:hover {
+    background: #fef2f2;
+    transform: translateX(5px);
+  }
+</style>
+
+<script>
+  // Automatically highlight active sidebar item
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPath = window.location.pathname;
+    const menuLinks = document.querySelectorAll('.sidebar-menu a');
+    
+    menuLinks.forEach(link => {
+      const linkPath = link.getAttribute('data-path');
+      if (currentPath === linkPath || currentPath.startsWith(linkPath + '/')) {
+        link.classList.add('active');
+        // If it's a subpage, highlight the parent category
+        const sectionTitle = link.closest('.sidebar-section').querySelector('.section-title');
+        if (sectionTitle) sectionTitle.style.color = '#4361ee';
+      }
+    });
+  });
+</script>

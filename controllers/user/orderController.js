@@ -16,7 +16,7 @@ const orderSuccess = async (req,res)=>{
     const cart = await Cart.findOne({userId:user}).populate("items.productId")
     const userData = await User.findById(user)
     const order = await Order.find({_id:orderId})
-
+    const orderID = await Order.findById(orderId)
     const couponCode = req.session.appliedCoupon
     const coupon = await Coupon.findOne({code:couponCode})
 
@@ -33,7 +33,7 @@ const orderSuccess = async (req,res)=>{
         await Product.updateOne({_id : item.product,"variants._id" : item.variant},{$inc:{"variants.$.stock" : -item.quantity}})
       }
       await cart?.deleteOne({userId:user})
-      return res.render("user/orderSuccess",{user:userData,orderId})
+      return res.render("user/orderSuccess",{user:userData,orderId,orderID})
     
     
   } catch (error) {
@@ -45,19 +45,32 @@ const orderSuccess = async (req,res)=>{
 const placeOrder = async (req, res) => {
   try {
 
-    const userId = req.session.user;
+    const generateOrderId = () => {
+    const now = new Date();
 
+    const datePart = now.getFullYear().toString() +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      String(now.getDate()).padStart(2, "0");
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let randomPart = "";
+
+    for (let i = 0; i < 6; i++) {
+      randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return `ORD-${datePart}-${randomPart}`;
+  };
+
+    const userId = req.session.user;
     const {paymentMethod,address,gst,total,status} = req.body;
 
     const couponId = req.session.appliedCoupon;
-
     const wallet = await Wallet.findOne({ userId });
 
     const coupon = couponId? await Coupon.findById(couponId): null;
-
     const cart = await Cart.findOne({ userId }).populate("items.productId");
 
-    console.log(coupon)
 
     if(coupon?.isActive == false){
       return res.json({success:false,message:"Coupon is blocked by admin"})
@@ -148,6 +161,7 @@ const placeOrder = async (req, res) => {
 
       return {
         product: item.productId._id,
+        category: item.productId.category,
         variant: item.variantId,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
@@ -184,13 +198,10 @@ const placeOrder = async (req, res) => {
         GST: gstValue,
         total: totalValue
       },
-
+      orderId: generateOrderId(),
       shipping_address: address,
-
       status:"pending",
-
       paymentMethod,
-
       paymentStatus:
         paymentMethod === "WALLET"
           ? "Paid"

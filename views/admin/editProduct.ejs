@@ -230,7 +230,6 @@ body{
 /* ===== MAIN ===== */
 .main{
   margin-top: 60px;
-  margin-left:230px; /* sidebar width */
   padding:30px 40px;
 }
 
@@ -317,16 +316,17 @@ textarea{
 </style>
 </head>
 
-<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/admin/sidebar") %>
 
-<!-- HEADER -->
-<%- include("../../views/partials/admin/header") %>
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- HEADER -->
+    <%- include("../../views/partials/admin/header") %>
 
-<!-- SIDEBAR -->
-<%- include("../../views/partials/admin/sidebar") %>
-
-<!-- MAIN -->
-<div class="main">
+    <!-- MAIN -->
+    <main class="main">
 
   <!-- TOP BAR -->
   <div class="topbar">
