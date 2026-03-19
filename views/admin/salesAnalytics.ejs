@@ -55,7 +55,7 @@
         <div class="card d-flex gap-3 align-end flex-wrap">
           <div class="form-group mb-0" style="min-width: 150px;">
             <label>Report Type</label>
-            <select id="reportType">
+            <select id="reportType" onchange="toggleDateInputs()">
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
@@ -65,11 +65,11 @@
           </div>
           <div class="form-group mb-0">
             <label>From Date</label>
-            <input type="date" id="fromDate">
+            <input type="date" id="fromDate" disabled>
           </div>
           <div class="form-group mb-0">
             <label>To Date</label>
-            <input type="date" id="toDate">
+            <input type="date" id="toDate" disabled>
           </div>
           <button onclick="applyFilter()" class="btn btn-primary">
             <i class="fas fa-filter"></i> Apply Filter
@@ -177,6 +177,18 @@
       const report = document.getElementById("reportType").value;
       const from = document.getElementById("fromDate").value;
       const to = document.getElementById("toDate").value;
+      
+      if(report === "custom") {
+        if(!from || !to) {
+          showToast("Please select both From and To dates for Excel export", "warning");
+          return;
+        }
+        if(new Date(from) > new Date(to)) {
+          showToast("From date cannot be greater than To date", "error");
+          return;
+        }
+      }
+      
       window.open(`/admin/analytics/export-excel?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`);
     }
 
@@ -192,6 +204,18 @@
       const report = document.getElementById("reportType").value;
       const from = document.getElementById("fromDate").value;
       const to = document.getElementById("toDate").value;
+
+      if(report === "custom") {
+        if(!from || !to) {
+          showToast("Please select both From and To dates for PDF export", "warning");
+          return;
+        }
+        if(new Date(from) > new Date(to)) {
+          showToast("From date cannot be greater than To date", "error");
+          return;
+        }
+      }
+
       window.open(`/admin/analytics/export-pdf?report=${report}&from=${from}&to=${to}&type=${currentOrderType}`, "_blank");
     }
 
@@ -199,13 +223,19 @@
       const report = document.getElementById("reportType").value;
       const from = document.getElementById("fromDate").value;
       const to = document.getElementById("toDate").value;
-      if(report === "customRange") {
+      const today = new Date().toISOString().split('T')[0];
+
+      if(report === "custom") {
         if(!from || !to) {
           showToast("Please select both From and To dates", "warning");
           return;
         }
         if(new Date(from) > new Date(to)) {
           showToast("From date cannot be greater than To date", "error");
+          return;
+        }
+        if(from > today || to > today) {
+          showToast("Dates cannot be in the future", "error");
           return;
         }
       }
@@ -265,7 +295,29 @@
         container.appendChild(nextBtn);
       }
     }
-    window.onload = () => { applyFilter(); };
+    function toggleDateInputs() {
+      const reportType = document.getElementById("reportType").value;
+      const fromDate = document.getElementById("fromDate");
+      const toDate = document.getElementById("toDate");
+      
+      if (reportType === "custom") {
+        fromDate.disabled = false;
+        toDate.disabled = false;
+      } else {
+        fromDate.disabled = true;
+        toDate.disabled = true;
+        fromDate.value = "";
+        toDate.value = "";
+      }
+    }
+
+    window.onload = () => { 
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("fromDate").setAttribute("max", today);
+      document.getElementById("toDate").setAttribute("max", today);
+      toggleDateInputs();
+      applyFilter(); 
+    };
   </script>
 </body>
 </html>
