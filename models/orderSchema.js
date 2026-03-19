@@ -18,6 +18,10 @@ const orderSchema = new Schema({
       type: Schema.Types.ObjectId,
       required: true
     },
+    category: {
+      type: Schema.Types.ObjectId,
+      required: true
+    },
     quantity: {
       type: Number,
       required: true
@@ -142,7 +146,12 @@ const orderSchema = new Schema({
   couponApplied: {
     type: Boolean,
     default: false
-  }
+  },
+  orderId: {
+  type: String,
+  unique: true,
+  required: true
+}
 })
 
 const order = mongoose.model("Order",orderSchema)

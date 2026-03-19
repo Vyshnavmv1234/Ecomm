@@ -1,857 +1,385 @@
-<%- include("../../views/partials/admin/header") %>
-<title>Coupon</title>
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<style>
-
-  /* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-.pagination{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:25px;
-}
-
-.page-btn{
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  border:1px solid #ddd;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  color:#444;
-  font-size:14px;
-}
-
-.page-btn:hover{
-  background:#f2f2f2;
-}
-
-.page-btn.active{
-  background:#bdaaaa;
-  color:white;
-  border:none;
-}
-
-/* Modal Box */
-.modal-box {
-  width: 420px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-/* Header */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-header h3 {
-  margin: 0;
-}
-
-.close-btn {
-  font-size: 20px;
-  cursor: pointer;
-  color: #888;
-}
-
-.close-btn:hover {
-  color: #000;
-}
-
-/* Form */
-.modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-size: 13px;
-  margin-bottom: 5px;
-  color: #555;
-}.btn-block {
-  background: #fee2e2;
-  color: #dc2626;
-  border-color: #fecaca;
-}
-
-/* Unblock */
-.btn-unblock {
-  background: #dcfce7;
-  color: #16a34a;
-  border-color: #bbf7d0;
-}
-
-.form-group input,
-.form-group select {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #d6c1b2;
-}
-
-/* Save Button */
-.save-btn {
-  background: #2B4257;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.save-btn:hover {
-  opacity: 0.9;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-
-  /* Layout */
-.admin-layout {
-  display: flex;
-}
-
-.main-content {
-  flex: 1;
-  padding: 30px;
-  margin-top: 70px;   /* Push below fixed header */
-  background: #f4f6f9;
-  min-height: 100vh;
-}
-
-  /* Page Header */
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-  }
-
-  .page-header h2 {
-    margin: 0;
-    font-weight: 600;
-  }
-
-  .breadcrumb {
-    font-size: 13px;
-    color: #6b7280;
-  }
-
-  .add-btn {
-    background: #2B4257;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  /* Card */
-  .card {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  /* Table */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th {
-    text-align: left;
-    padding: 15px;
-    font-size: 14px;
-    color: #6b7280;
-    font-weight: 600;
-  }
-
-  td {
-    padding: 18px 15px;
-    font-size: 14px;
-    border-top: 1px solid #f1f1f1;
-  }
-
-  tr:hover {
-    background-color: #f9fafb;
-  }
-
-  /* Status */
-  .status-active {
-    color: #16a34a;
-    font-weight: 500;
-  }
-
-  .status-inactive {
-    color: #dc2626;
-    font-weight: 500;
-  }
-
-  /* Buttons */
-  .action-btn {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: none;
-    font-size: 13px;
-    cursor: pointer;
-    margin-right: 5px;
-  }
-
-  .edit-btn {
-    background: #e0e7ff;
-    color: #4f46e5;
-  }
-
-  .toggle-btn {
-    background: #fee2e2;
-    color: #dc2626;
-  }
-
-  /* Empty State */
-  .empty-state {
-    text-align: center;
-    padding: 60px;
-    color: #9ca3af;
-  }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WestLane | Coupons</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
+  <!-- Global Styles -->
+  <%- include("../../views/partials/admin/adminStyles") %>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  
+  <style>
+    .search-container { max-width: 350px; }
+    .coupon-code {
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: var(--gray-100);
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    /* Fix for overlapping elements blocking clicks */
+    .content { position: relative; z-index: 1; }
+    .card { position: relative; z-index: 2; }
+    .btn { position: relative; z-index: 5; }
+  </style>
+</head>
 
-<div class="admin-layout">
-
-  <!-- Sidebar -->
+<body>
+  
+<div class="layout">
+  <!-- SIDEBAR -->
   <%- include("../../views/partials/admin/sidebar") %>
 
-  <!-- Main Content -->
-  <div style="margin-left: 270px;" class="main-content">
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- HEADER -->
+    <%- include("../../views/partials/admin/header") %>
 
-    <!-- Page Header -->
-    <div class="page-header">
-      <div>
-        <h2>Coupons</h2>
-        <div class="breadcrumb">Dashboard › Coupons</div>
+    <!-- MAIN -->
+    <main class="main">
+      
+      <!-- PAGE HEADER -->
+      <div class="d-flex justify-between align-center mb-4">
+        <div>
+          <h2>Coupon Management</h2>
+          <nav class="text-muted d-flex gap-2">
+            <a href="/admin/adminDashboard" style="color: var(--primary); text-decoration: none;">Dashboard</a>
+            <span>/</span>
+            <span>Coupons</span>
+          </nav>
+        </div>
+        <button onclick="openCouponModal()" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add New Coupon
+        </button>
       </div>
 
-      <a>
-        <button onclick="openCouponModal()" class="add-btn">+ Add Coupon</button>
-      </a>
-    </div>
-    <form method="get" action="/admin/coupon/couponManagement">
-  <div style="margin-bottom:20px; display:flex; justify-content:center;">
-    <input
-      type="text"
-      name="search"
-      value="<%= search || '' %>"
-      placeholder="Search coupon code..."
-      style="
-        width:320px;
-        padding:8px 12px;
-        border-radius:20px;
-        border:1px solid #ddd;
-        outline:none;
-      "
-    >
-  </div>
-</form>
+      <!-- SEARCH -->
+      <div class="card">
+        <form method="get" action="/admin/coupon/couponManagement" class="search-container">
+          <div class="d-flex gap-2">
+            <input name="search" type="text" placeholder="Search coupon code..." value="<%= search || '' %>" />
+            <button type="submit" class="btn btn-outline">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
 
-    <!-- Card -->
-    <div class="card">
-
-      <% if (coupons) { %>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Value</th>
-              <th>Min Order Amount</th>
-              <th>Expire Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <% coupons.forEach(function(coupon){ %>
+      <!-- COUPONS TABLE -->
+      <div class="card">
+        <div class="table-container">
+          <table>
+            <thead>
               <tr>
-                <td><%= coupon.code %></td>
-                
-
-                <td>
-                  <% if (coupon.discountType === "percentage") { %>
-                    <%= coupon.discountValue %>%
-                  <% } else { %>
-                    <%= coupon.discountValue %>
-                  <% } %>
-                </td>
-
-                <td>₹<%= coupon.minOrderAmount %></td>
-
-                <td>
-                  <%= coupon.expireDate 
-                      ? new Date(coupon.expireDate).toDateString() 
-                      : "N/A" %>
-                </td>
-
-                <td>
-                  <% if (coupon.isActive) { %>
-                    <span class="status-active">Active</span>
-                  <% } else { %>
-                    <span class="status-inactive">Inactive</span>
-                  <% } %>
-                </td>
-
-                <td>
-                <button 
-                  class="action-btn edit-btn"
-                  onclick='openEditModal(<%- JSON.stringify({
-                    id: coupon._id,
-                    code: coupon.code,
-                    discount: coupon.discountValue,
-                    min: coupon.minOrderAmount,
-                    expire: coupon.expireDate,
-                    limit: coupon.usageLimit || ""
-                  }) %>)'>
-                  Edit
-                </button>
-
-
-                   <% if (!coupon.isActive) { %>
-            <button
-              onclick="enableCoupon('<%= coupon._id %>')"
-              class="action-btn btn-unblock"
-            >
-              Enable
-            </button>
-          <% } else { %>
-            <button
-              onclick="disableCoupon('<%= coupon._id %>')"
-              class="action-btn btn-block"
-            >
-              Disable
-            </button>
-          <% } %>
-               
-                </td>
+                <th>Code</th>
+                <th>Discount Value</th>
+                <th>Min Order</th>
+                <th>Expiry Date</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
-
-      <% } else { %>
-
-        <div class="empty-state">
-          <h4>No Coupons Found</h4>
-          <p>Create your first coupon to start offering discounts.</p>
+            </thead>
+            <tbody>
+              <% if (coupons && coupons.length > 0) { %>
+                <% coupons.forEach(function(coupon){ %>
+                  <tr>
+                    <td><span class="coupon-code"><%= coupon.code %></span></td>
+                    <td style="font-weight: 600; color: var(--dark);">
+                      <%= coupon.discountType === "percentage" ? coupon.discountValue + "%" : "₹" + coupon.discountValue.toLocaleString() %>
+                    </td>
+                    <td>₹<%= coupon.minOrderAmount.toLocaleString() %></td>
+                    <td class="text-muted">
+                      <%= coupon.expireDate ? new Date(coupon.expireDate).toLocaleDateString("en-IN") : "N/A" %>
+                    </td>
+                    <td>
+                      <% if (coupon.isActive) { %>
+                        <span class="badge badge-success">Active</span>
+                      <% } else { %>
+                        <span class="badge badge-danger">Inactive</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <div class="d-flex gap-2 justify-end">
+                        <button class="btn btn-outline btn-sm" onclick='openEditModal(<%- JSON.stringify({
+                          id: coupon._id,
+                          code: coupon.code,
+                          discount: coupon.discountValue,
+                          min: coupon.minOrderAmount,
+                          expire: coupon.expireDate,
+                          limit: coupon.usageLimit || ""
+                        }) %>)'>
+                          <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <% if (!coupon.isActive) { %>
+                          <button onclick="enableCoupon('<%= coupon._id %>')" class="btn btn-success btn-sm">
+                            <i class="fas fa-play"></i> Enable
+                          </button>
+                        <% } else { %>
+                          <button onclick="disableCoupon('<%= coupon._id %>')" class="btn btn-danger btn-sm">
+                            <i class="fas fa-pause"></i> Disable
+                          </button>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" style="text-align:center; padding:40px;">
+                    <i class="fas fa-ticket-alt" style="font-size: 40px; color: var(--gray-300); margin-bottom: 15px; display: block;"></i>
+                    <p class="text-muted">No coupons found.</p>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
         </div>
 
-      <% } %>
+        <!-- PAGINATION -->
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <% if (currentPage > 1) { %>
+              <a class="page-link" href="/admin/coupon/couponManagement?page=<%= currentPage - 1 %>&search=<%= search %>">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            <% } %>
 
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <a class="page-link <%= currentPage === i ? 'active' : '' %>" href="/admin/coupon/couponManagement?page=<%= i %>&search=<%= search %>">
+                <%= i %>
+              </a>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+              <a class="page-link" href="/admin/coupon/couponManagement?page=<%= currentPage + 1 %>&search=<%= search %>">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ADD COUPON MODAL -->
+<div id="couponModal" class="modal">
+  <div class="modal-content" style="max-width: 500px;">
+    <span class="close" onclick="closeCouponModal()">&times;</span>
+    <div class="modal-header mb-4">
+      <h3>Create New Coupon</h3>
+      <p class="text-muted" style="font-size: 0.875rem;">Set up a new discount code for your customers.</p>
     </div>
-
-    <!-- Add Coupon Button -->
-
-<!-- Modal Overlay -->
-<div id="couponModal" class="modal-overlay">
-
-  <div class="modal-box">
-
-    <!-- Close -->
-    <div class="modal-header">
-      <h3>Add New Coupon</h3>
-      <span class="close-btn" onclick="closeCouponModal()">×</span>
-    </div>
-
-    <!-- Form -->
-    <form method="post" action="/admin/coupon/createCoupon" id="addCouponForm">
-
+    <form id="addCouponForm">
       <div class="form-group">
         <label>Coupon Code</label>
-        <input type="text" name="code" placeholder="Enter coupon code" required>
+        <input type="text" name="code" placeholder="e.g. WELCOME20" required style="text-transform: uppercase;">
       </div>
-
       <div class="form-group">
         <label>Discount Value</label>
-        <input type="number" name="discountValue" placeholder="Enter discount value" required>
+        <div class="d-flex gap-2">
+           <input type="number" name="discountValue" placeholder="Amount" required style="flex: 2;">
+           <select name="discountType" style="flex: 1;">
+              <option value="percentage">%</option>
+              <option value="flat">₹</option>
+           </select>
+        </div>
       </div>
-
       <div class="form-group">
-        <label>Minimum Order Amount</label>
-        <input type="number" name="minOrderAmount" placeholder="Enter minimum amount" required>
+        <label>Minimum Purchase (₹)</label>
+        <input type="number" name="minOrderAmount" placeholder="e.g. 500" required>
       </div>
-
-      <div class="form-group">
-        <label>Expiry Date</label>
-        <input type="date" name="expireDate" required>
+      <div class="d-flex gap-3">
+        <div class="form-group" style="flex: 1;">
+          <label>Expiry Date</label>
+          <input type="date" name="expireDate" required>
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Usage Limit</label>
+          <input type="number" name="usageLimit" value="100" min="1">
+        </div>
       </div>
-
-      <div class="form-group">
-        <label>Usage Limit</label>
-        <input type="number" name="usageLimit" placeholder="Limit number">
+      <div class="d-flex gap-2 mt-4">
+        <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeCouponModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex: 2;">Save Coupon</button>
       </div>
-
-      <button type="submit" class="save-btn">Save</button>
-
     </form>
-
   </div>
 </div>
 
 <!-- EDIT COUPON MODAL -->
-<div id="editCouponModal" class="modal-overlay">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
+<div id="editCouponModal" class="modal">
+  <div class="modal-content" style="max-width: 500px;">
+    <span class="close" onclick="closeEditModal()">&times;</span>
+    <div class="modal-header mb-4">
       <h3>Edit Coupon</h3>
-      <span class="close-btn" onclick="closeEditModal()">×</span>
+      <p class="text-muted" style="font-size: 0.875rem;">Modify the details of your existing coupon code.</p>
     </div>
-
     <form id="editCouponForm">
-
       <div class="form-group">
         <label>Coupon Code</label>
-        <input type="text" name="code" id="editCode" required>
+        <input type="text" name="code" id="editCode" required style="text-transform: uppercase;">
       </div>
-
       <div class="form-group">
-        <label>Discount (%)</label>
+        <label>Discount Value</label>
         <input type="number" name="discountValue" id="editDiscount" required>
       </div>
-
       <div class="form-group">
-        <label>Minimum Order Amount</label>
+        <label>Minimum Purchase (₹)</label>
         <input type="number" name="minOrderAmount" id="editMinOrder" required>
       </div>
-
-      <div class="form-group">
-        <label>Expiry Date</label>
-        <input type="date" name="expireDate" id="editExpireDate" required>
+      <div class="d-flex gap-3">
+        <div class="form-group" style="flex: 1;">
+          <label>Expiry Date</label>
+          <input type="date" name="expireDate" id="editExpireDate" required>
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Usage Limit</label>
+          <input type="number" name="usageLimit" id="editUsageLimit">
+        </div>
       </div>
-
-      <div class="form-group">
-        <label>Usage Limit</label>
-        <input type="number" name="usageLimit" id="editUsageLimit">
+      <div class="d-flex gap-2 mt-4">
+        <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex: 2;">Update Coupon</button>
       </div>
-
-      <button type="submit" class="save-btn">Update</button>
-
     </form>
-
   </div>
 </div>
-<div class="pagination">
 
-  <% if(currentPage > 1){ %>
-    <a class="page-btn"
-       href="/admin/coupon/couponManagement?page=<%= currentPage - 1 %>&search=<%= search %>">
-       ←
-    </a>
-  <% } %>
-
-  <% for(let i=1;i<=totalPages;i++){ %>
-
-    <a class="page-btn <%= currentPage === i ? 'active' : '' %>"
-       href="/admin/coupon/couponManagement?page=<%= i %>&search=<%= search %>">
-       <%= i %>
-    </a>
-
-  <% } %>
-
-  <% if(currentPage < totalPages){ %>
-    <a class="page-btn"
-       href="/admin/coupon/couponManagement?page=<%= currentPage + 1 %>&search=<%= search %>">
-       →
-    </a>
-  <% } %>
-
-</div>
-
-  </div>
-
-</div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 <script>
-
-/* =====================================================
-   TOAST FUNCTION ✅
-=====================================================*/
+/* TOAST FUNCTION */
 function showToast(message, type = "success") {
-
-  const colors = {
-    success: "#16a34a",
-    error: "#dc2626",
-    warning: "#f59e0b",
-    info: "#2563eb"
-  };
-
+  const colors = { success: "#10b981", error: "#ef4444", warning: "#f59e0b", info: "#3b82f6" };
   Toastify({
     text: message,
     duration: 3000,
     gravity: "bottom",
     position: "center",
     close: true,
-    stopOnFocus: true,
-    style: {
-      background: colors[type] || colors.info,
-      borderRadius: "8px",
-      padding: "12px 18px",
-      fontSize: "14px"
-    } 
+    style: { background: colors[type] || colors.info, borderRadius: "12px", fontSize: "14px" } 
   }).showToast();
 }
 
-//
-/* =====================================================
-   COMMON VALIDATION
-=====================================================*/
 function validateCoupon(formData) {
   const { code, discountValue, minOrderAmount, expireDate, usageLimit } = formData;
-
-  // 1. Code validation
-  if (!code || code.trim().length < 3) {
-    showToast("Coupon code must be at least 3 characters long", "error");
-    return false;
-  }
+  if (!code || code.trim().length < 3) { showToast("Code must be at least 3 chars", "error"); return false; }
+  if (isNaN(discountValue) || discountValue <= 0) { showToast("Discount must be positive", "error"); return false; }
+  if (isNaN(minOrderAmount) || minOrderAmount <= 0) { showToast("Min order must be positive", "error"); return false; }
+  if (discountValue >= minOrderAmount) { showToast("Discount cannot exceed amount", "error"); return false; }
+  if (!expireDate) { showToast("Expiry date required", "error"); return false; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (new Date(expireDate) < today) { showToast("Expiry cannot be in past", "error"); return false; }
   
-  // 2. Numeric validations for positive values
-  if (isNaN(discountValue) || discountValue <= 0) {
-    showToast("Discount value must be a positive number", "error");
-    return false;
+  if (usageLimit !== undefined && usageLimit !== "") {
+    const limit = Number(usageLimit);
+    if (isNaN(limit) || limit < 0) {
+      showToast("Usage limit must be a positive number", "error");
+      return false;
+    }
   }
-  if (isNaN(minOrderAmount) || minOrderAmount <= 0) {
-    showToast("Minimum order amount must be a positive number", "error");
-    return false;
-  }
-
-  // 3. Discount vs Min Order (Matching backend: discount < minOrder/2)
-  if (discountValue >= minOrderAmount / 2) {
-    showToast("Discount must be less than half of minimum order amount", "warning");
-    return false;
-  }
-
-  // 4. Expiry Date validation
-  if (!expireDate) {
-    showToast("Please select an expiry date", "error");
-    return false;
-  }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const selectedDate = new Date(expireDate);
-  if (selectedDate < today) {
-    showToast("Expiry date cannot be in the past", "error");
-    return false;
-  }
-
-  // 5. Usage Limit validation
-  if (usageLimit !== "" && (isNaN(usageLimit) || usageLimit <= 0)) {
-    showToast("Usage limit must be a positive number", "error");
-    return false;
-  }
-
   return true;
 }
 
-
-/* =====================================================
-   ADD COUPON
-=====================================================*/
-const addForm = document.getElementById("addCouponForm");
-
-if(addForm){
-
-addForm.addEventListener("submit", async function(e){
-
-  e.preventDefault();
-
-  const formData = {
-    code: addForm.code.value.trim().toUpperCase(),
-    discountValue: Number(addForm.discountValue.value),
-    minOrderAmount: Number(addForm.minOrderAmount.value),
-    expireDate: addForm.expireDate.value,
-    usageLimit: addForm.usageLimit.value
-  };
-
-  if(!validateCoupon(formData)){
-    return;
-  }
-
-  // Prepare data for submission
-  const submissionData = {
-    ...formData,
-    usageLimit: Number(formData.usageLimit) || 1
-  };
-
-  try{
-
-    const res = await fetch(
-      "/admin/coupon/createCoupon",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(submissionData)
-      }
-    );
-
-    const result = await res.json();
-
-    if(result.success){
-
-      showToast(result.message,"success");
-
-      addForm.reset();
-      closeCouponModal();
-
-      setTimeout(()=>{
-        location.reload();
-      },1200);
-
-    }else{
-      showToast(result.message,"error");
-    }
-
-  }catch(err){
-    console.error(err);
-    showToast("Server error","error");
-  }
-
-});
-}
-
-
-/* =====================================================
-   MODAL CONTROLS
-=====================================================*/
-function openCouponModal(){
-  document.getElementById("couponModal").style.display="flex";
-}
-
-function closeCouponModal(){
-  document.getElementById("couponModal").style.display="none";
-}
-
-function closeEditModal(){
-  document.getElementById("editCouponModal").style.display="none";
-}
-
-window.onclick=function(event){
-  ["couponModal","editCouponModal"].forEach(id=>{
-    const modal=document.getElementById(id);
-    if(event.target===modal){
-      modal.style.display="none";
-    }
-  });
+/* MODAL CONTROLS */
+function openCouponModal(){ document.getElementById("couponModal").style.display="flex"; }
+function closeCouponModal(){ document.getElementById("couponModal").style.display="none"; }
+function closeEditModal(){ document.getElementById("editCouponModal").style.display="none"; }
+window.onclick = function(e){
+  if(e.target.classList.contains('modal')) e.target.style.display="none";
 };
 
-
-async function toggleCoupon(url,message){
-
-  const result = await Swal.fire({
-    title: message,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#2B4257",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes",
-    cancelButtonText: "Cancel"
+/* ADD COUPON */
+const addForm = document.getElementById("addCouponForm");
+if(addForm){
+  addForm.addEventListener("submit", async function(e){
+    e.preventDefault();
+    const formData = {
+      code: addForm.code.value.trim().toUpperCase(),
+      discountValue: Number(addForm.discountValue.value),
+      minOrderAmount: Number(addForm.minOrderAmount.value),
+      expireDate: addForm.expireDate.value,
+      usageLimit: addForm.usageLimit.value
+    };
+    if(!validateCoupon(formData)) return;
+    try {
+      const res = await fetch("/admin/coupon/createCoupon", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({...formData, usageLimit: formData.usageLimit !== "" ? Number(formData.usageLimit) : 1})
+      });
+      const result = await res.json();
+      if(result.success){
+        showToast(result.message || "Coupon created successfully","success");
+        setTimeout(()=> location.reload(), 1000);
+      } else showToast(result.message,"error");
+    } catch(err){ showToast("Server error","error"); }
   });
+}
 
+function openEditModal(coupon){
+  document.getElementById("editCouponModal").style.display="flex";
+  document.getElementById("editCode").value = coupon.code?.trim() || "";
+  document.getElementById("editDiscount").value = coupon.discount || "";
+  document.getElementById("editMinOrder").value = coupon.min || "";
+  document.getElementById("editUsageLimit").value = coupon.limit || "";
+  if(coupon.expire) document.getElementById("editExpireDate").value = new Date(coupon.expire).toISOString().split("T")[0];
+  document.getElementById("editCouponForm").dataset.id = coupon.id;
+}
+
+const editForm = document.getElementById("editCouponForm");
+if(editForm){
+  editForm.addEventListener("submit", async function(e){
+    e.preventDefault();
+    const couponId = editForm.dataset.id;
+    const formData = {
+      code: editForm.code.value.trim().toUpperCase(),
+      discountValue: Number(editForm.discountValue.value),
+      minOrderAmount: Number(editForm.minOrderAmount.value),
+      expireDate: editForm.expireDate.value,
+      usageLimit: editForm.usageLimit.value
+    };
+    if(!validateCoupon(formData)) return;
+    try {
+      const res = await fetch(`/admin/coupon/updateCoupon/${couponId}`, {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({...formData, usageLimit: formData.usageLimit !== "" ? Number(formData.usageLimit) : 1})
+      });
+      const result = await res.json();
+      if(result.success){
+        showToast(result.message || "Coupon updated successfully","success");
+        setTimeout(()=> location.reload(), 1000);
+      } else showToast(result.message,"error");
+    } catch(err){ showToast("Server error","error"); }
+  });
+}
+
+/* TOGGLE STATUS */
+async function toggleCoupon(url, message){
+  const result = await Swal.fire({
+    title: message, icon: "warning", showCancelButton: true,
+    confirmButtonColor: "var(--primary)", cancelButtonColor: "var(--danger)",
+    confirmButtonText: "Yes", reverseButtons: true
+  });
   if(!result.isConfirmed) return;
-
-  try{
-
+  try {
     const res = await fetch(url,{method:"PATCH"});
     const data = await res.json();
-
     if(data.success){
-
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: data.message || "Updated successfully",
-        timer: 1500,
-        showConfirmButton: false
-      });
-
+      await Swal.fire({ icon:"success", title:"Updated", text:data.message, timer:1500, showConfirmButton:false });
       location.reload();
-
-    }else{
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: data.message || "Operation failed"
-      });
-
-    }
-
-  }catch(err){
-    console.error(err);
-
-    Swal.fire({
-      icon: "error",
-      title: "Server Error",
-      text: "Something went wrong"
-    });
-  }
+    } else Swal.fire({ icon:"error", title:"Error", text:data.message });
+  } catch(err){ Swal.fire({ icon:"error", title:"Server Error", text:"Something went wrong" }); }
 }
-
-function disableCoupon(id){
-  toggleCoupon(
-    `/admin/coupon/disableCoupon/${id}`,
-    "Disable this coupon?"
-  );
-}
-
-function enableCoupon(id){
-  toggleCoupon(
-    `/admin/coupon/enableCoupon/${id}`,
-    "Enable this coupon?"
-  );
-}
-
-
-/* =====================================================
-   OPEN EDIT MODAL
-=====================================================*/
-function openEditModal(coupon){
-
-  document.getElementById("editCouponModal").style.display="flex";
-
-  document.getElementById("editCode").value =
-    coupon.code?.trim() || "";
-
-  document.getElementById("editDiscount").value =
-    coupon.discount || "";
-
-  document.getElementById("editMinOrder").value =
-    coupon.min || "";
-
-  document.getElementById("editUsageLimit").value =
-    coupon.limit || "";
-
-  if(coupon.expire){
-    document.getElementById("editExpireDate").value =
-      new Date(coupon.expire)
-        .toISOString()
-        .split("T")[0];
-  }
-
-  document
-    .getElementById("editCouponForm")
-    .dataset.id=coupon.id;
-}
-
-
-/* =====================================================
-   UPDATE COUPON
-=====================================================*/
-const editForm =
-  document.getElementById("editCouponForm");
-
-if(editForm){
-
-editForm.addEventListener("submit", async function(e){
-  e.preventDefault();
-
-  const id = editForm.dataset.id;
-
-  const formData = {
-    code: editForm.code.value.trim().toUpperCase(),
-    discountValue: Number(editForm.discountValue.value),
-    minOrderAmount: Number(editForm.minOrderAmount.value),
-    expireDate: editForm.expireDate.value,
-    usageLimit: editForm.usageLimit.value
-  };
-
-  if(!validateCoupon(formData)){
-    return;
-  }
-
-  // Prepare data for submission
-  const submissionData = {
-    ...formData,
-    usageLimit: Number(formData.usageLimit) || 0
-  };
-
-  try{
-
-    const res = await fetch(
-      `/admin/coupon/updateCoupon/${id}`,
-      {
-        method:"PATCH",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(submissionData)
-      }
-    );
-
-    const result = await res.json();
-
-    if(result.success){
-      showToast("Coupon updated successfully ✅");
-      setTimeout(()=>location.reload(),1000);
-    }else{
-      showToast(
-        result.message || "Update failed",
-        "error"
-      );
-    }
-
-  }catch(err){
-    console.error(err);
-    showToast("Update failed","error");
-  }
-
-});
-}
-
+function disableCoupon(id){ toggleCoupon(`/admin/coupon/disableCoupon/${id}`, "Disable this coupon?"); }
+function enableCoupon(id){ toggleCoupon(`/admin/coupon/enableCoupon/${id}`, "Enable this coupon?"); }
 </script>
 
-
+</body>
+</html>

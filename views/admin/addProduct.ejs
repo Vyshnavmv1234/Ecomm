@@ -198,7 +198,6 @@ body{
 /* ================= MAIN ================= */
 .main{
   margin-top: 70px;
-  margin-left:230px;  /* SAME AS SIDEBAR WIDTH */
   padding:30px 40px;
   background:#f6f6f8;
 }
@@ -290,15 +289,17 @@ textarea{
 
 
 </head>
-<body>
-  <%- include("../../views/partials/admin/header") %>
-
-
-<!-- ================= SIDEBAR ================= -->
+<div class="layout">
+  <!-- SIDEBAR -->
   <%- include("../../views/partials/admin/sidebar") %>
 
-<!-- ================= MAIN ================= -->
-<div class="main">
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- HEADER -->
+    <%- include("../../views/partials/admin/header") %>
+
+    <!-- MAIN -->
+    <main class="main">
 
   <form id="productForm" onsubmit="return submitWithCrop(event)">
 
@@ -423,6 +424,8 @@ textarea{
   </div>
   </form>
 
+    </main>
+  </div>
 </div>
 
     <link

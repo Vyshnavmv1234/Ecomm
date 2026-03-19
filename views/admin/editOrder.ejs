@@ -1,318 +1,187 @@
-  <%- include("../../views/partials/admin/header") %>
-
-  <%- include("../../views/partials/admin/sidebar") %>
-  <link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WestLane | Order Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <%- include("../../views/partials/admin/adminStyles") %>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Segoe UI", sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #f5f6fa;
-      color: #333;
-    }
-
-    .container {
-      padding: 30px;
-      max-width: 900px;
-      margin-top: 50px;
-      margin-left: 380px;
-      
-    }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
-    .grid {
+    .grid-order {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      gap: 24px;
     }
+    .order-item-table { width: 100%; border-collapse: collapse; }
+    .order-item-table th, .order-item-table td { padding: 12px; border-bottom: 1px solid var(--gray-100); }
+    .status-final { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-
-    .card h4 {
-      margin-bottom: 15px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .badge {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: capitalize;
-    }
-
-    .pending { background: #ffeaa7; }
-    .shipped { background: #74b9ff; color: #fff; }
-    .out { background: #fdcb6e; }
-    .delivered { background: #55efc4; }
-    .cancelled { background: #ff7675; color: #fff; }
-
-    .status-select {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-top: 10px;
-    }
-
-    .btn {
-      margin-top: 12px;
-      width: 100%;
-      padding: 10px;
-      border: none;
-      background: #0984e3;
-      color: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn:hover {
-      background: #0866c6;
-    }
-
-    /* Order Items */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    table th, table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-      font-size: 14px;
-    }
-
-    table th {
-      background: #fafafa;
-      font-weight: 600;
-    }
-
-    .total-box {
-      margin-top: 20px;
-      text-align: right;
-    }
-
-    .total-box p {
-      margin: 6px 0;
-      font-size: 14px;
-    }
-
-    .total-box h3 {
-      margin-top: 10px;
-    }
-
-    @media(max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 1024px) {
+      .grid-order { grid-template-columns: 1fr; }
     }
   </style>
 </head>
+
 <body>
+  
+<div class="layout">
+  <!-- SIDEBAR -->
+  <%- include("../../views/partials/admin/sidebar") %>
 
-<div class="container">
-  <h2>Order Details</h2>
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- HEADER -->
+    <%- include("../../views/partials/admin/header") %>
 
-  <!-- Top Cards -->
-  <div class="grid">
-    <!-- Order Info -->
-    <div class="card">
-      <h4>Order Info</h4>
-      <div class="row">
-        <span>Order ID</span>
-        <span>#<%= order._id.toString() %></span>
+    <!-- MAIN -->
+    <main class="main">
+      <div class="d-flex justify-between align-center mb-4">
+        <div>
+          <h2>Order Details</h2>
+          <nav class="text-muted d-flex gap-2">
+            <a href="/admin/order" style="color: var(--primary); text-decoration: none;">Orders</a>
+            <span>/</span>
+            <span>#<%= order._id.toString().slice(-6).toUpperCase() %></span>
+          </nav>
+        </div>
       </div>
-      <div class="row">
-        <span>Date</span>
-        <span><%= order.createdAt.toDateString() %></span>
-      </div>
-      <div class="row">
-        <span>Payment</span>
-        <span><%= order.paymentMethod || "COD" %></span>
-      </div>
-      <div class="row">
-        <span>Status</span>
-        <span class="badge <%= order.status %>"><%= order.status %></span>
-      </div>
-    </div>
 
-    <!-- Customer -->
-    <div class="card">
-      <h4>Customer</h4>
-      <div class="row">
-        <span>Name</span>
-        <span><%= order.shipping_address.name %></span>
+      <!-- Top Info Cards -->
+      <div class="grid-order mb-4">
+        <div class="card">
+          <h4>Order Info</h4>
+          <div class="d-flex justify-between mb-2">
+            <span class="text-muted">Order ID</span>
+            <span style="font-weight: 600;">#<%= order._id %></span>
+          </div>
+          <div class="d-flex justify-between mb-2">
+            <span class="text-muted">Date</span>
+            <span><%= order.createdAt.toDateString() %></span>
+          </div>
+          <div class="d-flex justify-between mb-2">
+            <span class="text-muted">Payment</span>
+            <span class="badge badge-info"><%= order.paymentMethod || "COD" %></span>
+          </div>
+          <div class="d-flex justify-between">
+            <span class="text-muted">Status</span>
+            <span class="badge badge-primary"><%= order.status %></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Customer</h4>
+          <div class="d-flex justify-between mb-2">
+            <span class="text-muted">Name</span>
+            <span style="font-weight: 600;"><%= order.shipping_address.name %></span>
+          </div>
+          <div class="d-flex justify-between mb-2">
+            <span class="text-muted">Phone</span>
+            <span><%= order.shipping_address.phone %></span>
+          </div>
+          <div class="d-flex justify-between">
+            <span class="text-muted">City</span>
+            <span><%= order.shipping_address.city %></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Update Status</h4>
+          <% const isFinal = ["delivered", "cancelled", "returned"].includes(order.status.toLowerCase()); %>
+          <% if (isFinal) { %>
+            <div class="text-center py-3">
+              <span class="status-final <%= order.status.toLowerCase() === 'delivered' ? 'text-success' : 'text-danger' %>">
+                <%= order.status %>
+              </span>
+              <p class="text-muted mt-2" style="font-size: 11px;">Final state reached.</p>
+            </div>
+          <% } else { %>
+            <input type="hidden" id="orderId" value="<%= order._id %>">
+            <div class="form-group mb-3">
+              <select id="statusSelect">
+                <option value="pending" <%= order.status.toLowerCase()==="pending"?"selected":"" %>>Pending</option>
+                <option value="shipped" <%= order.status.toLowerCase()==="shipped"?"selected":"" %>>Shipped</option>
+                <option value="out for delivery" <%= order.status.toLowerCase()==="out for delivery"?"selected":"" %>>Out for Delivery</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="delivered">Delivered</option>
+              </select>
+            </div>
+            <button onclick="updateStatus()" class="btn btn-primary w-full">Update Status</button>
+          <% } %>
+        </div>
       </div>
-      <div class="row">
-        <span>Phone</span>
-        <span><%= order.shipping_address.phone %></span>
+
+      <!-- Address & Items -->
+      <div class="grid-2">
+        <div class="card">
+          <h4>Order Items</h4>
+          <div class="table-container">
+            <table class="order-item-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% order.orderItems.forEach(item => { %>
+                  <tr>
+                    <td><%= item.product?.name || "Product deleted" %></td>
+                    <td><%= item.quantity %></td>
+                    <td>₹<%= item.unitPrice %></td>
+                    <td>₹<%= item.unitPrice * item.quantity %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 pt-3 border-top" style="text-align: right;">
+            <div class="mb-1 text-muted">Subtotal: ₹<%= order.orderSummary.subTotal %></div>
+            <div class="mb-2 text-muted">Discount: ₹<%= order.orderSummary.discount %></div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--dark);">Total: ₹<%= order.orderSummary.total %></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Shipping Address</h4>
+          <div class="bg-light p-3 rounded" style="background-color: var(--gray-50); padding: 16px; border-radius: 12px;">
+            <p style="font-weight: 500; font-size: 14px; line-height: 1.8;">
+              <strong style="display: block; font-size: 16px; margin-bottom: 8px;"><%= order.shipping_address.name %></strong>
+              <%= order.shipping_address.house %>, <%= order.shipping_address.streetName %><br>
+              <%= order.shipping_address.city %>, <%= order.shipping_address.state %> - <%= order.shipping_address.pincode %>
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="row">
-        <span>City</span>
-        <span><%= order.shipping_address.city %></span>
-      </div>
-    </div>
-
-    <!-- Update Status -->
-    <div class="card">
-      <h4>Update Order Status</h4>
-
-      <div>
-  <input type="hidden" id="orderId" value="<%= order._id %>">
-
-  <select id="statusSelect" class="status-select">
-    <option value="pending" <%= order.status==="pending"?"selected":"" %>>Pending</option>
-    <option value="shipped" <%= order.status==="shipped"?"selected":"" %>>Shipped</option>
-    <option value="out for delivery" <%= order.status==="out for delivery"?"selected":"" %>>Out for Delivery</option>
-    <option value="cancelled" <%= order.status==="cancelled"?"selected":"" %>>Cancelled</option>
-    <option value="delivered" <%= order.status==="delivered"?"selected":"" %>>Delivered</option>
-  </select>
-
-  <button onclick="updateStatus()" class="btn">
-    Update Status
-  </button>
+    </main>
+  </div>
 </div>
-    </div>
-  </div>
 
-  <!-- Address -->
-  <div class="card" style="margin-top:20px;">
-    <h4>Shipping Address</h4>
-    <p>
-      <%= order.shipping_address.house %>, <br>
-      <%= order.shipping_address.streetName %>, <br>
-      <%= order.shipping_address.city %>, <%= order.shipping_address.state %> <br>
-      <%= order.shipping_address.pincode %>
-    </p>
-  </div>
-
-  <!-- Order Items -->
-  <div class="card" style="margin-top:20px;">
-    <h4>Order Items</h4>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Qty</th>
-          <th>Price</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% order.orderItems.forEach(item => { %>
-          <tr>
-            <td><%= item.product?.name || "Product deleted" %></td>
-            <td><%= item.quantity %></td>
-            <td>₹<%= item.unitPrice %></td>
-            <td><%= item.status %></td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-
-    <div class="total-box">
-      <p>Subtotal: ₹<%= order.orderSummary.subTotal %></p>
-      <p>Discount: ₹<%= order.orderSummary.discount %></p>
-      <h3>Total: ₹<%= order.orderSummary.total %></h3>
-    </div>
-  </div>
-
-</div>
-
-</body>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
 async function updateStatus() {
-
   const orderId = document.getElementById("orderId").value;
   const status = document.getElementById("statusSelect").value;
-
   try {
-
     const res = await fetch("/admin/update-status", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        orderId,
-        status
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, status })
     });
-
     const data = await res.json();
-
     if (data.success) {
-
-      // ✅ SUCCESS TOAST
-      Toastify({
-        text: "✅ Order status updated successfully",
-        duration: 3000,
-        gravity: "bottom",
-        position: "center",
-        close: true,
-        backgroundColor: "#28a745"
-      }).showToast();
-
-      // Update badge instantly
-      const badge = document.querySelector(".badge");
-
-      badge.innerText = status;
-      badge.className = "badge " + status;
-
+      Toastify({ text: "✅ Status updated", duration: 2000, backgroundColor: "var(--success)" }).showToast();
+      setTimeout(()=> location.reload(), 1000);
     } else {
-
-     
-      Toastify({
-        text: data.message || "Update failed",
-        duration: 3000,
-        gravity: "bottom",
-        position: "center",
-        close: true,
-        backgroundColor: "#dc3545"
-      }).showToast();
-
+      Toastify({ text: data.message || "Update failed", duration: 3000, backgroundColor: "var(--danger)" }).showToast();
     }
-
   } catch (err) {
-
-    Toastify({
-      text: "Server error occurred",
-      duration: 3000,
-      gravity: "bottom",
-      position: "center",
-      close: true,
-      backgroundColor: "#ff7675"
-    }).showToast();
-
     console.error(err);
   }
 }
 </script>
+</body>
 </html>
