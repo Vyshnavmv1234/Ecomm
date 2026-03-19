@@ -18,7 +18,20 @@
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-
+.category-card{
+  background:#fff;
+  border-radius:12px;
+  padding:25px;
+}
+input, textarea, select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  background:#fafafa;
+  margin-bottom:20px;
+  font-size:14px;
+}
 .preview-image {
   position: relative;
   width: 120px;
@@ -359,24 +372,22 @@ textarea{
       <!-- IMAGES -->
       <div class="card">
 
-        <div class="existing-images">
-  <% if (product.images && product.images.length > 0) { %>
-    <% product.images.forEach((img, index) => { %>
-      <div class="preview-image">
-        <img src="<%= img.url %>" alt="product image">
+ <div class="existing-images" id="existingImages">
+  <% product.images.forEach((img) => { %>
+    <div class="preview-image" data-id="<%= img._id %>">
+      <img src="<%= img.url %>" alt="product image">
 
-        <button
-          type="button"
-          class="remove-btn"
-          onclick="removeImage('<%= img._id %>', '<%= product._id %>')">
-          ✕
-        </button>
-      </div>
-    <% }) %>
-  <% } else { %>
-    <p style="color:#777;">No images uploaded yet</p>
-  <% } %>
+      <button
+        type="button"
+        class="remove-btn"
+        onclick="removeImage('<%= img._id %>')">
+        ✕
+      </button>
+    </div>
+  <% }) %>
 </div>
+  <input type="hidden" id="existingImageCount" value="<%= product.images.length %>">
+
         <h3>General Photo</h3>
 
         <div class="image-box">
@@ -389,9 +400,19 @@ textarea{
     </div>
 
     <!-- ✅ RIGHT COLUMN -->
-    <div>
+    <div class="category-card">
 
-      
+      <h3 style="margin-bottom:20px;">Category</h3>
+      <label>Product Category</label>
+      <select id="category" name="category">
+  <% for(let i = 0; i < category.length; i++) { %>
+    <option value="<%= category[i]._id %>" 
+      <%= category[i]._id.toString() === product.category._id.toString() ? "selected" : "" %>>
+      <%= category[i].name %>
+    </option>
+  <% } %>
+</select>
+      <small class="error" id="categoryError"></small>
 
       <!-- ✅ VARIANTS -->
       <div class="variant-box">
@@ -453,25 +474,20 @@ textarea{
   let variants = JSON.parse(
   document.getElementById("existing-variants").textContent
 );
+ let removedImages = [];
 
-   function removeImage(imageId, productId) {
-  fetch("/admin/remove-product-image", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ imageId, productId })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      location.reload()
-    }else{
-      showToast(data.message || "Cannot remove image", "error");
-    }
-  })
+function removeImage(imageId) {
+  removedImages.push(imageId);
+
+  const el = document.querySelector(`[data-id="${imageId}"]`);
+  if (el) el.remove();
+
+  updateImageCount();
 }
-
+function updateImageCount() {
+  const count = document.querySelectorAll("#existingImages .preview-image").length;
+  document.getElementById("existingImageCount").value = count;
+}
 
 
     function addVariant() {
@@ -559,6 +575,14 @@ function removeVariant(index) {
     const description = document.getElementById("productDescription").value.trim();
     // const discount = document.getElementById("discountId").value.trim();
     const images = document.getElementById("imageInput").files;
+    const category = document.getElementById("category").value
+
+    const existingCount = parseInt(document.getElementById("existingImageCount").value);
+const newCount = images.length;
+
+if (existingCount + newCount < 3) {
+  return showToast("Minimum 3 images required", "error");
+}
 
     // -------- VALIDATION --------
     const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
@@ -591,16 +615,17 @@ function removeVariant(index) {
     if (!description || description.length < 10) {
       return showToast("Description must be at least 10 characters", "error");
     }
-
-
+   
     // -------- FORM DATA --------
     const productId = "<%= product._id %>";
     const formData = new FormData();
 
     formData.append("name", name);
     formData.append("title", title);
+    formData.append("category", category);
     formData.append("description", description);
     formData.append("variants", document.getElementById("variantsInput").value);
+    formData.append("removedImages", JSON.stringify(removedImages));
     // formData.append("discount", discount);
 
 

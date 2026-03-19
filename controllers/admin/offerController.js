@@ -62,7 +62,7 @@ const loadAddOffer = async (req, res) => {
       }
 
       if ((pdt.variants[0].price) / 2 < discountValue) {
-        return res.json({
+        return res.status(STATUS_CODES.BAD_REQUEST).json({
           success: false,
           message: "Discount value should be less than half the product value"
         });
@@ -374,6 +374,13 @@ const editOffer = async (req, res) => {
       const pdt = await Product.findById(product);
 
       if (pdt) {
+
+        if ((pdt.variants[0].price) / 2 < discountValue) {
+        return res.status(STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Discount value should be less than half the product value"
+        });
+      }
 
         const pdtDiscount = pdt.discount || 0;
         let applied = false;
