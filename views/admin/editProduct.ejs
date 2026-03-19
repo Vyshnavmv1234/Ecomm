@@ -1,661 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Edit Product | WestLane</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Product | WestLane</title>
 
-<style>
-/* ===== RESET ===== */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: "Inter", Arial, sans-serif;
-}
-.existing-images {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-.category-card{
-  background:#fff;
-  border-radius:12px;
-  padding:25px;
-}
-input, textarea, select{
-  width:100%;
-  padding:12px 14px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  background:#fafafa;
-  margin-bottom:20px;
-  font-size:14px;
-}
-.preview-image {
-  position: relative;
-  width: 120px;
-  height: 140px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  overflow: hidden;
-}
+  <!-- Global Admin Branding & Styles -->
+  <%- include("../../views/partials/admin/adminStyles") %>
 
-.preview-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: #000;
-  color: #fff;
-  border: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.variant-box {
-  border: 1px solid #d8b4a0;
-  border-radius: 12px;
-  padding: 16px;
-  background: #fff;
-}
-
-/* Title */
-.variant-box h4 {
-  margin-bottom: 12px;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* Inputs */
-#variantSize,
-#price {
-  width: 100%;
-  height: 42px;
-  margin-bottom: 10px;
-  padding: 0 12px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-#variantSize:focus,
-#price:focus {
-  outline: none;
-  border-color: #c59a8a;
-}
-
-/* Error message */
-.error {
-  display: block;
-  margin-top: -6px;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: #d60000;
-}
-
-/* Add Variant Button */
-.add-variant-btn {
-  display: inline-block;
-  padding: 6px 14px;
-  font-size: 13px;
-  border-radius: 6px;
-  border: 1px solid #c59a8a;
-  background: transparent;
-  cursor: pointer;
-  margin-bottom: 12px;
-}
-
-.add-variant-btn:hover {
-  background: #f6eae4;
-}
-
-/* ================= VARIANT LIST ================= */
-.variant-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Variant Row */
-.variant-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: #faf7f6;
-  border: 1px solid #e4d2cc;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-/* Size */
-.variant-size {
-  font-weight: 600;
-  min-width: 24px;
-}
-
-/* Price */
-.variant-price {
-  font-weight: 500;
-  color: #333;
-}
-
-/* Remove Button */
-.remove-variant {
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  color: #9b1c1c;
-  cursor: pointer;
-}
-
-.remove-variant:hover {
-  color: #e60000;
-}
-
-
-.grid{
-  display:grid;
-  grid-template-columns: 1fr 300px;
-  gap:25px;
-}
-.breadcrumb-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%; /* 🔥 THIS IS THE KEY */
-}
-
-.breadcrumb {
-  display: flex;
-
-  gap: 6px;
-  font-size: 14px;
-  color: #666;
-}
-
-.breadcrumb a {
-  color: #6b46c1;
-  text-decoration: none;
-}
-
-.breadcrumb .active {
-  color: #111;
-  font-weight: 500;
-}
-.card{
-  background:#fff;
-  border-radius:12px;
-  padding:25px;
-  margin-bottom:25px;
-}
-.image-box{
-  border:2px dashed #ddd;
-  border-radius:12px;
-  padding:40px;
-  text-align:center;
-  background:#fafafa;
-}
-
-.image-box p{
-  font-size:13px;
-  color:#777;
-  margin:15px 0;
-}
-
-.image-box button{
-  background:#ece7ff;
-  border:none;
-  padding:10px 16px;
-  border-radius:8px;
-  color:#5b4bdb;
-  cursor:pointer;
-}
-
-body{
-  background:#f6f6f8;
-  min-height:100vh;
-}
-
-/* ===== MAIN ===== */
-.main{
-  margin-top: 60px;
-  padding:30px 40px;
-}
-
-/* ===== TOP BAR ===== */
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  margin-bottom:25px;
-}
-
-.topbar h2{
-  font-size:22px;
-  font-weight:600;
-}
-
-.breadcrumb{
-  font-size:13px;
-  color:#888;
-  margin-top:6px;
-}
-
-.actions{
-  display:flex;
-  gap:12px;
-}
-
-.btn{
-  padding:10px 16px;
-  border-radius:8px;
-  font-size:14px;
-  cursor:pointer;
-  border:none;
-}
-
-.btn-cancel{
-  background:#fff;
-  border:1px solid #b0b6c3;
-  color:#333;
-}
-
-.btn-primary{
-  background:#2B4257;
-  color:#fff;
-}
-
-/* ===== CARD ===== */
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:28px;
-  max-width:1500px;
-}
-
-/* ===== FORM ===== */
-label{
-  font-size:13px;
-  color:#6b7280;
-  display:block;
-  margin-bottom:6px;
-}
-
-input, textarea{
-  width:100%;
-  padding:12px 14px;
-  border-radius:8px;
-  border:1px solid #e2e2e2;
-  background:#fafafa;
-  font-size:14px;
-  margin-bottom:18px;
-}
-
-textarea{
-  min-height:140px;
-  resize:none;
-}
-
-/* ===== SECTION TITLE ===== */
-.section-title{
-  font-size:16px;
-  font-weight:600;
-  margin-bottom:20px;
-}
-</style>
+  <style>
+    /* Product-Specific Overrides */
+    .grid { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
+    .existing-images { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .preview-image { position: relative; width: 120px; height: 140px; border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .preview-image img { width: 100%; height: 100%; object-fit: cover; }
+    .remove-btn { position: absolute; top: 6px; right: 6px; background: rgba(15, 23, 42, 0.8); color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+    .remove-btn:hover { background: var(--danger); transform: scale(1.1); }
+    .image-box { border: 2px dashed var(--gray-300); border-radius: var(--radius); padding: 40px; text-align: center; background: var(--gray-50); transition: var(--transition); cursor: pointer; }
+    .image-box:hover { border-color: var(--primary); background: var(--primary-light); }
+    .image-box p { font-size: 14px; color: var(--gray-500); margin-bottom: 16px; }
+    .variant-box { border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 24px; background: var(--gray-50); margin-top: 24px; }
+    .variant-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fff; border: 1px solid var(--gray-200); border-radius: 12px; margin-bottom: 10px; box-shadow: var(--shadow-sm); }
+    .variant-size { font-weight: 700; color: var(--dark); font-size: 14px; }
+    .variant-price { font-weight: 500; color: var(--gray-500); font-size: 14px; }
+    .variant-stock { color: var(--gray-500); font-size: 14px; }
+    .remove-variant { background: none; border: none; color: var(--gray-400); cursor: pointer; font-size: 16px; transition: var(--transition); }
+    .remove-variant:hover { color: var(--danger); }
+    .add-variant-btn { width: 100%; margin-top: 12px; background: white; border: 1px dashed var(--gray-300); color: var(--gray-600); padding: 10px; border-radius: 10px; font-weight: 600; transition: var(--transition); cursor: pointer; }
+    .add-variant-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .error { color: var(--danger); font-size: 12px; margin-top: -12px; margin-bottom: 12px; display: block; }
+    @media (max-width: 1200px) { .grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 
-<div class="layout">
-  <!-- SIDEBAR -->
-  <%- include("../../views/partials/admin/sidebar") %>
-
-  <!-- CONTENT -->
-  <div class="content">
-    <!-- HEADER -->
-    <%- include("../../views/partials/admin/header") %>
-
-    <!-- MAIN -->
-    <main class="main">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <h2>Edit Product</h2>
-
-      <nav class="breadcrumb">
-        <a href="/admin/adminDashboard">Dashboard</a>
-        <span>›</span>
-        <a href="/admin/products">Products</a>
-        <span>›</span>
-        <span class="active">Edit Product</span>
-      </nav>
-    </div>
-
-    <form id="formId">
-      <div class="actions">
-        <button class="btn btn-primary">Save Product</button>
-        <button class="btn btn-cancel">Cancel</button>
-      </div>
-  </div>
-
-  <!-- ✅ GRID START -->
-  <div class="grid">
-
-    <!-- ✅ LEFT COLUMN -->
-    <div>
-
-      <!-- GENERAL INFORMATION -->
-      <div class="card">
-        <div class="section-title">General Information</div>
-
-        <label>Product Name</label>
-        <input id="productName" value="<%=product.name%>">
-
-        <label>Product Title</label>
-        <input id="productTitle" value="<%=product.title%>">
-
-        <label>Description</label>
-        <textarea id="productDescription"><%=product.description%></textarea>
-      </div>
-
-      <!-- IMAGES -->
-      <div class="card">
-
- <div class="existing-images" id="existingImages">
-  <% product.images.forEach((img) => { %>
-    <div class="preview-image" data-id="<%= img._id %>">
-      <img src="<%= img.url %>" alt="product image">
-
-      <button
-        type="button"
-        class="remove-btn"
-        onclick="removeImage('<%= img._id %>')">
-        ✕
-      </button>
-    </div>
-  <% }) %>
-</div>
-  <input type="hidden" id="existingImageCount" value="<%= product.images.length %>">
-
-        <h3>General Photo</h3>
-
-        <div class="image-box">
-          <p>Drag and drop image here, or click add image</p>
-          <input id="imageInput" type="file" name="images" multiple>
-          <button type="button">Add Image</button>
+<body>
+  <div class="layout">
+    <%- include("../../views/partials/admin/sidebar") %>
+    <div class="content">
+      <%- include("../../views/partials/admin/header") %>
+      <main class="main">
+        <div class="d-flex justify-between align-center mb-4">
+          <div>
+            <h2 class="mb-1">Edit Product</h2>
+            <nav class="text-muted d-flex gap-2">
+              <a href="/admin/adminDashboard" style="color: var(--primary); text-decoration: none;">Dashboard</a>
+              <span>/</span>
+              <a href="/admin/products" style="color: var(--primary); text-decoration: none;">Products</a>
+              <span>/</span>
+              <span>Edit Product</span>
+            </nav>
+          </div>
+          <div class="actions">
+            <a href="/admin/products" class="btn btn-outline">Cancel</a>
+            <button type="submit" form="formId" class="btn btn-primary">Save Changes</button>
+          </div>
         </div>
-      </div>
 
+        <form id="formId">
+          <div class="grid">
+            <div class="left-col">
+              <div class="card">
+                <h3 class="mb-4">General Information</h3>
+                <div class="form-group">
+                  <label>Product Name</label>
+                  <input type="text" id="productName" value="<%=product.name%>" placeholder="Type product name here...">
+                </div>
+                <div class="form-group">
+                  <label>Product Title</label>
+                  <input type="text" id="productTitle" value="<%=product.title%>" placeholder="Type product title here...">
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea id="productDescription" placeholder="Description here..." style="min-height: 150px;"><%=product.description%></textarea>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 class="mb-4">Product Images</h3>
+                <div class="existing-images" id="existingImages">
+                  <% product.images.forEach((img, i) => { %>
+                    <div class="preview-image" id="img-<%= i %>">
+                      <img src="<%= img.url %>" alt="product">
+                      <button type="button" class="remove-btn" onclick="removeExistingImage('<%= img._id %>', '<%= i %>')">&times;</button>
+                    </div>
+                  <% }) %>
+                </div>
+                <div class="existing-images mt-3" id="newPreviewContainer"></div>
+                <input type="hidden" id="existingImageCount" value="<%= product.images.length %>">
+                
+                <div class="image-box" onclick="openImagePicker()">
+                  <i class="fas fa-cloud-upload-alt mb-3" style="font-size: 32px; color: var(--gray-400);"></i>
+                  <p>Select new images to add</p>
+                  <input type="file" id="imageInput" multiple accept="image/*" style="display:none">
+                  <button type="button" class="btn btn-sm btn-outline">Upload Images</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="right-col">
+              <div class="card">
+                <h3 class="mb-4">Category</h3>
+                <div class="form-group">
+                  <label>Product Category</label>
+                  <select id="category">
+                    <% for(let i=0; i<category.length; i++){ %>
+                      <option value="<%=category[i]._id%>" <%= product.category._id.toString() === category[i]._id.toString() ? 'selected' : '' %>><%=category[i].name%></option>
+                    <% } %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 class="mb-4">Pricing & Variants</h3>
+                <div class="variant-box">
+                  <div class="form-group mb-0">
+                    <label>Size</label>
+                    <input id="variantSize" placeholder="S, M, L...">
+                  </div>
+                  <div class="form-group mt-3 mb-0">
+                    <label>Price</label>
+                    <input id="price" type="number" placeholder="Price">
+                  </div>
+                  <div class="form-group mt-3 mb-0">
+                    <label>Stock Quantity</label>
+                    <input id="stock" type="number" placeholder="Quantity">
+                  </div>
+                  <button type="button" class="add-variant-btn" onclick="addVariant()">
+                    <i class="fas fa-plus mr-1"></i> Add Variant
+                  </button>
+                </div>
+                <div class="variant-list mt-4" id="variantList"></div>
+                <input type="hidden" name="variants" id="variantsInput">
+              </div>
+            </div>
+          </div>
+        </form>
+      </main>
     </div>
-
-    <!-- ✅ RIGHT COLUMN -->
-    <div class="category-card">
-
-      <h3 style="margin-bottom:20px;">Category</h3>
-      <label>Product Category</label>
-      <select id="category" name="category">
-  <% for(let i = 0; i < category.length; i++) { %>
-    <option value="<%= category[i]._id %>" 
-      <%= category[i]._id.toString() === product.category._id.toString() ? "selected" : "" %>>
-      <%= category[i].name %>
-    </option>
-  <% } %>
-</select>
-      <small class="error" id="categoryError"></small>
-
-      <!-- ✅ VARIANTS -->
-      <div class="variant-box">
-        <h4>Variant</h4>
-
-        <input value="<%=product.variants[0].size%>" id="variantSize">
-        <input id="price" type="number" value="<%=product.variants[0].price%>">
-        <input id="stock" type="number" value="<%=product.variants[0].stock%>">
-
-        <button class="add-variant-btn" type="button" onclick="addVariant()">
-          + Add Variant
-        </button>
-
-        <div class="variant-list" id="variantList"></div>
-        <input type="hidden" id="variantsInput">
-      </div>
-
-    </div>
-
   </div>
-  <!-- ✅ GRID END -->
 
-  </form>
-</div>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-  <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
-    />
-
-    <script id="existing-variants" type="application/json">
-  <%- JSON.stringify(product.variants || []) %>
-</script>
-
-    <!-- Toastify JS -->
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script>
-
-  let editIndex = null;
-
-
-  function showToast(message, type = "success") {
-    Toastify({
-      text: message,
-      duration: 3000,
-      gravity: "bottom",
-      position: "center",
-      close: true,
-      stopOnFocus: true,
-      style: {
-        background:
-          type === "success"
+  <script>
+    function showToast(message, type = "success") {
+      Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",
+        position: "center",
+        close: true,
+        stopOnFocus: true,
+        style: {
+          background: type === "success"
             ? "linear-gradient(to right, #16a34a, #22c55e)"
             : "linear-gradient(to right, #dc2626, #ef4444)",
-      }
-    }).showToast();
-  }
-
-  let variants = JSON.parse(
-  document.getElementById("existing-variants").textContent
-);
- let removedImages = [];
-
-function removeImage(imageId) {
-  removedImages.push(imageId);
-
-  const el = document.querySelector(`[data-id="${imageId}"]`);
-  if (el) el.remove();
-
-  updateImageCount();
-}
-function updateImageCount() {
-  const count = document.querySelectorAll("#existingImages .preview-image").length;
-  document.getElementById("existingImageCount").value = count;
-}
-
-
-    function addVariant() {
-    const size = document.getElementById("variantSize").value.trim();
-    const price = document.getElementById("price").value.trim();
-    const stock = document.getElementById("stock").value.trim();
-
-    if (!size || !price || !stock) {
-      return alert("Fill all fields");
+        }
+      }).showToast();
     }
 
-    // 🔁 EDIT MODE
-    if (editIndex !== null) {
-      variants[editIndex] = { size, price, stock};
-      editIndex = null;
-
-      document.querySelector(".add-variant-btn").innerText = "+ Add Variant";
-    }
-    // ➕ ADD MODE
-    else {
-      if (variants.some(v => v.size === size)) {
-        return alert("Size already added");
-      }
-      variants.push({ size, price ,stock});
+    let removedImages = [];
+    function removeExistingImage(imageId, id) {
+      removedImages.push(imageId);
+      document.getElementById(`img-${id}`).remove();
+      const countInput = document.getElementById("existingImageCount");
+      countInput.value = parseInt(countInput.value) - 1;
     }
 
-    document.getElementById("variantSize").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("stock").value = "";
+    function openImagePicker() { document.getElementById("imageInput").click(); }
 
-    renderVariants();
-  }
+    document.getElementById("imageInput").addEventListener("change", function() {
+      const container = document.getElementById("newPreviewContainer");
+      container.innerHTML = "";
+      const files = Array.from(this.files);
 
-
-
-    function renderVariants() {
-
-    const list = document.getElementById("variantList")
-    list.innerHTML = ""
-
-    variants.forEach((v, index) => {
-      list.innerHTML += `
-        <div class="variant-row">
-          <span class = "variant-size">${v.size}</span>
-          <span class = "variant-price">₹${v.price}</span>
-          <span class = "variant-stock">${v.stock}</span>
-          <button onclick="editbtn(${index})" event.stopPropagation()">Edit</button>
-          <button type="button" onclick="removeVariant(${index})">✖</button>
-        </div>
-      `
-    })
-
-    document.getElementById("variantsInput").value = JSON.stringify(variants)
-  }
-
-function editbtn(index) {
-  const v = variants[index];
-
-  document.getElementById("variantSize").value = v.size;
-  document.getElementById("price").value = v.price;
-  document.getElementById("stock").value = v.stock;
-
-  editIndex = index;
-
-  const btn = document.querySelector(".add-variant-btn");
-  btn.innerText = "Save Variant";
-}
-
-
-function removeVariant(index) {
-
-    variants.splice(index, 1)
-    renderVariants()
-  }
-
-
-  const form = document.getElementById("formId");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    // -------- GET VALUES --------
-    const name = document.getElementById("productName").value.trim();
-    const title = document.getElementById("productTitle").value.trim();
-    const description = document.getElementById("productDescription").value.trim();
-    // const discount = document.getElementById("discountId").value.trim();
-    const images = document.getElementById("imageInput").files;
-    const category = document.getElementById("category").value
-
-    const existingCount = parseInt(document.getElementById("existingImageCount").value);
-const newCount = images.length;
-
-if (existingCount + newCount < 3) {
-  return showToast("Minimum 3 images required", "error");
-}
-
-    // -------- VALIDATION --------
-    const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
-
-    if (!name || name.length < 3) {
-      return showToast("Product name must be at least 3 characters", "error");
-    }
-
-    if (!nameRegex.test(name)) {
-      return showToast(
-        "Product name must contain letters (not only numbers or symbols)",
-        "error"
-      );
-    }
-
-    const titleRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s\-]+$/;
-
-    if (!title || title.length < 3) {
-      return showToast("Product title must be at least 3 characters", "error");
-    }
-
-    if (!titleRegex.test(title)) {
-      return showToast(
-        "Product title must contain letters (not only numbers)",
-        "error"
-      );
-    }
-
-
-    if (!description || description.length < 10) {
-      return showToast("Description must be at least 10 characters", "error");
-    }
-   
-    // -------- FORM DATA --------
-    const productId = "<%= product._id %>";
-    const formData = new FormData();
-
-    formData.append("name", name);
-    formData.append("title", title);
-    formData.append("category", category);
-    formData.append("description", description);
-    formData.append("variants", document.getElementById("variantsInput").value);
-    formData.append("removedImages", JSON.stringify(removedImages));
-    // formData.append("discount", discount);
-
-
-    for (let img of images) {
-      formData.append("images", img);
-    }
-
-    // -------- API CALL --------
-    const res = await fetch(`/admin/updateProduct/${productId}`, {
-      method: "PATCH",
-      body: formData
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement("div");
+          div.className = "preview-image";
+          div.innerHTML = `<img src="${e.target.result}" alt="preview">`;
+          container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
     });
 
-    const data = await res.json();
+    let variants = <%- JSON.stringify(product.variants) %>;
+    let editIndex = -1;
 
-    if (res.ok && data.success) {
-      showToast("Product Edited Successfully", "success");
-      setTimeout(() => {
-        window.location.href = "/admin/products";
-      }, 1500);
-    } else {
-      showToast(data.message || "Failed to update product", "error");
+    function addVariant() {
+      const sizeInput = document.getElementById("variantSize");
+      const priceInput = document.getElementById("price");
+      const stockInput = document.getElementById("stock");
+
+      const size = sizeInput.value.trim().toUpperCase();
+      const price = parseFloat(priceInput.value);
+      const stock = parseInt(stockInput.value);
+
+      const allowedSizes = ["S", "M", "L", "XL"];
+
+      if (!size || isNaN(price) || isNaN(stock)) {
+        return showToast("Please fill all variant fields", "error");
+      }
+
+      if (!allowedSizes.includes(size)) {
+        return showToast("Invalid size. Allowed: S, M, L, XL", "error");
+      }
+
+      if (price <= 0) {
+        return showToast("Price must be greater than 0", "error");
+      }
+
+      if (stock < 0) {
+        return showToast("Stock cannot be negative", "error");
+      }
+
+      if (editIndex === -1 && variants.some(v => v.size === size)) {
+        return showToast("Size already added", "error");
+      }
+
+      if (editIndex !== -1) {
+        variants[editIndex] = { size, price, stock };
+        editIndex = -1;
+        document.querySelector(".add-variant-btn").innerHTML = '<i class="fas fa-plus mr-1"></i> Add Variant';
+      } else {
+        variants.push({ size, price, stock });
+      }
+
+      renderVariants();
+      sizeInput.value = "";
+      priceInput.value = "";
+      stockInput.value = "";
     }
-  });
 
-  document.addEventListener("DOMContentLoaded", () => {
-  renderVariants();
-});
-</script>
+    function renderVariants() {
+      const list = document.getElementById("variantList");
+      list.innerHTML = "";
+      variants.forEach((v, index) => {
+        list.innerHTML += `
+          <div class="variant-row">
+            <div class="d-flex align-center gap-3">
+              <span class="variant-size">${v.size}</span>
+              <span class="variant-price">₹${v.price}</span>
+              <span class="variant-stock">(${v.stock} in stock)</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline" onclick="editbtn(${index})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline text-danger" onclick="removeVariant(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById("variantsInput").value = JSON.stringify(variants);
+    }
 
+    function editbtn(index) {
+      const v = variants[index];
+      document.getElementById("variantSize").value = v.size;
+      document.getElementById("price").value = v.price;
+      document.getElementById("stock").value = v.stock;
+      editIndex = index;
+      document.querySelector(".add-variant-btn").innerText = "Save Variant";
+    }
 
+    function removeVariant(index) {
+      variants.splice(index, 1);
+      renderVariants();
+    }
+
+    const form = document.getElementById("formId");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("productName").value.trim();
+      const title = document.getElementById("productTitle").value.trim();
+      const description = document.getElementById("productDescription").value.trim();
+      const images = document.getElementById("imageInput").files;
+      const category = document.getElementById("category").value;
+      const existingCount = parseInt(document.getElementById("existingImageCount").value);
+      const newCount = images.length;
+      if (existingCount + newCount < 3) return showToast("Minimum 3 images required", "error");
+      if (!name || name.length < 3) return showToast("Product name must be at least 3 characters", "error");
+      if (!description || description.length < 10) return showToast("Description must be at least 10 characters", "error");
+      const productId = "<%= product._id %>";
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("title", title);
+      formData.append("category", category);
+      formData.append("description", description);
+      formData.append("variants", document.getElementById("variantsInput").value);
+      formData.append("removedImages", JSON.stringify(removedImages));
+      for (let img of images) { formData.append("images", img); }
+      const res = await fetch(`/admin/updateProduct/${productId}`, {
+        method: "PATCH",
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast("Product Edited Successfully", "success");
+        setTimeout(() => { window.location.href = "/admin/products"; }, 1500);
+      } else { showToast(data.message || "Failed to update product", "error"); }
+    });
+
+    document.addEventListener("DOMContentLoaded", renderVariants);
+  </script>
 </body>
 </html>
