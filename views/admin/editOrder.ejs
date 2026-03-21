@@ -140,7 +140,9 @@
           </div>
           <div class="mt-4 pt-3 border-top" style="text-align: right;">
             <div class="mb-1 text-muted">Subtotal: ₹<%= order.orderSummary.subTotal %></div>
-            <div class="mb-2 text-muted">Discount: ₹<%= order.orderSummary.discount %></div>
+            <div class="mb-2 text-muted">Product Discount: ₹<%= order.orderSummary.discount %></div>
+            <div class="mb-2 text-muted">GST: ₹<%= order.orderSummary.GST%></div>
+            <div class="mb-2 text-muted">Coupon Discount: ₹<%= order.orderSummary.coupon %></div>
             <div style="font-size: 1.25rem; font-weight: 800; color: var(--dark);">Total: ₹<%= order.orderSummary.total %></div>
           </div>
         </div>

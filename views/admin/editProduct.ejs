@@ -286,6 +286,7 @@
       if (existingCount + newCount < 3) return showToast("Minimum 3 images required", "error");
       if (!name || name.length < 3) return showToast("Product name must be at least 3 characters", "error");
       if (!description || description.length < 10) return showToast("Description must be at least 10 characters", "error");
+      if (variants.length === 0) return showToast("At least one variant is required", "error");
       const productId = "<%= product._id %>";
       const formData = new FormData();
       formData.append("name", name);

@@ -98,6 +98,11 @@
       cursor: not-allowed;
     }
 
+    .verify-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
     .timer {
       margin-top: 10px;
       font-size: 13px;
@@ -149,6 +154,8 @@
 
   function startTimer() {
     resendBtn.disabled = true;
+    otpInput.disabled = false;
+    document.querySelector('.verify-btn').disabled = false;
     timeLeft = 60;
 
     interval = setInterval(() => {
@@ -160,6 +167,8 @@
       if (timeLeft <= 0) {
         clearInterval(interval);
         resendBtn.disabled = false;
+        otpInput.disabled = true;
+        document.querySelector('.verify-btn').disabled = true;
         timerEl.textContent = "00:00";
       }
     }, 1000);
