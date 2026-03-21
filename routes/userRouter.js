@@ -1,3 +1,5 @@
+import StatusCodes from '../utitls/statusCodes.js';
+import ErrorMessages from '../utitls/errorMessages.js';
 import passport from "passport"
 import userController from "../controllers/user/userController.js"
 import profileController from "../controllers/user/profileController.js"
@@ -62,7 +64,7 @@ router.post("/upload", userAuth, (req, res) => {
   uploadUser.single("image")(req, res, function (err) {
 
     if (err) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: err.message
       });

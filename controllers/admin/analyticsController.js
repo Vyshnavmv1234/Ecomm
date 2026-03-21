@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 import Order from "../../models/orderSchema.js"
 import ExcelJS from "exceljs";
@@ -385,7 +387,7 @@ const exportPDF = async (req, res) => {
   } catch (err) {
 
     console.log(err);
-    res.status(500).send("PDF generation failed");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("PDF generation failed");
 
   }
 };
@@ -775,11 +777,11 @@ const getTopProducts = async (req,res)=>{
         ((p.totalSold/totalQty)*100).toFixed(2)
     }));
 
-    res.json(result);
+    res.status(StatusCodes.OK).json(result);
 
   }catch(err){
     console.log(err);
-    res.status(500).json({error:"Server error"});
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: ErrorMessages.SERVER_ERROR});
   }
 };
 

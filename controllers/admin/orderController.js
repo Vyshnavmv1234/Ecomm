@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import Order from "../../models/orderSchema.js"
 import User from "../../models/userSchema.js"
 import mongoose from "mongoose"
@@ -80,23 +82,20 @@ const updateStatus = async (req, res) => {
     const { status, orderId } = req.body;
 
     if (!orderId || !status) {
-      return res.json({
-        success: false,
-        message: "Invalid request"
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+        message: ErrorMessages.INVALID_REQUEST
       });
     }
 
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.json({
-        success: false,
-        message: "Order not found"
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+        message: ErrorMessages.ORDER_NOT_FOUND
       });
     }
     if(order.paymentMethod!=="COD" && order.paymentStatus!=="Paid"){
-      return res.json({
-        success:false,message:"User have'nt Paid yet"
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false,message: ErrorMessages.USER_HAVE_NT_PAID_YET
       })
     }
 
@@ -117,16 +116,14 @@ const updateStatus = async (req, res) => {
     };
 
     if(currentStatus == "delivered" || currentStatus == "cancelled"|| currentStatus == "returned"){
-      return res.json({
-        success: false,
-        message: "Cannot rollback order status"
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+        message: ErrorMessages.CANNOT_ROLLBACK_ORDER_STATUS
       });
     }
 
     if (statusFlow[status] < statusFlow[currentStatus]) {
-      return res.json({
-        success: false,
-        message: "Cannot rollback order status"
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+        message: ErrorMessages.CANNOT_ROLLBACK_ORDER_STATUS
       });
     }
 
@@ -145,9 +142,8 @@ const updateStatus = async (req, res) => {
 
     await order.save();
 
-    return res.json({
-      success: true,
-      message: "Order status updated",
+    return res.status(StatusCodes.OK).json({ success: true,
+      message: ErrorMessages.ORDER_STATUS_UPDATED,
       status: order.status
     });
 
@@ -155,9 +151,8 @@ const updateStatus = async (req, res) => {
 
     console.error("Update status error:", error);
 
-    return res.json({
-      success: false,
-      message: "Server error"
+    return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+      message: ErrorMessages.SERVER_ERROR
     });
   }
 };

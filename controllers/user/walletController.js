@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 import Razorpay from "razorpay"
 import crypto from "crypto"
@@ -61,10 +63,10 @@ export const createWalletOrder = async (req, res) => {
 
     const order = await razorpay.orders.create(options)
 
-    res.json({ success: true, order })
+    res.status(StatusCodes.OK).json({ success: true, order })
 
   } catch (error) {
-    res.status(500).json({ success: false })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false })
   }
 }
 
@@ -113,15 +115,15 @@ const verifyWalletPayment = async (req, res) => {
         await wallet.save();
     }
 
-    res.json({ success: true });
+    res.status(StatusCodes.OK).json({ success: true });
 
 } else {
-    res.json({ success: false });
+    res.status(StatusCodes.BAD_REQUEST).json({ success: false });
 }
 
 
   } catch (err) {
-    res.status(500).json({ success: false })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false })
   }
 }
 

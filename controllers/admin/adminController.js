@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 import bcrypt from "bcrypt"
 
@@ -22,14 +24,14 @@ const postLogin = async(req,res)=>{
   const findAdmin = await User.findOne({ email, isAdmin: true });
   
   if (!findAdmin) {
-    return res.render("admin/adminLogin",{message:"Admin not found"}) 
+    return res.render("admin/adminLogin",{message: ErrorMessages.ADMIN_NOT_FOUND}) 
   }
   req.session.adminData = findAdmin
 
   const passwordMatch = await bcrypt.compare(password, findAdmin.password);
 
   if (!passwordMatch) {
-    return res.render("admin/adminLogin",{message:"Incorrect Password"});
+    return res.render("admin/adminLogin",{message: ErrorMessages.INCORRECT_PASSWORD});
   }
 
   req.session.admin = true;

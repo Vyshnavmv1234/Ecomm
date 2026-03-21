@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 import nodemailer from "nodemailer"
 import env from "dotenv"
@@ -93,7 +95,7 @@ const loadSignup = async (req,res)=>{
   
   } catch (error) {
     console.log("Signup page not found")
-    res.status(500).send("Server error")
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Server error")
   }
 }
 
@@ -107,7 +109,7 @@ const login = async (req,res)=>{
     const findUser = await User.findOne({isAdmin:0,email:email})
 
     if(!findUser){
-      return res.render("user/userLogin",{message:"User not found",user:null})
+      return res.render("user/userLogin",{message: ErrorMessages.USER_NOT_FOUND,user:null})
     }
     if(findUser.isBlocked){
       return res.redirect("/user/login?error=User is blocked by ADMIN")
@@ -122,7 +124,7 @@ const login = async (req,res)=>{
     
   } catch (error) {
     console.error("Login Error",error)
-    res.render("user/userLogin",{message:"Login failed. Please try again later",user:null})
+    res.render("user/userLogin",{message: ErrorMessages.LOGIN_FAILED_PLEASE_TRY_AGAIN_LATER,user:null})
   }
 }
 
@@ -192,7 +194,7 @@ const loadHomepage = async (req, res) => {
 
   } catch (error) {
     console.log("Homepage not found", error);
-    res.status(500).send("Server error");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -219,9 +221,9 @@ try {
 const { otp } = req.body;
 
 if (otp !== req.session.userOtp) {
-  return res.status(400).json({
+  return res.status(StatusCodes.BAD_REQUEST).json({
     success:false,
-    message:"Invalid OTP"
+    message: ErrorMessages.INVALID_OTP
   });
 }
 
@@ -294,13 +296,13 @@ if(referrer){
 req.session.user = saveUserData._id;
 req.session.userOtp = null;
 
-res.json({success:true});
+res.status(StatusCodes.OK).json({ success: true});
 
 }catch(error){
  console.error(error);
- res.status(500).json({
+ res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
    success:false,
-   message:"Server error"
+   message: ErrorMessages.SERVER_ERROR
  });
 }
 };
@@ -318,20 +320,19 @@ const resentOtp = async (req,res)=>{
     const emailsent = await sendVerificationEmail(userData.email,otp)
 
     if(!emailsent){
-      return res.status(400).json({
-        success:false,message:"Failed to resent"
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success:false,message: ErrorMessages.FAILED_TO_RESENT
       })
     }
     console.log("Resent OTP :",otp)
-    return res.json({
-      success:true,message:"Success"
+    return res.status(StatusCodes.OK).json({ success: true,message:"Success"
     })
     
   } catch (error) {
     console.error("Error resending OTP", error)
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Server error while resending OTP"
+      message: ErrorMessages.SERVER_ERROR_WHILE_RESENDING_OTP
     })
   }
 }

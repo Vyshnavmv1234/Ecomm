@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import Product from "../../models/productSchema.js"
 import Category from "../../models/categorySchema.js"
 import cloudinary from "../../config/cloudinary.js"
@@ -65,19 +67,19 @@ const postAddProducts = async(req,res)=>{
       const variants = JSON.parse(req.body.variants)
 
       if(!variants || variants.length==0){
-        return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,error: "At least one variant is required"})
+        return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,error: ErrorMessages.AT_LEAST_ONE_VARIANT_IS_REQUIRED})
       }
 
       if(!pName || !description || !category || !pTitle){
         return res.status(STATUS_CODES.BAD_REQUEST).json({
           success:false,
-          message:"All fields must be filled"
+          message: ErrorMessages.ALL_FIELDS_MUST_BE_FILLED
         })
       }
       if(!req.files || req.files.length<3){
         return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
-        message: "Minimum 3 images required"
+        message: ErrorMessages.MINIMUM_3_IMAGES_REQUIRED
         })
       }
 
@@ -97,18 +99,18 @@ const postAddProducts = async(req,res)=>{
       })
       
       await newProduct.save()
-      return res.status(STATUS_CODES.CREATED).json({ success: true,message: "Product added successfully"});
+      return res.status(STATUS_CODES.CREATED).json({ success: true,message: ErrorMessages.PRODUCT_ADDED_SUCCESSFULLY});
 
     }else{
-      return res.status(401).json({
+      return res.status(StatusCodes.UNAUTHORIZED).json({
         success:false,
-        message:"Unauthorized admin access"
+        message: ErrorMessages.UNAUTHORIZED_ADMIN_ACCESS
       });
     }
     
   } catch (error) {
      console.error("error in adding products",error)
-     return res.status(500).json({
+     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
        success:false,
        message: error.message || "Internal server error"
      })
@@ -147,7 +149,7 @@ const postEditProduct = async (req, res) => {
     const removedImages = JSON.parse(req.body.removedImages || "[]"); 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: ErrorMessages.PRODUCT_NOT_FOUND });
     }
 
     if (removedImages.length > 0) {
@@ -212,21 +214,21 @@ const postEditProduct = async (req, res) => {
     }
 
     if (product.images.length < 3) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "Minimum 3 images are required"
+        message: ErrorMessages.MINIMUM_3_IMAGES_ARE_REQUIRED
       });
     }
 
     await product.save();
 
-    return res.json({ success: true });
+    return res.status(StatusCodes.OK).json({ success: true });
 
   } catch (error) {
     console.error("error in editing products", error);
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Failed to update product"
+      message: ErrorMessages.FAILED_TO_UPDATE_PRODUCT
     });
   }
 };
@@ -241,9 +243,9 @@ const blockProduct = async (req,res)=>{
 
     if(findProduct){
       await Product.updateOne({_id:productId},{$set:{isBlocked:true}})
-      return res.json({success:true})
+      return res.status(StatusCodes.OK).json({ success: true})
     }else{
-      return res.json({error:"Product not found"})
+      return res.json({error: ErrorMessages.PRODUCT_NOT_FOUND})
     }
     }
     
@@ -260,9 +262,9 @@ const unblockProduct = async (req,res)=>{
 
     if(findProduct){
       await Product.updateOne({_id:productId},{$set:{isBlocked:false}})
-      return res.json({success:true})
+      return res.status(StatusCodes.OK).json({ success: true})
     }else{
-      return res.json({error:"Product not found"})
+      return res.json({error: ErrorMessages.PRODUCT_NOT_FOUND})
     }
     }
     

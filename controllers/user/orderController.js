@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import Cart from "../../models/cartSchema.js"
 import Address from "../../models/addressSchema.js"
 import Order from "../../models/orderSchema.js"
@@ -73,18 +75,18 @@ const placeOrder = async (req, res) => {
 
 
     if(coupon?.isActive == false){
-      return res.json({success:false,message:"Coupon is blocked by admin"})
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false,message: ErrorMessages.COUPON_IS_BLOCKED_BY_ADMIN})
     }
 
     if (!cart || cart.items.length === 0)
-      return res.json({ success:false });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false });
 
     const orderSummary = calculateTotal(cart);
 
     if (!address) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success:false,
-        message:"Address required"
+        message: ErrorMessages.ADDRESS_REQUIRED
       });
     }
 
@@ -96,7 +98,7 @@ const placeOrder = async (req, res) => {
       if (!wallet || wallet.balance < totalValue) {
         return res.status(STATUS_CODES.NOT_FOUND).json({
           success:false,
-          message:"Insufficient balance"
+          message: ErrorMessages.INSUFFICIENT_BALANCE
         });
       }
     }
@@ -104,8 +106,8 @@ const placeOrder = async (req, res) => {
     if (coupon) {
 
       if (coupon.usedCount >= coupon.usageLimit) {
-        return res.status(400).json({
-          message:"Coupon usage limit reached"
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: ErrorMessages.COUPON_USAGE_LIMIT_REACHED
         });
       }
 
@@ -210,7 +212,7 @@ const placeOrder = async (req, res) => {
 
     req.session.appliedCoupon = null;
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success:true,
       orderId:order._id
     });
@@ -298,14 +300,14 @@ const cancelProduct = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order)
-      return res.status(404).json({ success:false });
+      return res.status(StatusCodes.NOT_FOUND).json({ success:false });
 
     const item = order.orderItems.id(itemId);
 
     if (!item || item.status === "cancelled") {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success:false,
-        message:"Item already cancelled"
+        message: ErrorMessages.ITEM_ALREADY_CANCELLED
       });
     }
     if(!wallet){
@@ -385,13 +387,12 @@ order.orderSummary.total = Number(total.toFixed(2));
 
 await order.save();
 
-    return res.json({ success:true });
+    return res.status(StatusCodes.OK).json({ success: true });
 
   } catch (error) {
     console.error(error);
-    return res.json({
-      success:false,
-      message:"Server error"
+    return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+      message: ErrorMessages.SERVER_ERROR
     });
   }
 };
@@ -404,7 +405,7 @@ const cancelOrder = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order)
-      return res.status(404).json({ success:false });
+      return res.status(StatusCodes.NOT_FOUND).json({ success:false });
 
     let wallet = await Wallet.findOne({
       userId: order.userId
@@ -465,7 +466,7 @@ const cancelOrder = async (req, res) => {
 
     await order.save();
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success:true
     });
 
@@ -476,8 +477,7 @@ const cancelOrder = async (req, res) => {
       error
     );
 
-    return res.json({
-      success:false
+    return res.status(StatusCodes.BAD_REQUEST).json({ success: false
     });
   }
 };

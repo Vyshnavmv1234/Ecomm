@@ -1,3 +1,5 @@
+import StatusCodes from '../utitls/statusCodes.js';
+import ErrorMessages from '../utitls/errorMessages.js';
 import User from "../models/userSchema.js"
 
 const uploadProfile = async (req, res) => {
@@ -6,9 +8,9 @@ const uploadProfile = async (req, res) => {
     console.log("FILE:", req.file);
 
     if (!req.file) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success:false,
-        message:"Please select an image"
+        message: ErrorMessages.PLEASE_SELECT_AN_IMAGE
       });
     }
 
@@ -20,18 +22,17 @@ const uploadProfile = async (req, res) => {
       }
     );
 
-    return res.json({
-      success:true,
-      message:"Profile image updated successfully"
+    return res.status(StatusCodes.OK).json({ success: true,
+      message: ErrorMessages.PROFILE_IMAGE_UPDATED_SUCCESSFULLY
     });
 
   } catch (err) {
 
     console.log(err);
 
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success:false,
-      message:"Something went wrong"
+      message: ErrorMessages.SOMETHING_WENT_WRONG
     });
 
   }

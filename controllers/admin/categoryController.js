@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import Category from "../../models/categorySchema.js"
 import User from "../../models/userSchema.js"
 import ERROR_MESSAGES from "../../utitls/errorMessages.js"
@@ -60,17 +62,17 @@ const loadaddCategory = async (req,res)=>{
 const postAddCategory = async (req, res) => {
   try {
     if (!req.session.admin) {
-      return res.status(401).json({ error: "Unauthorized" })
+      return res.status(StatusCodes.UNAUTHORIZED).json({ error: ErrorMessages.UNAUTHORIZED })
     }
 
     let name = req.body.categoryName
 
     if (!name || !name.trim()) {
-      return res.status(400).json({ error: "Category name required" })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: ErrorMessages.CATEGORY_NAME_REQUIRED })
     }
 
     if (!req.file) {
-      return res.status(400).json({ error: "Category image required" })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: ErrorMessages.CATEGORY_IMAGE_REQUIRED })
     }
 
     name = name.trim()
@@ -79,7 +81,7 @@ const postAddCategory = async (req, res) => {
       .collation({ locale: "en", strength: 2 })
 
     if (existingCategory) {
-      return res.status(409).json({ error: "Category already exists" })
+      return res.status(StatusCodes.CONFLICT).json({ error: ErrorMessages.CATEGORY_ALREADY_EXISTS })
     }
 
     const newCategory = new Category({
@@ -89,13 +91,13 @@ const postAddCategory = async (req, res) => {
 
     await newCategory.save()
 
-    return res.status(201).json({
-      message: "Category added successfully"
+    return res.status(StatusCodes.CREATED).json({
+      message: ErrorMessages.CATEGORY_ADDED_SUCCESSFULLY
     })
     
   } catch (error) {
     console.error("Category create failed:", error)
-    return res.status(500).json({ error: "Internal server error" })
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: ErrorMessages.INTERNAL_SERVER_ERROR })
   }
 }
 
@@ -126,7 +128,7 @@ const updateCategory = async (req, res) => {
 
     const category = await Category.findById(id)
     if (!category) {
-      return res.status(404).json({ success: false, message: "Category not found" })
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: ErrorMessages.CATEGORY_NOT_FOUND })
     }
 
     const updateData = {}
@@ -137,7 +139,7 @@ const updateCategory = async (req, res) => {
       })
 
       if (exists && exists._id.toString() !== id) {
-        return res.status(409).json({
+        return res.status(StatusCodes.CONFLICT).json({
           success: false,
           message: ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS
         })
@@ -151,16 +153,16 @@ const updateCategory = async (req, res) => {
     }
 
     if (!Object.keys(updateData).length) {
-      return res.status(400).json({ success: false, message: "Nothing to update" })
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: ErrorMessages.NOTHING_TO_UPDATE })
     }
 
     await Category.findByIdAndUpdate(id, { $set: updateData })
 
-    res.json({ success: true, message: "Category updated successfully" })
+    res.status(StatusCodes.OK).json({ success: true, message: ErrorMessages.CATEGORY_UPDATED_SUCCESSFULLY })
 
   } catch (err) {
     console.error("Update category failed:", err)
-    res.status(500).json({ success: false, message: "Internal server error" })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: ErrorMessages.INTERNAL_SERVER_ERROR })
   }
 }
 
@@ -175,13 +177,13 @@ const blockCategory = async (req,res)=>{
     if(findCategory){
     
     await Category.updateOne({_id:categoryId},{$set:{isBlocked:true}})
-    res.json({success:true})
+    res.status(StatusCodes.OK).json({ success: true})
   }
     
   } catch (error) {
 
     console.error(ERROR_MESSAGES.CATEGORY_BLOCK_FAILED)
-    res.json({success:false})
+    res.status(StatusCodes.BAD_REQUEST).json({ success: false})
   }
 }
 
@@ -196,13 +198,13 @@ const unblockCategory = async (req,res)=>{
     if(findCategory){
     
     await Category.updateOne({_id:categoryId},{$set:{isBlocked:false}})
-    res.json({success:true})
+    res.status(StatusCodes.OK).json({ success: true})
   }
     
   } catch (error) {
 
     console.error(ERROR_MESSAGES.CATEGORY_BLOCK_FAILED)
-    res.json({success:false})
+    res.status(StatusCodes.BAD_REQUEST).json({ success: false})
   }
 
 }

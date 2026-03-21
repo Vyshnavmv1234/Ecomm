@@ -1,4 +1,6 @@
 import User from "../models/userSchema.js";
+import StatusCodes from '../utitls/statusCodes.js';
+import ErrorMessages from '../utitls/errorMessages.js';
 
 const userAuth = async (req, res, next) => {
   try {
@@ -32,9 +34,9 @@ const adminAuth = async (req, res, next) => {
   try {
     if(!req.session.admin){
       if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
-        return res.status(401).json({ 
+        return res.status(StatusCodes.UNAUTHORIZED).json({ 
           success: false, 
-          message: "Session expired or unauthorized. Please login again." 
+          message: ErrorMessages.SESSION_EXPIRED_OR_UNAUTHORIZED_PLEASE_LOGIN_AGAIN 
         });
       }
       return res.redirect("/admin/adminLogin")
@@ -44,7 +46,7 @@ const adminAuth = async (req, res, next) => {
 
     if(!admin || !admin.isAdmin){
       if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
-        return res.status(401).json({ success: false, message: "Admin privileges required." });
+        return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: ErrorMessages.ADMIN_PRIVILEGES_REQUIRED });
       }
       return res.redirect("/admin/adminLogin")
     }
@@ -53,7 +55,7 @@ const adminAuth = async (req, res, next) => {
   } catch (error) {
     console.error("error in adminauth mw", error);
     if (req.method !== 'GET' || req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
-      return res.status(500).json({ success: false, message: "Authentication server error." });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: ErrorMessages.AUTHENTICATION_SERVER_ERROR });
     }
     return res.redirect("/admin/adminLogin");
   }

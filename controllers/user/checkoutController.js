@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import Address from "../../models/addressSchema.js"
 import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
@@ -78,12 +80,12 @@ const postCheckout = async (req,res)=>{
     const blockedItem = cart.items.find(item => item.productId.isBlocked);
 
     if (blockedItem) {
-      return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"One or more items in your cart are unavailable"})
+      return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message: ErrorMessages.ONE_OR_MORE_ITEMS_IN_YOUR_CART_ARE_UNAVAILABLE})
     }
     const blockedCategoryItem = cart.items.find(item=> item.productId.category?.isBlocked)
 
     if(blockedCategoryItem){
-      return res.status(STATUS_CODES.FORBIDDEN).json({success:false,message:"One or more items category is unavailable"})
+      return res.status(STATUS_CODES.FORBIDDEN).json({success:false,message: ErrorMessages.ONE_OR_MORE_ITEMS_CATEGORY_IS_UNAVAILABLE})
     }
 
     const outOfStockItem = cart.items.find(item => {
@@ -95,7 +97,7 @@ const postCheckout = async (req,res)=>{
     });
 
     if (outOfStockItem) {
-      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"One or more item is out of stock"})
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message: ErrorMessages.ONE_OR_MORE_ITEM_IS_OUT_OF_STOCK})
     }
 
     return res.status(STATUS_CODES.OK).json({
@@ -144,15 +146,15 @@ const applyCoupon = async(req,res)=>{
     const coupon = await Coupons.findOne({code:couponCode})
     
     if(!coupon){
-      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Invalid Coupon"})
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message: ErrorMessages.INVALID_COUPON})
     }
     const alreadyUsed = coupon.userId.some(i=>i.toString() === req.session.user)
 
     if (alreadyUsed) {
-  return res.status(409).json({success:false,message:"Coupon already used"});
+  return res.status(StatusCodes.CONFLICT).json({success:false,message: ErrorMessages.COUPON_ALREADY_USED});
 }
   req.session.appliedCoupon = coupon._id
-  return res.status(STATUS_CODES.OK).json({success:true,message:"Coupon applied successfully"})
+  return res.status(STATUS_CODES.OK).json({success:true,message: ErrorMessages.COUPON_APPLIED_SUCCESSFULLY})
     
   } catch (error) {
     console.error("Error while applying coupon",error)
@@ -164,13 +166,13 @@ const removeCoupon = async (req, res) => {
 
     req.session.appliedCoupon = null
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true
     })
 
   } catch (error) {
     console.error("Error removing coupon", error)
-    return res.status(500).json({ success: false })
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false })
   }
 }
 
@@ -190,7 +192,7 @@ const createRazorpayOrder = async (req, res) => {
     razorpayOrderId: order.id
   });
 
-    res.json(order);
+    res.status(StatusCodes.OK).json(order);
 
   } catch (error) {
     console.log(error);
@@ -221,7 +223,7 @@ const verifyPayment = async (req, res) => {
         razorpayPaymentId: razorpay_payment_id
       });
 
-      return res.json({ success: true });
+      return res.status(StatusCodes.OK).json({ success: true });
 
     } else {
 
@@ -230,7 +232,7 @@ const verifyPayment = async (req, res) => {
         orderStatus: "Cancelled"
       });
 
-      return res.json({ success: false });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false });
     }
   } catch (error) {
     console.log(error);
@@ -258,7 +260,7 @@ const updatePaymentStatus = async (req, res) => {
     const order = await Order.findById(dbOrderId);
 
     if (!order) {
-      return res.status(404).json({ success: false });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false });
     }
 
     order.paymentStatus = "Paid";
@@ -267,11 +269,11 @@ const updatePaymentStatus = async (req, res) => {
 
     await order.save();
 
-    return res.json({ success: true });
+    return res.status(StatusCodes.OK).json({ success: true });
 
   } catch (error) {
     console.error("Error updating payment:", error);
-    return res.status(500).json({ success: false });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 };
 
