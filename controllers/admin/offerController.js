@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 import Product from "../../models/productSchema.js"
 import Offer from "../../models/offerSchema.js"
@@ -58,13 +60,13 @@ const loadAddOffer = async (req, res) => {
       const pdt = await Product.findById(product);
 
       if (!pdt) {
-        return res.json({ success: false, message: "Product not found" });
+        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: ErrorMessages.PRODUCT_NOT_FOUND });
       }
 
       if ((pdt.variants[0].price) / 2 < discountValue) {
         return res.status(STATUS_CODES.BAD_REQUEST).json({
           success: false,
-          message: "Discount value should be less than half the product value"
+          message: ErrorMessages.DISCOUNT_VALUE_SHOULD_BE_LESS_THAN_HALF_THE_PRODUCT_VALUE
         });
       }
 
@@ -122,9 +124,8 @@ const loadAddOffer = async (req, res) => {
       }
 
       if (validProducts.length === 0) {
-        return res.json({
-          success: false,
-          message: "No products in this category satisfy the discount condition"
+        return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+          message: ErrorMessages.NO_PRODUCTS_IN_THIS_CATEGORY_SATISFY_THE_DISCOUNT_CONDITION
         });
       }
 
@@ -168,9 +169,9 @@ const loadAddOffer = async (req, res) => {
     }
 
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "Offer created successfully"
+      message: ErrorMessages.OFFER_CREATED_SUCCESSFULLY
     });
 
 
@@ -178,9 +179,9 @@ const loadAddOffer = async (req, res) => {
 
     console.error(error);
 
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Server error while adding offer"
+      message: ErrorMessages.SERVER_ERROR_WHILE_ADDING_OFFER
     });
 
   }
@@ -193,9 +194,9 @@ const toggleOfferStatus = async (req, res) => {
     const offer = await Offer.findById(id);
 
     if (!offer) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: "Offer not found"
+        message: ErrorMessages.OFFER_NOT_FOUND
       });
     }
 
@@ -300,7 +301,7 @@ const toggleOfferStatus = async (req, res) => {
       }
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true
     });
 
@@ -308,9 +309,9 @@ const toggleOfferStatus = async (req, res) => {
 
     console.log(error);
 
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Server error"
+      message: ErrorMessages.SERVER_ERROR
     });
 
   }
@@ -324,9 +325,9 @@ const editOffer = async (req, res) => {
     const offer = await Offer.findById(req.params.id);
 
     if (!offer) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: "Offer not found"
+        message: ErrorMessages.OFFER_NOT_FOUND
       });
     }
 
@@ -352,9 +353,8 @@ const editOffer = async (req, res) => {
       }
 
       if (!validProductExists) {
-        return res.json({
-          success: false,
-          message: "No products in this category satisfy the discount condition"
+        return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+          message: ErrorMessages.NO_PRODUCTS_IN_THIS_CATEGORY_SATISFY_THE_DISCOUNT_CONDITION
         });
       }
     }
@@ -378,7 +378,7 @@ const editOffer = async (req, res) => {
         if ((pdt.variants[0].price) / 2 < discountValue) {
         return res.status(STATUS_CODES.BAD_REQUEST).json({
           success: false,
-          message: "Discount value should be less than half the product value"
+          message: ErrorMessages.DISCOUNT_VALUE_SHOULD_BE_LESS_THAN_HALF_THE_PRODUCT_VALUE
         });
       }
 
@@ -450,18 +450,17 @@ const editOffer = async (req, res) => {
       }
     }
 
-    return res.json({
-      success: true,
-      message: "Offer updated successfully"
+    return res.status(StatusCodes.OK).json({ success: true,
+      message: ErrorMessages.OFFER_UPDATED_SUCCESSFULLY
     });
 
   } catch (err) {
 
     console.log(err);
 
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Server error"
+      message: ErrorMessages.SERVER_ERROR
     });
   }
 };

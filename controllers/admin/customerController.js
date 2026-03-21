@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 
 const customerInfo = async (req,res)=>{
@@ -50,7 +52,7 @@ const customerBlock = async(req,res)=>{
     if(findUser){
       await User.updateOne({_id:blockedUserId},{$set:{isBlocked:true}})
       
-      res.json({success:true})
+      res.status(StatusCodes.OK).json({ success: true})
     }
     
   } catch (error) { 
@@ -68,7 +70,7 @@ const customerUnBlock = async(req,res)=>{
     if(findUser){
       await User.updateOne({_id:unblockedUserId},{$set:{isBlocked:false}})
       
-      res.json({success:true})
+      res.status(StatusCodes.OK).json({ success: true})
     }
     
   } catch (error) { 

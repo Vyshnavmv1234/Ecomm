@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import User from "../../models/userSchema.js"
 import Address from "../../models/addressSchema.js"
 import nodemailer from "nodemailer"
@@ -35,7 +37,7 @@ const forgotPassEmailValid = async (req, res) => {
     if (!userExists) {
       return res.render("user/forgotPasswordEmail", {
         user: null,
-        message: "User with this email not found"
+        message: ErrorMessages.USER_WITH_THIS_EMAIL_NOT_FOUND
       });
     }
 
@@ -49,7 +51,7 @@ const forgotPassEmailValid = async (req, res) => {
     if (!emailSent) {
       return res.render("user/forgotPasswordEmail", {
         user: null,
-        message: "Failed to send OTP"
+        message: ErrorMessages.FAILED_TO_SEND_OTP
       });
     }
 
@@ -70,23 +72,23 @@ const verifyForgotPassOtp = async (req, res) => {
     const sessionOtp = req.session.otp;
 
     if (userEnteredOtp !== sessionOtp) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "Invalid OTP"
+        message: ErrorMessages.INVALID_OTP
       });
     }
 
     req.session.otpVerified = true;
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "OTP verified"
+      message: ErrorMessages.OTP_VERIFIED
     });
 
   } catch (error) {
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Verification failed"
+      message: ErrorMessages.VERIFICATION_FAILED
     });
   }
 };
@@ -111,9 +113,9 @@ const resendForgotPasswordOtp = async (req, res) => {
     const email = req.session.email;
 
     if (!email) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "Error sending mail"
+        message: ErrorMessages.ERROR_SENDING_MAIL
       });
     }
 
@@ -123,24 +125,24 @@ const resendForgotPasswordOtp = async (req, res) => {
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
-      return res.status(500).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to resend OTP"
+        message: ErrorMessages.FAILED_TO_RESEND_OTP
       });
     }
 
     console.log("Resent OTP:", otp); 
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "OTP resent successfully"
+      message: ErrorMessages.OTP_RESENT_SUCCESSFULLY
     });
 
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Something went wrong"
+      message: ErrorMessages.SOMETHING_WENT_WRONG
     });
   }
 };
@@ -160,7 +162,7 @@ const newPassword = async(req,res)=>{
     res.redirect("/user/login")
   }
   else{
-    res.render("user/resetpassword",{message:"Passwords do not match",user:null})
+    res.render("user/resetpassword",{message: ErrorMessages.PASSWORDS_DO_NOT_MATCH,user:null})
   }
   } catch (error) {
     res.redirect("/user/pageNotFound")
@@ -269,11 +271,11 @@ const changeEmailValid = async(req,res)=>{
         console.log("EMAIL:",email)
         console.log("OTP:",otp)
       }else{
-        res.json("email-error")
+        res.status(StatusCodes.OK).json("email-error")
       }
     }
     else{
-      res.render("user/changeEmail",{user:null,message:"User doesnt exists"})
+      res.render("user/changeEmail",{user:null,message: ErrorMessages.USER_DOESNT_EXISTS})
     }
   } catch (error){
     console.error("Error while changing email",error)
@@ -293,22 +295,22 @@ const verifyEmailOtp = async (req,res)=>{
 
 
   if(userEnteredOtp!==sessionOtp){
-    return res.status(400).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       success:false,
-      message:"Invalid OTP"
+      message: ErrorMessages.INVALID_OTP
     })
   }
   req.session.emailOtpVerified = true;
   
-  return res.status(200).json({
+  return res.status(StatusCodes.OK).json({
     success:true,
-    message:"OTP verified"
+    message: ErrorMessages.OTP_VERIFIED
   })
 
   } catch (error) {
-      return res.status(500).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Verification failed"
+      message: ErrorMessages.VERIFICATION_FAILED
   })
 }
 }
@@ -319,9 +321,9 @@ const resendEmailOtp = async (req, res) => {
     const email = req.session.email;
 
     if (!email) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "Error sending mail"
+        message: ErrorMessages.ERROR_SENDING_MAIL
       });
     }
 
@@ -331,24 +333,24 @@ const resendEmailOtp = async (req, res) => {
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
-      return res.status(500).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to resend OTP"
+        message: ErrorMessages.FAILED_TO_RESEND_OTP
       });
     }
 
     console.log("Resent OTP:", otp); 
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "OTP resent successfully"
+      message: ErrorMessages.OTP_RESENT_SUCCESSFULLY
     });
 
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Something went wrong"
+      message: ErrorMessages.SOMETHING_WENT_WRONG
     });
   }
 };
@@ -415,11 +417,11 @@ const changePasswordValid = async(req,res)=>{
         console.log("EMAIL:",email)
         console.log("OTP:",otp)
       }else{
-        res.json("email-error")
+        res.status(StatusCodes.OK).json("email-error")
       }
     }
     else{
-      res.render("user/changePassword",{user:null,message:"User doesnt exists"})
+      res.render("user/changePassword",{user:null,message: ErrorMessages.USER_DOESNT_EXISTS})
     }
   } catch (error){
     console.error("Error while changing email",error)
@@ -437,22 +439,22 @@ const verifyChangePasswordOtp = async (req,res)=>{
 
 
   if(userEnteredOtp!==sessionOtp){
-    return res.status(400).json({
+    return res.status(StatusCodes.BAD_REQUEST).json({
       success:false,
-      message:"Invalid OTP"
+      message: ErrorMessages.INVALID_OTP
     })
   }
   req.session.changePasswordVerified = true;
   
-  return res.status(200).json({
+  return res.status(StatusCodes.OK).json({
     success:true,
-    message:"OTP verified"
+    message: ErrorMessages.OTP_VERIFIED
   })
 
   } catch (error) {
-      return res.status(500).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Verification failed"
+      message: ErrorMessages.VERIFICATION_FAILED
   })
 }
 }
@@ -461,9 +463,9 @@ const resendChangePassword = async (req, res) => {
     const email = req.session.email;
 
     if (!email) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "Error sending mail"
+        message: ErrorMessages.ERROR_SENDING_MAIL
       });
     }
     
@@ -473,24 +475,24 @@ const resendChangePassword = async (req, res) => {
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
-      return res.status(500).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to resend OTP"
+        message: ErrorMessages.FAILED_TO_RESEND_OTP
       }); 
     }
 
     console.log("Resent OTP:", otp); 
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "OTP resent successfully"
+      message: ErrorMessages.OTP_RESENT_SUCCESSFULLY
     }); 
 
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Something went wrong"
+      message: ErrorMessages.SOMETHING_WENT_WRONG
     });
   }
 };
@@ -522,7 +524,7 @@ const newChangePassword = async(req,res)=>{
     res.redirect("/user/login")
   }
   else{
-    res.render("user/resetChangePassword",{message:"Passwords do not match",user:null})
+    res.render("user/resetChangePassword",{message: ErrorMessages.PASSWORDS_DO_NOT_MATCH,user:null})
   }
   } catch (error) {
     res.redirect("/user/pageNotFound")
@@ -554,10 +556,10 @@ try{
   await Address.updateOne({user_id:userId},{$set:{"address.$[].isDefault":false}})
   await Address.updateOne({user_id:userId,"address._id":addressId},{$set:{"address.$.isDefault":true}})
 
-  res.json({success:true});
+  res.status(StatusCodes.OK).json({ success: true});
 
 }catch(err){
-  res.json({success:false});
+  res.status(StatusCodes.BAD_REQUEST).json({ success: false});
 }
 };
 
@@ -684,7 +686,7 @@ const deleteAddress = async(req,res)=>{
     const addressId = req.query.id
   const findAddress = await Address.findOne({user_id:req.session.user})
   if(!findAddress){
-    res.status(404).send("Address not found")
+    res.status(StatusCodes.NOT_FOUND).send("Address not found")
   }
 
   await Address.updateOne({"address._id":addressId},{$pull:{

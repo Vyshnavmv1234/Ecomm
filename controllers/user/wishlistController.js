@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import Wishlist from "../../models/wishlistSchema.js"
@@ -35,8 +37,7 @@ const postWishlist = async (req,res)=>{
       })
 
       await wishlistData.save()
-      return res.json({ 
-         success: true,
+      return res.status(StatusCodes.OK).json({ success: true,
          action: "added",
          wishlistCount: wishlistData.items.length })
     }
@@ -47,19 +48,19 @@ const postWishlist = async (req,res)=>{
     if(index>-1){
       wishlistData.items.splice(index,1)
       await wishlistData.save()
-      return res.json({ success: true,
+      return res.status(StatusCodes.OK).json({ success: true,
         action: "removed",
         wishlistCount: wishlistData.items.length
        })
     }   
     wishlistData.items.push({productId,variantId})
     await wishlistData.save()
-    return res.json({ success: true, action: "added",wishlistCount: wishlistData.items.length })
+    return res.status(StatusCodes.OK).json({ success: true, action: "added",wishlistCount: wishlistData.items.length })
      
   } catch (error) {
 
     console.error(error)
-    res.status(500).json({ success: false })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false })
   }
 }
 const deleteWishlist = async (req,res)=>{

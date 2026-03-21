@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import user from "../../models/userSchema.js"
 import Coupon from "../../models/couponSchema.js"
 
@@ -46,15 +48,14 @@ const createCoupon = async (req,res)=>{
     minOrderAmount = Number(minOrderAmount);
 
     if(discountValue >= minOrderAmount/2){
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success:false,
-        message:
-        "Discount must be less than twice minimum order"
+        message: ErrorMessages.DISCOUNT_MUST_BE_LESS_THAN_TWICE_MINIMUM_ORDER
       });
     }
 
     if(coupon){
-    return res.status(400).json({success:false,message:"Coupon already exists"});
+    return res.status(StatusCodes.BAD_REQUEST).json({success:false,message: ErrorMessages.COUPON_ALREADY_EXISTS});
   }
     coupon = await Coupon.create({
       code,
@@ -66,7 +67,7 @@ const createCoupon = async (req,res)=>{
       userId: [],
     })
 
-    return res.json({success:true,message:"Coupon created successfully"});
+    return res.status(StatusCodes.OK).json({ success: true,message: ErrorMessages.COUPON_CREATED_SUCCESSFULLY});
     
   } catch (error) {
     console.error("Error while creating coupon",error)
@@ -79,7 +80,7 @@ const disableCoupon = async (req,res)=>{
     const couponId = req.params.id
 
     await Coupon.updateOne({_id:couponId},{$set:{isActive:false}})
-    return res.json({success:true,message:"Coupon disabled"})
+    return res.status(StatusCodes.OK).json({ success: true,message: ErrorMessages.COUPON_DISABLED})
     
   } catch (error) {
     console.error("Error while creating coupon",error)
@@ -91,7 +92,7 @@ const enableCoupon = async (req,res)=>{
     const couponId = req.params.id
 
     await Coupon.updateOne({_id:couponId},{$set:{isActive:true}})
-    return res.json({success:true,message:"Coupon enabled"})
+    return res.status(StatusCodes.OK).json({ success: true,message: ErrorMessages.COUPON_ENABLED})
     
   } catch (error) {
     console.error("Error while creating coupon",error)
@@ -110,9 +111,8 @@ const updateCoupon = async (req,res)=>{
   });
 
   if(existingCoupon){
-    return res.json({
-      success:false,
-      message:"Coupon already exists"
+    return res.status(StatusCodes.BAD_REQUEST).json({ success: false,
+      message: ErrorMessages.COUPON_ALREADY_EXISTS
     });
   }
     
@@ -120,16 +120,15 @@ const updateCoupon = async (req,res)=>{
     minOrderAmount = Number(minOrderAmount);
 
     if(discountValue >= minOrderAmount/2){
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success:false,
-        message:
-        "Discount must be less than twice minimum order"
+        message: ErrorMessages.DISCOUNT_MUST_BE_LESS_THAN_TWICE_MINIMUM_ORDER
       });
     }
     
     await Coupon.findByIdAndUpdate(id,req.body)
 
-    return res.json({success:true})
+    return res.status(StatusCodes.OK).json({ success: true})
 
     
   } catch (error) {

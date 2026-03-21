@@ -1,3 +1,5 @@
+import StatusCodes from '../../utitls/statusCodes.js';
+import ErrorMessages from '../../utitls/errorMessages.js';
 import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
 import Product from "../../models/productSchema.js"
@@ -27,7 +29,7 @@ const loadAddToCart = async(req,res)=>{
         total: 0, 
         cartItems: [],
         defaultAddress: userAddress,
-        emptyMessage: "Your cart is empty "
+        emptyMessage: ErrorMessages.YOUR_CART_IS_EMPTY
       })
     }  
     const cartTotal = calculateCartTotal(cart)
@@ -82,15 +84,15 @@ const addToCart = async (req,res)=>{
     const productData = await Product.findById(productId)
     
     if(productData.isBlocked === true){
-      return res.status(403).json({success:false})
+      return res.status(StatusCodes.FORBIDDEN).json({success:false})
     }
     const variant = productData.variants.id(variantId)
 
     if(!variant){
-      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message:"Invaild Variant"})
+      return res.status(STATUS_CODES.NOT_FOUND).json({success:false,message: ErrorMessages.INVAILD_VARIANT})
     }
     if(variant.stock<=0){
-      return res.status(STATUS_CODES.UNAUTHORIZED).json({status:false,message:"This Size is Out of stock"})
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({status:false,message: ErrorMessages.THIS_SIZE_IS_OUT_OF_STOCK})
     }
 
     let discountedUnitPrice =0
@@ -129,7 +131,7 @@ const addToCart = async (req,res)=>{
       if(itemIndex>-1){
 
         if(cart.items[itemIndex].quantity+1 > variant.stock){
-          return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"Stock Limit exceeded"})
+          return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message: ErrorMessages.STOCK_LIMIT_EXCEEDED})
         }
         cart.items[itemIndex].quantity+=1
       }else {
@@ -147,11 +149,11 @@ const addToCart = async (req,res)=>{
     console.log(productId,variantId)
     await Wishlist.updateOne({userId},{$pull:{items:{productId,variantId}}})
 
-    return res.status(200).json({success:true})  
+    return res.status(StatusCodes.OK).json({success:true})  
 
   } catch (error) {
     console.error("Server error",error)
-    return res.status(500).json({success:false})
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({success:false})
   }
 }
 
@@ -162,13 +164,13 @@ const cartRemove = async (req,res)=>{
     const  userId = req.session.user
 
     if(!userId){
-      return res.status(401).json({success:false})
+      return res.status(StatusCodes.UNAUTHORIZED).json({success:false})
     }
     const {productId,variantId} = req.body
  
     const cart = await Cart.findOne({userId})
     if(!cart){ 
-      return res.status(404).json({success:false,message:"Cart not found"})
+      return res.status(StatusCodes.NOT_FOUND).json({success:false,message: ErrorMessages.CART_NOT_FOUND})
     }
 
     cart.items = cart.items.filter(val=>{
@@ -176,11 +178,11 @@ const cartRemove = async (req,res)=>{
     })
 
     await cart.save()
-    return res.status(200).json({success:true,message:"Item removed from cart"})
+    return res.status(StatusCodes.OK).json({success:true,message: ErrorMessages.ITEM_REMOVED_FROM_CART})
 
   } catch (error) {
     console.error("Server error",error)
-    return res.status(500).json({success:false})
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({success:false})
   }
 }
 
@@ -193,13 +195,13 @@ const updateQuantity = async(req,res)=>{
 
     const cart = await Cart.findOne({userId})
     if(!cart){
-      return res.status(400).json({success:false})
+      return res.status(StatusCodes.BAD_REQUEST).json({success:false})
     }
     const items = cart.items.find(val=>{
       return (val.productId.toString()===productId && val.variantId.toString()===variantId)
     })
     if(!items){
-      return res.status(404).json({ message: "Item not found" })
+      return res.status(StatusCodes.NOT_FOUND).json({ message: ErrorMessages.ITEM_NOT_FOUND })
     }
 
     const product = await Product.findOne({_id:productId})
@@ -209,10 +211,10 @@ const updateQuantity = async(req,res)=>{
 
 
     if (newQty < 1) {
-      return res.status(400).json({ message: "Minimum quantity is 1" })
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: ErrorMessages.MINIMUM_QUANTITY_IS_1 })
     }
     if (newQty>variant.stock) {
-      return res.status(400).json({ message: "Stock limit exceeded" })
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: ErrorMessages.STOCK_LIMIT_EXCEEDED })
     }
     const discountedUnitPrice = Math.round(
     variant.price - (variant.price * discount / 100)
