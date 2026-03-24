@@ -489,7 +489,7 @@ const orderHistory = async (req,res)=>{
     const page = parseInt(req.query.page) || 1
     const skip = (page - 1) * limit
 
-    const totalOrders = await Order.countDocuments()
+    const totalOrders = await Order.countDocuments({userId:req.session.user})
 
     const orderDetails = await Order.find({userId:req.session.user}).populate("orderItems.product")
     .sort({createdAt:-1})
