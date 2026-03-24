@@ -81,7 +81,7 @@ const postAddCategory = async (req, res) => {
       .collation({ locale: "en", strength: 2 })
 
     if (existingCategory) {
-      return res.status(StatusCodes.CONFLICT).json({ error: ErrorMessages.CATEGORY_ALREADY_EXISTS })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: ErrorMessages.CATEGORY_ALREADY_EXISTS })
     }
 
     const newCategory = new Category({
