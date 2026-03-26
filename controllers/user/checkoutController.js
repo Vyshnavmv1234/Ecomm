@@ -1,9 +1,9 @@
-import StatusCodes from '../../utitls/statusCodes.js';
+import STATUS_CODES from '../../utitls/statusCodes.js';
 import ErrorMessages from '../../utitls/errorMessages.js';
 import Address from "../../models/addressSchema.js"
 import Cart from "../../models/cartSchema.js"
 import User from "../../models/userSchema.js"
-import STATUS_CODES from "../../utitls/statusCodes.js"
+
 import Category from "../../models/categorySchema.js"
 import Order from "../../models/orderSchema.js"
 import Coupons from "../../models/couponSchema.js"
@@ -151,7 +151,7 @@ const applyCoupon = async(req,res)=>{
     const alreadyUsed = coupon.userId.some(i=>i.toString() === req.session.user)
 
     if (alreadyUsed) {
-  return res.status(StatusCodes.CONFLICT).json({success:false,message: ErrorMessages.COUPON_ALREADY_USED});
+  return res.status(STATUS_CODES.CONFLICT).json({success:false,message: ErrorMessages.COUPON_ALREADY_USED});
 }
   req.session.appliedCoupon = coupon._id
   return res.status(STATUS_CODES.OK).json({success:true,message: ErrorMessages.COUPON_APPLIED_SUCCESSFULLY})
@@ -166,13 +166,13 @@ const removeCoupon = async (req, res) => {
 
     req.session.appliedCoupon = null
 
-    return res.status(StatusCodes.OK).json({
+    return res.status(STATUS_CODES.OK).json({
       success: true
     })
 
   } catch (error) {
     console.error("Error removing coupon", error)
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false })
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false })
   }
 }
 
@@ -192,7 +192,7 @@ const createRazorpayOrder = async (req, res) => {
     razorpayOrderId: order.id
   });
 
-    res.status(StatusCodes.OK).json(order);
+    res.status(STATUS_CODES.OK).json(order);
 
   } catch (error) {
     console.log(error);
@@ -223,7 +223,7 @@ const verifyPayment = async (req, res) => {
         razorpayPaymentId: razorpay_payment_id
       });
 
-      return res.status(StatusCodes.OK).json({ success: true });
+      return res.status(STATUS_CODES.OK).json({ success: true });
 
     } else {
 
@@ -232,7 +232,7 @@ const verifyPayment = async (req, res) => {
         orderStatus: "Cancelled"
       });
 
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false });
     }
   } catch (error) {
     console.log(error);
@@ -260,7 +260,7 @@ const updatePaymentStatus = async (req, res) => {
     const order = await Order.findById(dbOrderId);
 
     if (!order) {
-      return res.status(StatusCodes.NOT_FOUND).json({ success: false });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ success: false });
     }
 
     order.paymentStatus = "Paid";
@@ -269,11 +269,11 @@ const updatePaymentStatus = async (req, res) => {
 
     await order.save();
 
-    return res.status(StatusCodes.OK).json({ success: true });
+    return res.status(STATUS_CODES.OK).json({ success: true });
 
   } catch (error) {
     console.error("Error updating payment:", error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false });
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false });
   }
 };
 
