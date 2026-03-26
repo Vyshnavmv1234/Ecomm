@@ -140,10 +140,10 @@ body{
     <div class="header-top">
       <!-- Hamburger: visible only on mobile via CSS -->
       <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">☰</button>
-      <div class="logo"><a href="/user/homepage">WestLane</a></div>
+      <div class="logo"><a href="/">WestLane</a></div>
       
       <div class="search">
-        <form method="get" action="/user/productList">
+        <form method="get" action="/shop">
         <input 
         name="pSearch" 
         value="<%= typeof search !== 'undefined' ? search : '' %>" 
@@ -163,20 +163,20 @@ body{
   </span> 
 
   <div class="dropdown-menu" id="userMenu">
-    <a href="/user/userDashboard">My Profile</a>
-    <a href="/user/logout">Logout</a>
+    <a href="/profile">My Profile</a>
+    <a href="/logout">Logout</a>
   </div>
 
 </div>
         <% } else { %>
 
-        <a href="/user/signup">Sign up</a>
-        <a href="/user/login">Log in</a>
+        <a href="/signup">Sign up</a>
+        <a href="/login">Log in</a>
 
         <% } %>
 
         <div style="position: relative; display:inline-block;">
-      <a href="/user/wishlist">
+      <a href="/wishlist">
         <i class="fa fa-heart"></i>
       </a>
 
@@ -187,7 +187,7 @@ body{
     </div>
 
         <div style="position: relative; display:inline-block;">
-        <a href="/user/cart">
+        <a href="/cart">
           <i class="fa fa-shopping-cart"></i>
         </a>
 
@@ -199,13 +199,13 @@ body{
     </div>
     <nav>
 
-<a href="/user/productList">All</a>
+<a href="/shop">All</a>
 
 <% if(category && category.length > 0){ %>
 
   <% category.forEach(cat => { %>
 
-    <a href="/user/productList?category=<%= cat._id %>">
+    <a href="/shop?category=<%= cat._id %>">
       <%= cat.name %>
     </a>
 
@@ -218,7 +218,7 @@ body{
 
   <!-- Mobile search sub-bar: shown only on ≤768px via CSS -->
   <div class="mobile-search-bar">
-    <form method="get" action="/user/productList">
+    <form method="get" action="/shop">
       <input
         name="pSearch"
         value="<%= typeof search !== 'undefined' ? search : '' %>"
@@ -232,20 +232,20 @@ body{
   <div class="mobile-nav-overlay" id="mobileOverlay"></div>
   <div class="mobile-nav-drawer" id="mobileDrawer">
     <button class="mobile-nav-close" id="mobileClose">✕</button>
-    <a href="/user/homepage">Home</a>
-    <a href="/user/productList">All Products</a>
+    <a href="/">Home</a>
+    <a href="/shop">All Products</a>
     <% if(category && category.length > 0){ %>
       <% category.forEach(cat => { %>
-        <a href="/user/productList?category=<%= cat._id %>"><%= cat.name %></a>
+        <a href="/shop?category=<%= cat._id %>"><%= cat.name %></a>
       <% }) %>
     <% } %>
     <hr style="margin:12px 0;border:none;border-top:1px solid #eee;">
     <% if (user) { %>
-      <a href="/user/userDashboard">My Profile</a>
-      <a href="/user/logout">Logout</a>
+      <a href="/profile">My Profile</a>
+      <a href="/logout">Logout</a>
     <% } else { %>
-      <a href="/user/login">Log in</a>
-      <a href="/user/signup">Sign up</a>
+      <a href="/login">Log in</a>
+      <a href="/signup">Sign up</a>
     <% } %>
   </div>
 

@@ -167,7 +167,7 @@
   }
 
   async function moveToCart(productId, variantId) {
-    const res = await fetch("/user/cart", {
+    const res = await fetch("/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, variantId })
@@ -185,7 +185,7 @@
   }
 
   async function removeFromWishlist(productId, variantId) {
-    const res = await fetch("/user/remove/wishlist", {
+    const res = await fetch("/remove/wishlist", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, variantId })

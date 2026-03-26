@@ -467,6 +467,7 @@ const canReturn =
       <p><strong><%= order.orderId %></strong></p>
       <p>Order Placed on: <b><%= order.formattedDate %></b></p>
       <p>Order Status: <b><%= order.status %></b></p>
+      <p>Payment method: <b><%= order.paymentMethod %></b></p>
     </div>
     <h2>₹<%= order.orderSummary.total %></h2>
   </div>
@@ -483,7 +484,7 @@ const canReturn =
 
         <div class="product-row">
 
-          <a href="/user/productDetail?id=<%=item.product._id%>">
+          <a href="/product?id=<%=item.product._id%>">
             <img src="<%= item.product.images[0].url %>" alt="">
           </a>
 
@@ -618,7 +619,7 @@ const canReturn =
         </div>
 
         <% if(order.status === "delivered") { %>
-          <a href="/user/order/<%= order._id %>/invoice">
+          <a href="/orders/<%= order._id %>/invoice">
             <button class="invoice-btn">⬇ Download Invoice</button>
           </a>
         <% } %>
@@ -634,7 +635,7 @@ const canReturn =
 
     <h3>Request Return (Full Order)</h3>
 
-    <form action="/user/request-return" method="POST">
+    <form action="/request-return" method="POST">
       <input type="hidden" name="orderId" id="modalOrderId">
 
       <textarea
@@ -656,7 +657,7 @@ const canReturn =
 
     <h3>Request Return (Item)</h3>
 
-    <form action="/user/request-returnItem" method="POST">
+    <form action="/request-returnItem" method="POST">
       <input type="hidden" name="orderItemId" id="modalItemOrderId">
       <input type="hidden" name="orderId" id="orderId">
 
@@ -737,8 +738,8 @@ function closeCancelModal() {
   }
 
   const url = itemId
-    ? "/user/cancelProduct"
-    : "/user/cancelOrder";
+    ? "/cancelProduct"
+    : "/cancelOrder";
 
   const body = itemId
     ? { orderId, itemId, reason, comment }
@@ -811,7 +812,7 @@ async function retryPayment() {
 
   try {
 
-    const razorRes = await fetch("/user/create-razorpay-order", {
+    const razorRes = await fetch("/create-razorpay-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -834,7 +835,7 @@ async function retryPayment() {
 
       handler: async function (response) {
 
-        const verifyRes = await fetch("/user/verify-payment", {
+        const verifyRes = await fetch("/verify-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -850,7 +851,7 @@ async function retryPayment() {
           return;
         }
 
-        window.location.href = `/user/order/${dbOrderId}`;
+        window.location.href = `/orders/${dbOrderId}`;
       }
     });
 
