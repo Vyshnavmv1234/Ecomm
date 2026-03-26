@@ -168,7 +168,7 @@ body {
   try {
 
     // 1️⃣ Create Razorpay order again using same DB order
-    const razorRes = await fetch("/user/create-razorpay-order", {
+    const razorRes = await fetch("/create-razorpay-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -189,7 +189,7 @@ body {
       handler: async function (response) {
 
         // 2️⃣ Verify payment
-        const verifyRes = await fetch("/user/verify-payment", {
+        const verifyRes = await fetch("/verify-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(response)
@@ -203,7 +203,7 @@ body {
         }
 
         // 3️⃣ Update existing order
-        await fetch("/user/update-payment-status", {
+        await fetch("/update-payment-status", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -212,7 +212,7 @@ body {
           })
         });
 
-        window.location.href = `/user/order/${dbOrderId}`;
+        window.location.href = `/orders/${dbOrderId}`;
       }
     };
 
@@ -231,7 +231,7 @@ body {
 
 
   function goHome() {
-    window.location.href = "/user/homepage";
+    window.location.href = "/";
   }
 </script>
 

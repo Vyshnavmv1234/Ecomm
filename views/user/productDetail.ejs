@@ -466,9 +466,9 @@ body {
 
          <div class="breadcrumb">
        <nav class="breadcrumb">
-      <a href="/user/homepage">Home</a>
+      <a href="/">Home</a>
       <span>/</span>
-      <a href="/user/productList">All</a>
+      <a href="/shop">All</a>
       <span>/</span>
       <span class="active"><%=productData.title%></span>
     </nav>
@@ -554,7 +554,7 @@ body {
       <%if(user){%>
         <a><button id="Basket" onclick="return eFun('<%=productData.id%>')" class="add-btn">+ ADD TO BASKET</button></a>
       <%}else{%>
-        <a href="/user/login"><button type="button"  class="add-btn">+ ADD TO BASKET</button></a>
+        <a href="/login"><button type="button"  class="add-btn">+ ADD TO BASKET</button></a>
       <%}%>
     </div>
     <strong style="color: red; margin-bottom: 9px;" id="addError"></strong>
@@ -583,7 +583,7 @@ body {
       <div class="similar-wrapper" id="slider">
         <% similarProduct.forEach(product => { %>
           <div class="similar-card">
-            <a href="/user/productDetail?id=<%=product._id%>"><img src="<%= product.images[0].url %>" alt="product"></a>
+            <a href="/product?id=<%=product._id%>"><img src="<%= product.images[0].url %>" alt="product"></a>
             <div class="similar-info">
               <p class="similar-brand"><%= product.name %></p>
               <p class="similar-title"><%= product.title %></p>
@@ -747,7 +747,7 @@ function selectSize(el, id) {
   submitBtn.disabled = true;
   submitBtn.textContent = "Adding...";
 
-    const res = await fetch("/user/cart",{
+    const res = await fetch("/cart",{
       
       method: "POST",
       headers:{
@@ -762,7 +762,7 @@ function selectSize(el, id) {
       showToast(data.message || "Please login", "error")
 
       setTimeout(() => {
-        window.location.href = "/user/login"
+        window.location.href = "/login"
       }, 1200)
 
       return
@@ -771,7 +771,7 @@ function selectSize(el, id) {
       showToast(data.message || "Please login", "error")
 
       setTimeout(() => {
-        window.location.href = "/user/pageNotFound"
+        window.location.href = "/404"
       }, 1200)
 
       return
@@ -780,7 +780,7 @@ function selectSize(el, id) {
       showToast(data.message || "Product is blocked by admin", "error")
 
       setTimeout(() => {
-        window.location.href = "/user/productList"
+        window.location.href = "/shop"
       }, 1200)
 
       return
@@ -798,7 +798,7 @@ function selectSize(el, id) {
       showToast("Product added to cart successfully","success")
 
       setTimeout(()=>{
-        window.location.href = "/user/cart"
+        window.location.href = "/cart"
       },800)
     }
     
@@ -810,7 +810,7 @@ async function toggleWishlist(productId) {
     return
   }
 
-  const res = await fetch("/user/wishlist", {
+  const res = await fetch("/wishlist", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

@@ -1064,7 +1064,7 @@ if (placeOrderBtn) {
     // ==============================
     if (paymentMethod === "COD" || paymentMethod === "WALLET") {
 
-      const res = await fetch("/user/place-order", {
+      const res = await fetch("/place-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1084,7 +1084,7 @@ if (placeOrderBtn) {
       return;
     }
 
-      window.location.href = `/user/order/${data.orderId}`;
+      window.location.href = `/orders/${data.orderId}`;
       return;
     }
 
@@ -1094,7 +1094,7 @@ if (placeOrderBtn) {
     if (paymentMethod === "RAZORPAY") {
 
       // 1️⃣ Create DB Order (Pending)
-      const createOrderRes = await fetch("/user/place-order", {
+      const createOrderRes = await fetch("/place-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1122,7 +1122,7 @@ if (placeOrderBtn) {
       const dbOrderId = createOrderData.orderId;
 
       // 2️⃣ Create Razorpay Order
-      const razorRes = await fetch("/user/create-razorpay-order", {
+      const razorRes = await fetch("/create-razorpay-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1144,7 +1144,7 @@ if (placeOrderBtn) {
         // 3️⃣ Success Handler
         handler: async function (response) {
 
-          const verifyRes = await fetch("/user/verify-payment", {
+          const verifyRes = await fetch("/verify-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({...response,dbOrderId})
@@ -1154,12 +1154,12 @@ if (placeOrderBtn) {
 
           if (!verifyData.success) {
             window.location.href =
-              `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+              `/payment-failed?amount=${total}&orderId=${dbOrderId}`;
             return;
           }
 
           // 4️⃣ Update Payment Status
-          await fetch("/user/update-payment-status", {
+          await fetch("/update-payment-status", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -1168,14 +1168,14 @@ if (placeOrderBtn) {
             })
           });
 
-          window.location.href = `/user/order/${dbOrderId}`;
+          window.location.href = `/orders/${dbOrderId}`;
         },
 
         // 5️⃣ If modal closed
         modal: {
           ondismiss: function () {
             window.location.href =
-              `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+              `/payment-failed?amount=${total}&orderId=${dbOrderId}`;
           }
         }
       };
@@ -1185,7 +1185,7 @@ if (placeOrderBtn) {
       // 6️⃣ If payment fails
       rzp.on("payment.failed", function () {
         window.location.href =
-          `/user/paymentFailed?amount=${total}&orderId=${dbOrderId}`;
+          `/payment-failed?amount=${total}&orderId=${dbOrderId}`;
       });
 
       rzp.open();
@@ -1226,7 +1226,7 @@ if (placeOrderBtn) {
     return;
   }
 
-  const res = await fetch("/user/coupon/applyCoupon", {
+  const res = await fetch("/coupon/applyCoupon", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ couponCode: code })
@@ -1243,7 +1243,7 @@ if (placeOrderBtn) {
 };
 
   window.removeCoupon = async function () {
-    const res = await fetch("/user/coupon/removeCoupon", { method: "POST" });
+    const res = await fetch("/coupon/removeCoupon", { method: "POST" });
     const data = await res.json();
     if (data.success) location.reload();
   };

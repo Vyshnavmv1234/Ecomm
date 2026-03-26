@@ -301,7 +301,7 @@
       return;
     }
 
-    const response = await fetch("/user/wallet/create-order", {
+    const response = await fetch("/wallet/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount })
@@ -324,7 +324,7 @@
 
       handler: async function (response) {
 
-        const verifyRes = await fetch("/user/wallet/verify-payment", {
+        const verifyRes = await fetch("/wallet/verify-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

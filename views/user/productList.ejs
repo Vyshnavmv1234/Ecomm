@@ -304,9 +304,9 @@
 <div class="top-bar">
   <div class="breadcrumb">
        <nav class="breadcrumb">
-      <a href="/user/homepage">Home</a>
+      <a href="/">Home</a>
       <span>/</span>
-      <a href="/user/productList">All</a>
+      <a href="/shop">All</a>
 
     </nav>
       </div>
@@ -333,7 +333,7 @@
         ♥
       </span>
 
-       <a href="/user/productDetail?id=<%=product._id%>">
+       <a href="/product?id=<%=product._id%>">
         <div class="product-image"><img src="<%=product.images[0].url%>"></div>      
        </a>
 
@@ -394,7 +394,7 @@ const hasOffer = finalPrice < originalPrice;
     <span onclick="closeFilter()" style="cursor:pointer">✕</span>
   </div>
 
-  <form method="GET" action="/user/productList">
+  <form method="GET" action="/shop">
 
     <!-- SORT -->
     <div class="filter-section">
@@ -450,7 +450,7 @@ const hasOffer = finalPrice < originalPrice;
 
     <div class="filter-footer">
       <button class="apply-btn">APPLY FILTER</button>
-      <a href="/user/productList" class="reset-btn">RESET</a>
+      <a href="/shop" class="reset-btn">RESET</a>
     </div>
 
   </form>
@@ -578,7 +578,7 @@ document.querySelectorAll(".wishlist")
 
     try{
 
-      const res = await fetch("/user/wishlist",{
+      const res = await fetch("/wishlist",{
         method:"POST",
         headers:{
           "Content-Type":"application/json"

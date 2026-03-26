@@ -76,7 +76,7 @@
           <!-- ACTION BUTTONS -->
           <div style="display:flex; gap:12px; margin-top:10px;">
 
-            <a href="/user/edit-address?id=<%= address._id %>"
+            <a href="/profile/edit-address?id=<%= address._id %>"
                onclick="event.stopPropagation()"
                class="edit-btn">
               Edit address
@@ -101,7 +101,7 @@
 
       <!-- ADD ADDRESS -->
       <div style="display:flex; justify-content:center; margin-top:20px;">
-        <a href="/user/add-address"
+        <a href="/profile/add-address"
            style="padding:8px 18px;
                   border:1px solid #2bb0c0;
                   color:#2bb0c0;
@@ -148,7 +148,7 @@ async function setDefaultAddress(id,el){
 try{
 
   const res = await fetch(
-    "/user/address/set-default",
+    "/profile/address/set-default",
     {
       method:"PATCH",
       headers:{
@@ -200,7 +200,7 @@ const result = await Swal.fire({
 if(!result.isConfirmed) return;
 
 window.location.href =
-  `/user/delete-address?id=${id}`;
+  `/profile/delete-address?id=${id}`;
 }
 
 </script>

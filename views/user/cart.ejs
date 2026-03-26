@@ -154,7 +154,7 @@
       <% if (cartItems.length === 0) { %>
         <div style="margin-left: 550px; display: inline-block;">
           <p>Your cart is empty</p>
-          <a href="/user/productList"><button>Shop now</button></a>
+          <a href="/shop"><button>Shop now</button></a>
         </div>
       <% } else { %>
 
@@ -163,7 +163,7 @@
           <!-- ONE PRODUCT -->
           <div class="cart-item">
 
-            <a href="/user/productDetail?id=<%=item.productId._id%>"><img src="<%= item.productId.images[0].url %>" alt=""></a>
+            <a href="/product?id=<%=item.productId._id%>"><img src="<%= item.productId.images[0].url %>" alt=""></a>
 
             <div class="item-info">
               <%
@@ -315,7 +315,7 @@
 
     try {
 
-      const res = await fetch("/user/cart/remove", {
+      const res = await fetch("/cart/remove", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json"
@@ -333,7 +333,7 @@
         showToast(data.message || "Please login", "error");
 
         setTimeout(() => {
-          window.location.href = "/user/login";
+          window.location.href = "/login";
         }, 1200);
 
         return;
@@ -366,7 +366,7 @@
 
     async function updateQty(productId, variantId, num) {
 
-      const res = await fetch("/user/cart/update-qty", {
+      const res = await fetch("/cart/update-qty", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, variantId, num })
@@ -398,7 +398,7 @@
 
     async function moveToCheckout() {  
 
-      const res = await fetch("/user/checkout", {
+      const res = await fetch("/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({defaultAddress,subTotal,discount,total})
@@ -416,7 +416,7 @@
         return
       }
       if(res.ok && data.success){
-        window.location.href = "/user/checkout"
+        window.location.href = "/checkout"
       }
     }
 

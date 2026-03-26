@@ -178,7 +178,9 @@ const signup = async (req,res)=>{
 const pageNotFound = async (req,res)=>{ 
   try {
 
-    res.render("user/error")
+    const userData = req.session.user ? await User.findById(req.session.user) : null;
+    const category = await Category.find({ isBlocked: false });
+    res.render("user/error", { user: userData, category })
 
   } catch (error) {
     res.redirect("/pageNotFound")
