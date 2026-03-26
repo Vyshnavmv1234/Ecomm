@@ -55,14 +55,50 @@ db()
 
 const PORT = process.env.PORT
 
-app.use("/", (req, res, next) => {
-  if (req.originalUrl === "/") {
-    return res.redirect("/login");
+// No forced redirect on root, handled by userRouter directly.
+
+// Map to automatically redirect backend-issued redirects (like res.redirect('/user/homepage')) to clean URLs
+const redirectMap = {
+  "/user/homepage": "/",
+  "/user/login": "/login",
+  "/user/signup": "/signup",
+  "/user/productList": "/shop",
+  "/user/productDetail": "/product",
+  "/user/userDashboard": "/profile",
+  "/user/userProfile": "/profile/details",
+  "/user/change-email": "/profile/change-email",
+  "/user/change-password": "/profile/change-password",
+  "/user/userAddress": "/profile/address",
+  "/user/cart": "/cart",
+  "/user/wishlist": "/wishlist",
+  "/user/checkout": "/checkout",
+  "/user/ordersHistory": "/orders",
+  "/user/pageNotFound": "/404",
+  "/user/pageNOtFound": "/404",
+  "/user/forgot-password": "/forgot-password"
+};
+
+app.use((req, res, next) => {
+  if (req.method === "GET") {
+    // Dynamic matching for routes with params like /user/orderDetail/:id => /orders/detail/:id
+    if (req.path.startsWith("/user/orderDetail/")) {
+      return res.redirect(301, req.url.replace("/user/orderDetail/", "/orders/detail/"));
+    }
+    if (req.path.startsWith("/user/order/")) {
+      return res.redirect(301, req.url.replace("/user/order/", "/orders/"));
+    }
+    
+    // Exact mapping for standard pages
+    const cleanPath = redirectMap[req.path];
+    if (cleanPath) {
+      const qs = req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : "";
+      return res.redirect(301, cleanPath + qs);
+    }
   }
   next();
 });
 
-app.use("/user", userRouter)   // legacy /user/... routes kept intact
+app.use("/user", userRouter)   // legacy /user/... APIs kept intact
 app.use("/", userRouter)       // clean URL aliases (/, /shop, /login, etc.)
 app.use("/admin", adminRouter)
 
