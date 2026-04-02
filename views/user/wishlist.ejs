@@ -74,6 +74,128 @@
 
     td { padding: 12px 0; }
   }
+
+  /* ==== VARIANT MODAL ==== */
+  .variant-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .variant-modal-overlay.active {
+    display: flex;
+  }
+
+  .variant-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px 32px;
+    width: 360px;
+    max-width: 92vw;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    animation: modalSlideIn 0.22s ease;
+  }
+
+  @keyframes modalSlideIn {
+    from { transform: translateY(18px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .variant-modal h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+    color: #1a1a1a;
+  }
+
+  .variant-modal p.modal-sub {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 20px 0;
+  }
+
+  .size-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .size-chip {
+    padding: 9px 20px;
+    border-radius: 20px;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+    transition: all 0.18s ease;
+    position: relative;
+  }
+
+  .size-chip:hover:not(.out-of-stock) {
+    border-color: #beaaa6;
+    color: #beaaa6;
+  }
+
+  .size-chip.selected {
+    background: #beaaa6;
+    border-color: #beaaa6;
+    color: #fff;
+  }
+
+  .size-chip.out-of-stock {
+    opacity: 0.38;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  .size-chip .chip-price {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    margin-top: 2px;
+    opacity: 0.82;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .modal-cancel-btn {
+    padding: 9px 20px;
+    border-radius: 20px;
+    border: 1.5px solid #ddd;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: #555;
+    transition: border-color 0.2s ease;
+  }
+  .modal-cancel-btn:hover { border-color: #bbb; }
+
+  .modal-confirm-btn {
+    padding: 9px 22px;
+    border-radius: 20px;
+    border: none;
+    background: #7a5c56;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+  .modal-confirm-btn:hover { background: #664c47; }
+  .modal-confirm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 </style>
 
 <!-- MAIN LAYOUT -->
@@ -106,6 +228,7 @@
             <% } else { %>
 
               <% wishlist.forEach(item => { %>
+                <% const variants = JSON.stringify(item.productId.variants); %>
                 <tr>
                   <td>
                     <div class="product">
@@ -125,7 +248,11 @@
                     <div class="wishlist-actions">
                       <button
                         class="add-btn"
-                        onclick="moveToCart('<%= item.productId._id %>', '<%= item.variantId %>')">
+                        data-product-id="<%= item.productId._id %>"
+                        data-wishlist-variant-id="<%= item.variantId %>"
+                        data-product-name="<%= item.productId.name %>"
+                        data-variants='<%- JSON.stringify(item.productId.variants) %>'
+                        onclick="openVariantModal(this)">
                         Add to Cart
                       </button>
 
@@ -149,7 +276,31 @@
 
 </div>
 
+<!-- ===== VARIANT SELECTION MODAL ===== -->
+<div class="variant-modal-overlay" id="variantModalOverlay">
+  <div class="variant-modal" role="dialog" aria-modal="true" aria-labelledby="variantModalTitle">
+    <h3 id="variantModalTitle">Select a Size</h3>
+    <p class="modal-sub" id="variantModalProductName"></p>
+
+    <div class="size-chips" id="sizeChipsContainer"></div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel-btn" onclick="closeVariantModal()">Cancel</button>
+      <button class="modal-confirm-btn" id="modalConfirmBtn" onclick="confirmAddToCart()" disabled>
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
+  /* -------- Shared state for modal -------- */
+  let _modalProductId        = null;
+  let _modalWishlistVariantId = null;  // the variant that was originally wishlisted
+  let _selectedVariantId     = null;
+  let _modalSourceRow        = null;  // the <tr> to remove on success
+
+  /* -------- Toast helper -------- */
   function showToast(message, type = "success") {
     Toastify({
       text: message,
@@ -166,7 +317,87 @@
     }).showToast();
   }
 
-  async function moveToCart(productId, variantId) {
+  /* -------- Open modal -------- */
+  function openVariantModal(btn) {
+    const productId         = btn.dataset.productId;
+    const wishlistVariantId = btn.dataset.wishlistVariantId;
+    const productName       = btn.dataset.productName;
+    const variants          = JSON.parse(btn.dataset.variants);
+
+    _modalProductId         = productId;
+    _modalWishlistVariantId = wishlistVariantId;
+    _selectedVariantId      = null;
+    _modalSourceRow         = btn.closest("tr");  // capture the row
+
+    // Reset confirm button
+    document.getElementById("modalConfirmBtn").disabled = true;
+
+    // Set product name subtitle
+    document.getElementById("variantModalProductName").textContent = productName;
+
+    // Build size chips
+    const container = document.getElementById("sizeChipsContainer");
+    container.innerHTML = "";
+
+    variants.forEach(v => {
+      const chip = document.createElement("div");
+      chip.className = "size-chip" + (v.stock <= 0 ? " out-of-stock" : "");
+      chip.dataset.variantId = v._id;
+
+      const displayPrice = v.finalPrice && v.finalPrice > 0 ? v.finalPrice : v.price;
+
+      chip.innerHTML = `
+        <span>${v.size}</span>
+        <span class="chip-price">₹${displayPrice}</span>
+      `;
+
+      if (v.stock > 0) {
+        // Pre-select the originally wishlisted variant
+        if (v._id === wishlistVariantId) {
+          chip.classList.add("selected");
+          _selectedVariantId = v._id;
+          document.getElementById("modalConfirmBtn").disabled = false;
+        }
+
+        chip.addEventListener("click", () => {
+          container.querySelectorAll(".size-chip").forEach(c => c.classList.remove("selected"));
+          chip.classList.add("selected");
+          _selectedVariantId = v._id;
+          document.getElementById("modalConfirmBtn").disabled = false;
+        });
+      }
+
+      container.appendChild(chip);
+    });
+
+    document.getElementById("variantModalOverlay").classList.add("active");
+  }
+
+  /* -------- Close modal -------- */
+  function closeVariantModal() {
+    document.getElementById("variantModalOverlay").classList.remove("active");
+    _modalProductId         = null;
+    _modalWishlistVariantId = null;
+    _selectedVariantId      = null;
+    _modalSourceRow         = null;
+  }
+
+  // Close on overlay click
+  document.getElementById("variantModalOverlay").addEventListener("click", function(e) {
+    if (e.target === this) closeVariantModal();
+  });
+
+  /* -------- Confirm: add selected variant to cart -------- */
+  async function confirmAddToCart() {
+    if (!_selectedVariantId) return;
+
+    const productId         = _modalProductId;
+    const variantId         = _selectedVariantId;
+    const wishlistVariantId = _modalWishlistVariantId;
+    const sourceRow         = _modalSourceRow;
+
+    closeVariantModal();
+
     const res = await fetch("/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -176,14 +407,38 @@
     const data = await res.json();
 
     if (data.success && res.ok) {
-      setTimeout(() => { window.location.reload(); }, 1000);
       showToast("Item added to cart", "success");
+
+      // Ensure the original wishlisted item is removed from wishlist on backend
+      // (the cart controller removes by selected variantId, which may differ from wishlisted one)
+      await fetch("/remove/wishlist", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, variantId: wishlistVariantId })
+      });
+
+      // Dynamically remove the row from DOM
+      if (sourceRow) {
+        sourceRow.style.transition = "opacity 0.35s ease";
+        sourceRow.style.opacity = "0";
+        setTimeout(() => {
+          sourceRow.remove();
+          // If tbody is now empty, show empty message
+          const tbody = document.querySelector(".wishlist-table tbody");
+          if (tbody && tbody.querySelectorAll("tr").length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;">Wishlist is empty</td></tr>`;
+          }
+        }, 350);
+      }
+      return;
     }
-    if (res.status == 403) { showToast("This item is blocked by admin", "error"); }
-    if (res.status == 401) { showToast("This item is out of stock", "error"); return; }
-    if (res.status == 400) { showToast("Limit Exceeded", "error"); return; }
+    if (res.status === 403) { showToast("This item is blocked by admin", "error"); return; }
+    if (res.status === 401) { showToast("This item is out of stock", "error"); return; }
+    if (res.status === 400) { showToast("Limit Exceeded", "error"); return; }
+    showToast("Could not add to cart", "error");
   }
 
+  /* -------- Remove from wishlist -------- */
   async function removeFromWishlist(productId, variantId) {
     const res = await fetch("/remove/wishlist", {
       method: "DELETE",
@@ -194,8 +449,8 @@
     const data = await res.json();
 
     if (data.success && res.ok) {
-      window.location.reload();
       showToast("Item removed from wishlist", "success");
+      window.location.reload();
       return;
     }
   }
