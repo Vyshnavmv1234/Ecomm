@@ -228,12 +228,14 @@
 }
 
   
+  /* Wishlist icon positional overrides (merged into first .wishlist block above) */
   .wishlist {
     position: absolute;
     top: 12px;
     right: 12px;
     font-size: 18px;
     cursor: pointer;
+    color: #999; /* explicit inactive colour — prevents bleed from .active rule */
   }
   
   .brand {
@@ -291,7 +293,8 @@
     font-size: 13px;
   }
   
-  .active {
+  /* Scope pagination active state — do NOT use bare .active which bleeds into .wishlist.active */
+  .page.active {
     background: #000;
     color: #fff;
     border-color: #000;
