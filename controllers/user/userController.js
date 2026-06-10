@@ -179,7 +179,7 @@ const pageNotFound = async (req,res)=>{
   try {
 
     const userData = req.session.user ? await User.findById(req.session.user) : null;
-    const category = await Category.find({ isBlocked: false });
+    const category = await Category.find({ isBlocked: false }); 
     res.render("user/error", { user: userData, category })
 
   } catch (error) {
@@ -192,7 +192,14 @@ const pageNotFound = async (req,res)=>{
 const loadHomepage = async (req, res) => {
   try {
     const userData = req.user || null;
-    res.render("user/userHome", { user: userData });
+
+    // Fetch a small pool of active products to back the homepage showcase images
+    const showcaseProducts = await Product.find({ isBlocked: false })
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .select("_id");
+
+    res.render("user/userHome", { user: userData, showcaseProducts });
 
   } catch (error) {
     console.log("Homepage not found", error);

@@ -41,13 +41,13 @@ publicRouter.get("/auth/google/callback",
 )
 
 // Forgot / Reset password
-publicRouter.get("/forgot-password",             profileController.getForgotPassword)
-publicRouter.post("/forgot-pass-email-valid",    profileController.forgotPassEmailValid)
+publicRouter.get("/forgot-password", profileController.getForgotPassword)
+publicRouter.post("/forgot-pass-email-valid", profileController.forgotPassEmailValid)
 publicRouter.post("/verify-forgot-password-Otp", profileController.verifyForgotPassOtp)  // capital O (original)
 publicRouter.post("/verify-forgot-password-otp", profileController.verifyForgotPassOtp)  // lowercase alias (views call this)
-publicRouter.get("/reset-password",              profileController.loadResetPassword)
-publicRouter.post("/reset-password",             profileController.newPassword)
-publicRouter.post("/resend-forgot-otp",          profileController.resendForgotPasswordOtp)
+publicRouter.get("/reset-password", profileController.loadResetPassword)
+publicRouter.post("/reset-password", profileController.newPassword)
+publicRouter.post("/resend-forgot-otp", profileController.resendForgotPasswordOtp)
 publicRouter.get("/reset-change-password", profileController.loadChangeResetPassword)
 publicRouter.post("/reset-change-password", profileController.newChangePassword)
 publicRouter.get("/profile/reset-change-password", profileController.loadChangeResetPassword)
