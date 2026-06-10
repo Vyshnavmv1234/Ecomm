@@ -87,7 +87,7 @@ app.use((req, res, next) => {
     if (req.path.startsWith("/user/order/")) {
       return res.redirect(301, req.url.replace("/user/order/", "/orders/"));
     }
-    
+
     // Exact mapping for standard pages
     const cleanPath = redirectMap[req.path];
     if (cleanPath) {

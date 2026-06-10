@@ -31,7 +31,7 @@ const customerInfo = async (req,res)=>{
       totalPages,
       currentPage:page,
       search
-    })
+    })   
   }else{
     res.redirect("/admin/adminLogin")
   }

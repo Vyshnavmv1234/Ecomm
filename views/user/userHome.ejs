@@ -1,4 +1,13 @@
 <%- include("../../views/partials/user/header") %>
+<%
+  // Helper: build a safe product URL from the fetched showcase list
+  function productUrl(index) {
+    if (showcaseProducts && showcaseProducts[index]) {
+      return '/product?id=' + showcaseProducts[index]._id;
+    }
+    return '/shop';
+  }
+%>
 
 <style>
   /* ===== HOME PAGE SPECIFIC ===== */
@@ -154,65 +163,83 @@
 
 <!-- PRODUCT GRID -->
 <div class="product-grid">
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/Rectangle 325.jpg" alt="Angora cardigan">
+  <a href="<%= productUrl(0) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/Rectangle 325.jpg" alt="Angora cardigan">
+      </div>
+      <p>23FW reversible angora cardigan</p>
     </div>
-    <p>23FW reversible angora cardigan</p>
-  </div>
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/expm2.jpg" alt="Oblong bag">
+  </a>
+  <a href="<%= productUrl(1) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/expm2.jpg" alt="Oblong bag">
+      </div>
+      <p>Oblong bag</p>
     </div>
-    <p>Oblong bag</p>
-  </div>
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/expm3.jpg" alt="Cardigan">
+  </a>
+  <a href="<%= productUrl(2) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/expm3.jpg" alt="Cardigan">
+      </div>
+      <p>23FW reversible angora cardigan</p>
     </div>
-    <p>23FW reversible angora cardigan</p>
-  </div>
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/expm4.jpg" alt="Cardigan">
+  </a>
+  <a href="<%= productUrl(3) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/expm4.jpg" alt="Cardigan">
+      </div>
+      <p>23FW reversible angora cardigan</p>
     </div>
-    <p>23FW reversible angora cardigan</p>
-  </div>
+  </a>
 </div>
 
 <!-- CELEBRITY -->
 <div class="section-title">Celebrity Approved Styles</div>
 <section class="hero-secondary">
-  <img src="/images/pexels-aksioart-1926769.jpg" alt="Celebrity styles">
+  <a href="<%= productUrl(4) %>">
+    <img src="/images/pexels-aksioart-1926769.jpg" alt="Celebrity styles">
+  </a>
 </section>
 
 <!-- OLD MONEY -->
 <div class="section-title">Old Money</div>
 <div class="product-grid">
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/Rectangle 325.jpg" alt="Cardigan">
+  <a href="<%= productUrl(4) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/Rectangle 325.jpg" alt="Cardigan">
+      </div>
+      <p>23FW reversible angora cardigan</p>
     </div>
-    <p>23FW reversible angora cardigan</p>
-  </div>
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/expm2.jpg" alt="Bag">
+  </a>
+  <a href="<%= productUrl(5) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/expm2.jpg" alt="Bag">
+      </div>
+      <p>Oblong bag</p>
     </div>
-    <p>Oblong bag</p>
-  </div>
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/expm3.jpg" alt="Cardigan">
+  </a>
+  <a href="<%= productUrl(6) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/expm3.jpg" alt="Cardigan">
+      </div>
+      <p>23FW reversible angora cardigan</p>
     </div>
-    <p>23FW reversible angora cardigan</p>
-  </div>
-  <div class="product-card">
-    <div class="card-img-wrap">
-      <img src="/images/expm4.jpg" alt="Cardigan">
+  </a>
+  <a href="<%= productUrl(7) %>" style="text-decoration:none;color:inherit;">
+    <div class="product-card">
+      <div class="card-img-wrap">
+        <img src="/images/expm4.jpg" alt="Cardigan">
+      </div>
+      <p>23FW reversible angora cardigan</p>
     </div>
-    <p>23FW reversible angora cardigan</p>
-  </div>
+  </a>
 </div>
 
 <!-- INFO -->
